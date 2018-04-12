@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"github.com/pipeline-db/models"
+	"pipeline-db/models"
 
 	"gopkg.in/mgo.v2/bson"
 )

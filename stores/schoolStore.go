@@ -2,8 +2,10 @@ package stores
 
 import (
 	"log"
+	"reflect"
 
-	"github.com/pipeline-db/models"
+	"pipeline-db/models"
+
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -38,7 +40,8 @@ func NewSchoolStore(sess *mgo.Session, dbName string, collectionName string) (*S
 func (ss *SchoolStore) GetByID(schoolID bson.ObjectId) (*models.School, error) {
 	school := &models.School{}
 	log.Printf("schoolID: %v", schoolID)
-	if err := ss.col.Find(schoolID); err != nil {
+	log.Printf("getbyid typeof: %v", reflect.TypeOf(schoolID))
+	if err := ss.col.FindId(schoolID).One(school); err != nil {
 		return nil, nil
 	}
 	log.Printf("ASDFSAFDSF: %v", school)
@@ -53,5 +56,15 @@ func (ss *SchoolStore) InsertSchool(school *models.School) (*models.School, erro
 		log.Printf(err.Error())
 		return nil, err
 	}
+	return school, nil
+}
+
+func (ss *SchoolStore) GetBySchoolName(schoolName string) (*models.School, error) {
+	school := &models.School{}
+	err := ss.col.Find(bson.M{"school_name": schoolName}).One(school)
+	if err != nil {
+		return nil, err
+	}
+
 	return school, nil
 }

@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
+	"pipeline-db/models"
+	"pipeline-db/stores"
 
-	"github.com/pipeline-db/models"
 	"gopkg.in/mgo.v2/bson"
 
-	"github.com/pipeline-db/stores"
 	mgo "gopkg.in/mgo.v2"
 )
 
@@ -43,6 +43,8 @@ func main() {
 		SchoolName: "Test",
 		SchoolID:   testID,
 	}
+	// asdf := bson.ObjectIdHex("5acef803aa50a545aa77ff7a")
+	log.Printf("TestID: %v", testID)
 
 	insertSchool, err := schoolStore.InsertSchool(testSchool)
 	log.Printf("insertSchool: %v", insertSchool)
