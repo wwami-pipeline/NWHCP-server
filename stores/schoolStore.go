@@ -1,6 +1,7 @@
 package stores
 
 import (
+	"fmt"
 	"log"
 	"reflect"
 
@@ -61,10 +62,24 @@ func (ss *SchoolStore) InsertSchool(school *models.School) (*models.School, erro
 
 func (ss *SchoolStore) GetBySchoolName(schoolName string) (*models.School, error) {
 	school := &models.School{}
-	err := ss.col.Find(bson.M{"school_name": schoolName}).One(school)
+	err := ss.col.Find(bson.M{"schoolname": schoolName}).One(school)
 	if err != nil {
 		return nil, err
 	}
-
 	return school, nil
+}
+
+func (ss *SchoolStore) UpdateSchool(schoolName string, updateSchool *models.UpdateSchool) error {
+	if err := ss.col.Update(bson.M{"schoolname": schoolName}, bson.M{"$set": updateSchool}); err != nil {
+		return fmt.Errorf("error updating tag: %v", err)
+	}
+	return nil
+}
+
+func (ss *SchoolStore) DeleteSchool(schoolID bson.ObjectId) error {
+	err := ss.col.RemoveId(schoolID)
+	if err != nil {
+		return err
+	}
+	return nil
 }

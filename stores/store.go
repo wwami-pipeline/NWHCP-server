@@ -20,6 +20,9 @@ type Store interface {
 	//Insert converts new tags into tags and adds it to an image.
 	InsertSchool(school *models.School) (*models.School, error)
 
+	// Updates the school based on the schoolname.
+	UpdateTag(schoolName string, updateSchool *models.UpdateSchool) error
+
 	// Delete deletes the tags associated with the tagID
 	DeleteSchool(tagID bson.ObjectId) error
 }

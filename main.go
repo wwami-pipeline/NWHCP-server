@@ -40,7 +40,7 @@ func main() {
 
 	testID := bson.NewObjectId()
 	testSchool := &models.School{
-		SchoolName: "Test",
+		SchoolName: "Test3",
 		SchoolID:   testID,
 	}
 	// asdf := bson.ObjectIdHex("5acef803aa50a545aa77ff7a")
@@ -50,7 +50,23 @@ func main() {
 	log.Printf("insertSchool: %v", insertSchool)
 
 	getSchool, err := schoolStore.GetByID(testID)
-	log.Printf("GetSchool: %v", getSchool)
+	log.Printf("GetSchoolByID: %v", getSchool)
+
+	getSchoolByName, err := schoolStore.GetBySchoolName("Test3")
+	log.Printf("GetSchoolByName before remove: %v", getSchoolByName)
+
+	// removeSchool := schoolStore.DeleteSchool(testID)
+	// log.Printf("Remove : %v", removeSchool)
+
+	updateSchool := &models.UpdatedSchool{
+		SchoolName: "Test4",
+	}
+
+	updated := schoolStore.UpdateSchool(testSchool.SchoolName, updateSchool)
+	log.Printf("Updated: %v", updated)
+
+	// getSchoolByNameAfterRemove, err := schoolStore.GetBySchoolName("Test3")
+	// log.Printf("GetSchoolByName after remove: %v", getSchoolByNameAfterRemove)
 
 	// log.Printf("server listening at http://%s...", portAddr)
 	// log.Fatal(http.ListenAndServe(portAddr, mux))
