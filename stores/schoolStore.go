@@ -51,7 +51,8 @@ func (ss *SchoolStore) GetByID(schoolID bson.ObjectId) (*models.School, error) {
 }
 
 func (ss *SchoolStore) InsertSchool(school *models.School) (*models.School, error) {
-	log.Printf("School: %s %v", school.SchoolName, school.SchoolID)
+	log.Printf("School: %s %v", school.SchoolName)
+	school.SchoolID = bson.NewObjectId()
 	if err := ss.col.Insert(school); err != nil {
 		log.Printf("error inserting tag")
 		log.Printf(err.Error())

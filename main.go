@@ -1,12 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"pipeline-db/models"
 	"pipeline-db/stores"
-
-	"gopkg.in/mgo.v2/bson"
 
 	mgo "gopkg.in/mgo.v2"
 )
@@ -35,38 +34,54 @@ func main() {
 		fmt.Println("Error creating store")
 	}
 
+	//// Script to insert schools
+	// jsonFile, err := ioutil.ReadFile("/Users/studentuser/Desktop/wa-schools-clean.json")
+
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Println("Successfully Opened wa-schools.json")
+	// // defer the closing of our jsonFile so that we can parse it later on
+
+	// var schools []models.School
+	// json.Unmarshal(jsonFile, &schools)
+
+	// fmt.Println(schools[0])
+
+	// for _, school := range schools {
+	// 	dbSchool := &models.School{}
+	// 	dbSchool.SchoolName = school.SchoolName
+	// 	dbSchool.Street = school.Street
+	// 	dbSchool.City = school.City
+	// 	dbSchool.County = school.County
+	// 	dbSchool.FullAddress = school.FullAddress
+	// 	dbSchool.Latitude = school.Latitude
+	// 	dbSchool.Longitude = school.Longitude
+	// 	dbSchool.SchoolDistrictName = school.SchoolDistrictName
+	// 	dbSchool.Zip = school.Zip
+	// 	schoolStore.InsertSchool(dbSchool)
+	// }
+
+	// test, _ := schoolStore.GetBySchoolName("Federal Way High School")
+	// fmt.Println(test)
+
+	// Can add a json object for school.
+	school := &models.School{}
+	s := `{"school_name":"Beezley Springs Elementary","school_district_name":"Ephrata School District","full_address":"501 C ST NW  EPHRATA Washington 98823-0000","street":"501 C ST NW","city":"EPHRATA","county":"Grant County","state":"Washington","zip":"98823-0000","lat":"47.3259809","lng":"-119.5496231"}`
+	buffer := []byte(s)
+
+	json.Unmarshal(buffer, school)
+
+	fmt.Println(school.SchoolName)
+
+	fmt.Println(school.Latitude)
+
+	_, _ = schoolStore.InsertSchool(school)
+
+	// fmt.Printf("inserted: %v", inserted)
+
 	// mux := http.NewServeMux()
 	fmt.Println("SchoolDatabase Microservice")
-
-	testID := bson.NewObjectId()
-	testSchool := &models.School{
-		SchoolName: "Test3",
-		SchoolID:   testID,
-	}
-	// asdf := bson.ObjectIdHex("5acef803aa50a545aa77ff7a")
-	log.Printf("TestID: %v", testID)
-
-	insertSchool, err := schoolStore.InsertSchool(testSchool)
-	log.Printf("insertSchool: %v", insertSchool)
-
-	getSchool, err := schoolStore.GetByID(testID)
-	log.Printf("GetSchoolByID: %v", getSchool)
-
-	getSchoolByName, err := schoolStore.GetBySchoolName("Test3")
-	log.Printf("GetSchoolByName before remove: %v", getSchoolByName)
-
-	// removeSchool := schoolStore.DeleteSchool(testID)
-	// log.Printf("Remove : %v", removeSchool)
-
-	updateSchool := &models.UpdatedSchool{
-		SchoolName: "Test4",
-	}
-
-	updated := schoolStore.UpdateSchool(testSchool.SchoolName, updateSchool)
-	log.Printf("Updated: %v", updated)
-
-	// getSchoolByNameAfterRemove, err := schoolStore.GetBySchoolName("Test3")
-	// log.Printf("GetSchoolByName after remove: %v", getSchoolByNameAfterRemove)
 
 	// log.Printf("server listening at http://%s...", portAddr)
 	// log.Fatal(http.ListenAndServe(portAddr, mux))
