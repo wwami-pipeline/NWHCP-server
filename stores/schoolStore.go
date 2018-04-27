@@ -3,10 +3,8 @@ package stores
 import (
 	"fmt"
 	"log"
-	"reflect"
 
-	"pipeline-db/models"
-
+	"github.com/pipeline-db/models"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -40,25 +38,26 @@ func NewSchoolStore(sess *mgo.Session, dbName string, collectionName string) (*S
 
 func (ss *SchoolStore) GetByID(schoolID bson.ObjectId) (*models.School, error) {
 	school := &models.School{}
-	log.Printf("schoolID: %v", schoolID)
-	log.Printf("getbyid typeof: %v", reflect.TypeOf(schoolID))
 	if err := ss.col.FindId(schoolID).One(school); err != nil {
 		return nil, nil
 	}
-	log.Printf("ASDFSAFDSF: %v", school)
-
 	return school, nil
 }
 
 func (ss *SchoolStore) InsertSchool(school *models.School) (*models.School, error) {
 	log.Printf("School: %s %v", school.SchoolName)
-	school.SchoolID = bson.NewObjectId()
-	if err := ss.col.Insert(school); err != nil {
-		log.Printf("error inserting tag")
-		log.Printf(err.Error())
-		return nil, err
+	checkSchool, _ := ss.GetBySchoolName(school.SchoolName)
+	if checkSchool != nil {
+		log.Printf("School already exists, check if you want to update instead")
+		return nil, nil
+	} else {
+		school.SchoolID = bson.NewObjectId()
+		if err := ss.col.Insert(school); err != nil {
+			log.Printf(err.Error())
+			return nil, err
+		}
+		return school, nil
 	}
-	return school, nil
 }
 
 func (ss *SchoolStore) GetBySchoolName(schoolName string) (*models.School, error) {
@@ -83,4 +82,13 @@ func (ss *SchoolStore) DeleteSchool(schoolID bson.ObjectId) error {
 		return err
 	}
 	return nil
+}
+
+func (ss *SchoolStore) GetAll() ([]*models.School, error) {
+	allSchools := []*models.School{}
+	err := ss.col.Find(nil).All(&allSchools)
+	if err != nil {
+		return nil, err
+	}
+	return allSchools, nil
 }

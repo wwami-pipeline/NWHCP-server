@@ -1,8 +1,7 @@
 package stores
 
 import (
-	"pipeline-db/models"
-
+	"github.com/pipeline-db/models"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -21,8 +20,11 @@ type Store interface {
 	InsertSchool(school *models.School) (*models.School, error)
 
 	// Updates the school based on the schoolname.
-	UpdateTag(schoolName string, updateSchool *models.UpdateSchool) error
+	UpdateSchool(schoolName string, updateSchool *models.UpdateSchool) error
 
 	// Delete deletes the tags associated with the tagID
 	DeleteSchool(tagID bson.ObjectId) error
+
+	// Get all schools in the database
+	GetAll() ([]*models.School, error)
 }
