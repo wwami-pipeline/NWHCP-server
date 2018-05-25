@@ -44,9 +44,9 @@ func (ss *SchoolStore) GetByID(schoolID bson.ObjectId) (*models.School, error) {
 	return school, nil
 }
 
-func (ss *SchoolStore) InsertSchool(school *models.School) (*models.School, error) {
+func (ss *SchoolStore) Insert(school *models.School) (*models.School, error) {
 	log.Printf("School: %s %v", school.SchoolName)
-	checkSchool, _ := ss.GetBySchoolName(school.SchoolName)
+	checkSchool, _ := ss.GetByName(school.SchoolName)
 	if checkSchool != nil {
 		log.Printf("School already exists, check if you want to update instead")
 		return nil, nil
@@ -60,7 +60,7 @@ func (ss *SchoolStore) InsertSchool(school *models.School) (*models.School, erro
 	}
 }
 
-func (ss *SchoolStore) GetBySchoolName(schoolName string) (*models.School, error) {
+func (ss *SchoolStore) GetByName(schoolName string) (*models.School, error) {
 	school := &models.School{}
 	err := ss.col.Find(bson.M{"schoolname": schoolName}).One(school)
 	if err != nil {
@@ -69,20 +69,20 @@ func (ss *SchoolStore) GetBySchoolName(schoolName string) (*models.School, error
 	return school, nil
 }
 
-func (ss *SchoolStore) UpdateSchool(schoolName string, updateSchool *models.UpdateSchool) error {
+func (ss *SchoolStore) Update(schoolName string, updateSchool *models.UpdateSchool) error {
 	if err := ss.col.Update(bson.M{"schoolname": schoolName}, bson.M{"$set": updateSchool}); err != nil {
 		return fmt.Errorf("error updating tag: %v", err)
 	}
 	return nil
 }
 
-func (ss *SchoolStore) DeleteSchool(schoolID bson.ObjectId) error {
-	err := ss.col.RemoveId(schoolID)
-	if err != nil {
-		return err
-	}
-	return nil
-}
+// func (ss *SchoolStore) Delete(schoolID bson.ObjectId) error {
+// 	err := ss.col.RemoveId(schoolID)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
 
 func (ss *SchoolStore) GetAll() ([]*models.School, error) {
 	allSchools := []*models.School{}

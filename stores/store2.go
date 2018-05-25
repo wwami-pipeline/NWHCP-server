@@ -10,21 +10,21 @@ import (
 //against several different types of data stores. For example,
 //session data could be stored in memory in a concurrent map,
 //or more typically in a shared key/value server store like redis.
-type Store interface {
+type Store2 interface {
 	//GetByID returns the User with the given ID
-	GetByID(id bson.ObjectId) (*models.School, error)
+	GetByID(id bson.ObjectId) (*models.Organization, error)
 
-	GetByName(schoolName string) (*models.School, error)
+	GetByName(orgName string) (*models.Organization, error)
 
 	//Insert converts new tags into tags and adds it to an image.
-	Insert(school *models.School) (*models.School, error)
+	Insert(org *models.Organization) (*models.Organization, error)
 
 	// Updates the school based on the schoolname.
-	Update(schoolName string, updateSchool *models.UpdateSchool) error
+	Update(orgName string, updateOrganization *models.UpdateOrganization) error
 
 	// Delete deletes the tags associated with the tagID
-	Delete(id bson.ObjectId) error
+	// Delete(orgID bson.ObjectId) error
 
 	// Get all schools in the database
-	GetAll() ([]*models.School, error)
+	GetAll() ([]*models.Organization, error)
 }

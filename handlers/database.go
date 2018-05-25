@@ -31,8 +31,45 @@ func (ctx *Context) PopulateDB(w http.ResponseWriter, r *http.Request) {
 			dbSchool.Lng = school.Lng
 			dbSchool.SchoolDistrictName = school.SchoolDistrictName
 			dbSchool.Zip = school.Zip
-			ctx.Store.InsertSchool(dbSchool)
+			ctx.Store1.Insert(dbSchool)
 
+		}
+	}
+}
+
+func (ctx *Context) PopulateDB2(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		decoder := json.NewDecoder(r.Body)
+
+		var orgs []models.Organization
+		err := decoder.Decode(&orgs)
+		if err != nil {
+			panic(err)
+		}
+		defer r.Body.Close()
+
+		for _, org := range orgs {
+			dbOrg := &models.Organization{}
+			dbOrg.OrgTitle = org.OrgTitle
+			dbOrg.OrgWebsite = org.OrgWebsite
+			dbOrg.StreetAddress = org.StreetAddress
+			dbOrg.City = org.City
+
+			dbOrg.State = org.State
+			dbOrg.ZipCode = org.ZipCode
+			dbOrg.Phone = org.Phone
+			dbOrg.Email = org.Email
+			dbOrg.ActivityDesc = org.ActivityDesc
+			dbOrg.Lat = org.Lat
+			dbOrg.Long = org.Long
+			dbOrg.HasShadow = org.HasShadow
+			dbOrg.HasCost = org.HasCost
+			dbOrg.HasTransport = org.HasTransport
+			dbOrg.Under18 = org.Under18
+			dbOrg.CareerEmp = org.CareerEmp
+			dbOrg.GradeLevels = org.GradeLevels
+			ctx.Store2.Insert(dbOrg)
 		}
 	}
 }
@@ -42,7 +79,8 @@ func (ctx *Context) SchoolHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		allSchools, _ := ctx.Store.GetAll()
+		print("SCHOOL")
+		allSchools, _ := ctx.Store1.GetAll()
 		err := json.NewEncoder(w).Encode(allSchools)
 		if err != nil {
 
@@ -50,5 +88,31 @@ func (ctx *Context) SchoolHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+	}
+}
+func (ctx *Context) OrgHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
+
+	switch r.Method {
+	case "GET":
+		print("ORG")
+		allOrgs, _ := ctx.Store2.GetAll()
+		err := json.NewEncoder(w).Encode(allOrgs)
+		if err != nil {
+
+			http.Error(w, "Unable to encode json", http.StatusInternalServerError)
+			return
+		}
+
+	}
+}
+
+func (ctx *Context) TestHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		print("TEST")
+	default:
+		http.Error(w, "method must be GET", http.StatusMethodNotAllowed)
+		return
 	}
 }
