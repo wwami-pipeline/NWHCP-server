@@ -1,46 +1,45 @@
 package models
 
-import "gopkg.in/mgo.v2/bson"
-
 type Organization struct {
-	OrganizationID bson.ObjectId `json:"organizationID" bson:"_id"`
-	OrgTitle       string        `json:"orgtitle"`
-	OrgWebsite     string        `json:"orgwebsite"`
-	StreetAddress  string        `json: "street_address"`
-	City           string        `json: "city"`
-	State          string        `json: "state"`
-	ZipCode        string        `json: "zip_code"`
-	Phone          string        `json: "phone"`
-	Email          string        `json: "email"`
-	ActivityDesc   string        `json: "activity_desc"`
-	Lat            float64       `json: "lat"`
-	Long           float64       `json: "long"`
-	HasShadow      bool          `json: "has_shadow"`
-	HasCost        bool          `json: "has_cost"`
-	HasTransport   bool          `json: "has_transport"`
-	Under18        bool          `json: "under_18"`
-	CareerEmp      []string      `json: "career_emp"`
-	GradeLevels    []int         `json: "grade_levels"`
+	// OrganizationId bson.ObjectId `json:"OrganizationId" bson:"_id"`
+	OrgId         int      `json:"OrgID"`
+	OrgTitle      string   `json:"OrgTitle"`
+	OrgWebsite    string   `json:"OrgWebsite"`
+	StreetAddress string   `json: "StreetAddress"`
+	City          string   `json: "City"`
+	State         string   `json: "state"`
+	ZipCode       string   `json: "ZipCode"`
+	Phone         string   `json: "Phon"`
+	Email         string   `json: "Email"`
+	ActivityDesc  string   `json: "ActivityDesc"`
+	Lat           float64  `json: "Lat"`
+	Long          float64  `json: "Long"`
+	HasShadow     bool     `json: "HasShadow"`
+	HasCost       bool     `json: "HasCost"`
+	HasTransport  bool     `json: "HasTransport"`
+	Under18       bool     `json: "Under18"`
+	CareerEmp     []string `json: "CareerEmp"`
+	GradeLevels   []int    `json: "GradeLevels"`
 }
 
 type UpdateOrganization struct {
-	OrgTitle      string   `json:"org_title"`
-	OrgWebsite    string   `json:"org_website"`
-	StreetAddress string   `json: "street_address"`
-	City          string   `json: "city"`
-	State         string   `json: "state"`
-	ZipCode       string   `json: "zip_code"`
-	Phone         string   `json: "phone"`
-	Email         string   `json: "email"`
-	ActivityDesc  string   `json: "activity_desc"`
-	Lat           float64  `json: "lat"`
-	Long          float64  `json: "long"`
-	HasShadow     bool     `json: "has_shadow"`
-	HasCost       bool     `json: "has_cost"`
-	HasTransport  bool     `json: "has_transport"`
-	Under18       bool     `json: "under_18"`
-	CareerEmp     []string `json: "career_emp"`
-	GradeLevels   []int    `json: "grade_levels"`
+	OrgTitle      string   `json:"OrgTitle"`
+	OrgWebsite    string   `json:"OrgWebsite"`
+	StreetAddress string   `json: "StreetAddress"`
+	City          string   `json: "City"`
+	State         string   `json: "State"`
+	ZipCode       string   `json: "ZipCode"`
+	Phone         string   `json: "Phon"`
+	Email         string   `json: "Email"`
+	ActivityDesc  string   `json: "ActivityDesc"`
+	Lat           float64  `json: "Lat"`
+	Long          float64  `json: "Long"`
+	HasShadow     bool     `json: "HasShadow"`
+	HasCost       bool     `json: "HasCost"`
+	HasTransport  bool     `json: "HasTransport"`
+	Under18       bool     `json: "Under18"`
+	CareerEmp     []string `json: "CareerEmp"`
+	GradeLevels   []int    `json: "GradeLevels"`
 }
 
 // [{"OrgID": 1, "OrgTitle": "Pre-Health Professions Advising Program",

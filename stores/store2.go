@@ -2,7 +2,6 @@ package stores
 
 import (
 	"github.com/pipeline-db/models"
-	"gopkg.in/mgo.v2/bson"
 )
 
 //Store represents a session data store.
@@ -12,7 +11,7 @@ import (
 //or more typically in a shared key/value server store like redis.
 type Store2 interface {
 	//GetByID returns the User with the given ID
-	GetByID(id bson.ObjectId) (*models.Organization, error)
+	GetByID(id int) (*models.Organization, error)
 
 	GetByName(orgName string) (*models.Organization, error)
 

@@ -36,10 +36,18 @@ func NewOrganizationStore(sess *mgo.Session, dbName string, collectionName strin
 	return os, nil
 }
 
-func (os *OrganizationStore) GetByID(orgID bson.ObjectId) (*models.Organization, error) {
+// func (os *OrganizationStore) GetByID(orgID bson.ObjectId) (*models.Organization, error) {
+// 	org := &models.Organization{}
+// 	if err := os.col.FindId(orgID).One(org); err != nil {
+// 		return nil, nil
+// 	}
+// 	return org, nil
+// }
+func (os *OrganizationStore) GetByID(orgID int) (*models.Organization, error) {
 	org := &models.Organization{}
-	if err := os.col.FindId(orgID).One(org); err != nil {
-		return nil, nil
+	err := os.col.Find(bson.M{"orgID": orgID}).One(org)
+	if err != nil {
+		return nil, err
 	}
 	return org, nil
 }
@@ -51,7 +59,7 @@ func (os *OrganizationStore) Insert(org *models.Organization) (*models.Organizat
 		log.Printf("Organization already exists, check if you want to update instead")
 		return nil, nil
 	} else {
-		org.OrganizationID = bson.NewObjectId()
+		// org.OrganizationId = bson.NewObjectId()
 		if err := os.col.Insert(org); err != nil {
 			log.Printf(err.Error())
 			return nil, err
@@ -60,9 +68,9 @@ func (os *OrganizationStore) Insert(org *models.Organization) (*models.Organizat
 	}
 }
 
-func (os *OrganizationStore) GetByName(orgName string) (*models.Organization, error) {
+func (os *OrganizationStore) GetByName(orgTitle string) (*models.Organization, error) {
 	org := &models.Organization{}
-	err := os.col.Find(bson.M{"orgname": orgName}).One(org)
+	err := os.col.Find(bson.M{"OrgTitle": orgTitle}).One(org)
 	if err != nil {
 		return nil, err
 	}

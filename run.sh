@@ -14,11 +14,18 @@ mongo
 
 echo "Running pipeline-microservice"
 
-docker run -d -p 443:443 \
+# docker run -d -p 443:443 \
+# --network pipeline \
+# --name pipelineMicroservice \
+# -v /etc/pki/tls/:/tls/:ro \
+# -e DBADDR=pipelinedb:27017 \
+# -e TLSCERT=/tls/certs/nwhealthcareerpath.uw.edu.crt \
+# -e TLSKEY=/tls/private/nwhealthcareerpath.uw.edu.key \
+# andrewk7/pipeline-microservice
+
+docker run -d -p 4002:4002 \
 --network pipeline \
---name pipelineMicroservice \
--v /etc/pki/tls/:/tls/:ro \
+--name pipelinemicroservice \
 -e DBADDR=pipelinedb:27017 \
--e TLSCERT=/tls/certs/nwhealthcareerpath.uw.edu.crt \
--e TLSKEY=/tls/private/nwhealthcareerpath.uw.edu.key \
+-e PORTADDR=:4002 \
 andrewk7/pipeline-microservice

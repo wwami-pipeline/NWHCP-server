@@ -8,6 +8,8 @@ import (
 )
 
 func (ctx *Context) PopulateDB(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
+	w.Header().Add("Access-Control-Allow-Origin", "*")
 	switch r.Method {
 	case "POST":
 		decoder := json.NewDecoder(r.Body)
@@ -38,6 +40,8 @@ func (ctx *Context) PopulateDB(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ctx *Context) PopulateDB2(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
+	w.Header().Add("Access-Control-Allow-Origin", "*")
 	switch r.Method {
 	case "POST":
 		decoder := json.NewDecoder(r.Body)
@@ -51,6 +55,8 @@ func (ctx *Context) PopulateDB2(w http.ResponseWriter, r *http.Request) {
 
 		for _, org := range orgs {
 			dbOrg := &models.Organization{}
+			dbOrg.OrgId = org.OrgId
+			print(org.OrgId)
 			dbOrg.OrgTitle = org.OrgTitle
 			dbOrg.OrgWebsite = org.OrgWebsite
 			dbOrg.StreetAddress = org.StreetAddress
@@ -76,10 +82,9 @@ func (ctx *Context) PopulateDB2(w http.ResponseWriter, r *http.Request) {
 
 func (ctx *Context) SchoolHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
-
+	w.Header().Add("Access-Control-Allow-Origin", "*")
 	switch r.Method {
 	case "GET":
-		print("SCHOOL")
 		allSchools, _ := ctx.Store1.GetAll()
 		err := json.NewEncoder(w).Encode(allSchools)
 		if err != nil {
@@ -92,10 +97,10 @@ func (ctx *Context) SchoolHandler(w http.ResponseWriter, r *http.Request) {
 }
 func (ctx *Context) OrgHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
+	w.Header().Add("Access-Control-Allow-Origin", "*")
 
 	switch r.Method {
 	case "GET":
-		print("ORG")
 		allOrgs, _ := ctx.Store2.GetAll()
 		err := json.NewEncoder(w).Encode(allOrgs)
 		if err != nil {
@@ -104,15 +109,5 @@ func (ctx *Context) OrgHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-	}
-}
-
-func (ctx *Context) TestHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "GET":
-		print("TEST")
-	default:
-		http.Error(w, "method must be GET", http.StatusMethodNotAllowed)
-		return
 	}
 }
