@@ -7,6 +7,7 @@ import (
 	"github.com/pipeline-db/models"
 )
 
+// Used to insert organization data
 func (ctx *Context) PopulateDB(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
@@ -39,6 +40,7 @@ func (ctx *Context) PopulateDB(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Used to insert organization data
 func (ctx *Context) PopulateDB2(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
@@ -80,6 +82,7 @@ func (ctx *Context) PopulateDB2(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Used to grab school data
 func (ctx *Context) SchoolHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
@@ -95,6 +98,8 @@ func (ctx *Context) SchoolHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 }
+
+// Used to grab organization data
 func (ctx *Context) OrgHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	w.Header().Add("Access-Control-Allow-Origin", "*")

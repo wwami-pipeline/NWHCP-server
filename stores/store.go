@@ -22,9 +22,6 @@ type Store interface {
 	// Updates the school based on the schoolname.
 	Update(schoolName string, updateSchool *models.UpdateSchool) error
 
-	// Delete deletes the tags associated with the tagID
-	Delete(id bson.ObjectId) error
-
 	// Get all schools in the database
 	GetAll() ([]*models.School, error)
 }
