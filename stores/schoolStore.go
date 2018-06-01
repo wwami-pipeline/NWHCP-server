@@ -20,6 +20,7 @@ type SchoolStore struct {
 	col *mgo.Collection
 }
 
+// Creates new School Store with mongo session, dbname, and collection name
 func NewSchoolStore(sess *mgo.Session, dbName string, collectionName string) (*SchoolStore, error) {
 	if sess == nil {
 		panic("nil pointer passed for session")
@@ -36,6 +37,7 @@ func NewSchoolStore(sess *mgo.Session, dbName string, collectionName string) (*S
 	return ss, nil
 }
 
+// Returns a school based on the schoolID
 func (ss *SchoolStore) GetByID(schoolID bson.ObjectId) (*models.School, error) {
 	school := &models.School{}
 	if err := ss.col.FindId(schoolID).One(school); err != nil {
@@ -44,6 +46,7 @@ func (ss *SchoolStore) GetByID(schoolID bson.ObjectId) (*models.School, error) {
 	return school, nil
 }
 
+// Inserts a school
 func (ss *SchoolStore) Insert(school *models.School) (*models.School, error) {
 	log.Printf("School: %s %v", school.SchoolName)
 	checkSchool, _ := ss.GetByName(school.SchoolName)
@@ -60,6 +63,7 @@ func (ss *SchoolStore) Insert(school *models.School) (*models.School, error) {
 	}
 }
 
+// Returns a school based on the schoolName
 func (ss *SchoolStore) GetByName(schoolName string) (*models.School, error) {
 	school := &models.School{}
 	err := ss.col.Find(bson.M{"schoolname": schoolName}).One(school)
@@ -69,6 +73,7 @@ func (ss *SchoolStore) GetByName(schoolName string) (*models.School, error) {
 	return school, nil
 }
 
+// Updates a school based on the ID
 func (ss *SchoolStore) Update(schoolName string, updateSchool *models.UpdateSchool) error {
 	if err := ss.col.Update(bson.M{"schoolname": schoolName}, bson.M{"$set": updateSchool}); err != nil {
 		return fmt.Errorf("error updating tag: %v", err)
@@ -76,14 +81,7 @@ func (ss *SchoolStore) Update(schoolName string, updateSchool *models.UpdateScho
 	return nil
 }
 
-// func (ss *SchoolStore) Delete(schoolID bson.ObjectId) error {
-// 	err := ss.col.RemoveId(schoolID)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
-
+// Returns all schools in database
 func (ss *SchoolStore) GetAll() ([]*models.School, error) {
 	allSchools := []*models.School{}
 	err := ss.col.Find(nil).All(&allSchools)

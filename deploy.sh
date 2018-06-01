@@ -3,11 +3,16 @@
 ./build.sh
 
 echo "Deploying server to dockerhub"
-docker build -t andrewk7/pipeline-microservice .
-docker push andrewk7/pipeline-microservice
+
+
+### REPLACE WITH OWN DOCKERHUB ACCOUNT AND NAME
+# docker build -t andrewk7/pipeline-microservice .
+# docker push andrewk7/pipeline-microservice
+
+
 
 echo "Removing current pipelineMicroservice container"
-docker rm -f pipelineMicroservice
+docker rm -f pipelinemicroservice
 
 ./run.sh
 

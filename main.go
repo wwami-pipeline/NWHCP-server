@@ -60,8 +60,6 @@ func main() {
 	mux.HandleFunc("/v1/pipeline-db/populate-school", hctx.PopulateDB)
 	mux.HandleFunc("/v1/pipeline-db/populate-organizations", hctx.PopulateDB2)
 
-	mux.HandleFunc("/", hctx.TestHandler)
-
 	mux.HandleFunc("/v1/pipeline-db/getallschools", hctx.SchoolHandler)
 	mux.HandleFunc("/v1/pipeline-db/getallorgs", hctx.OrgHandler)
 
