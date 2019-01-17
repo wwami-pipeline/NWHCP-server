@@ -1,6 +1,6 @@
 package handlers
 
-import "github.com/pipeline-db/stores"
+import "pipeline-db/stores"
 
 type Context struct {
 	Store1 stores.Store

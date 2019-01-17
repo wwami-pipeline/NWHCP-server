@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/pipeline-db/models"
+	"pipeline-db/models"
+
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -96,5 +97,7 @@ func (os *OrganizationStore) GetAll() ([]*models.Organization, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("Org getAll() called %v", allOrgs[0])
+	log.Println(len(allOrgs))
 	return allOrgs, nil
 }
