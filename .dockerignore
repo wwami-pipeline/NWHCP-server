@@ -1,0 +1,7 @@
+data/
+mongoDB/
+README.md
+run.sh
+deploy.sh
+.gitingore
+Dockerfile

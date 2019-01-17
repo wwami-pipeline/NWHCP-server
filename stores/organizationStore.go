@@ -32,7 +32,7 @@ func NewOrganizationStore(sess *mgo.Session, dbName string, collectionName strin
 		session: sess,
 		dbname:  dbName,
 		colname: collectionName,
-		col:     sess.DB(dbName).C(collectionName),
+		col:     sess.DB("mongodb").C("organization"),
 	}
 
 	return os, nil
@@ -97,7 +97,7 @@ func (os *OrganizationStore) GetAll() ([]*models.Organization, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Org getAll() called %v", allOrgs[0])
+	// log.Printf("Org getAll() called %v", allOrgs[0])
 	log.Println(len(allOrgs))
 	return allOrgs, nil
 }
