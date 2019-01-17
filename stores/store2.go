@@ -1,8 +1,8 @@
 package stores
 
 import (
-	"github.com/pipeline-db/models"
-	"gopkg.in/mgo.v2/bson"
+	"pipeline-db/models"
+	// "gopkg.in/mgo.v2/bson"
 )
 
 //Store represents a session data store.
@@ -23,7 +23,8 @@ type Store2 interface {
 	Update(orgName string, updateOrganization *models.UpdateOrganization) error
 
 	// Delete deletes the tags associated with the tagID
-	Delete(orgID bson.ObjectId) error
+	// Not implemented
+	// Delete(orgID bson.ObjectId) error
 
 	// Get all schools in the database
 	GetAll() ([]*models.Organization, error)

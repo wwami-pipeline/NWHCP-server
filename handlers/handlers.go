@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
-
-	"github.com/pipeline-db/models"
+	"pipeline-db/models"
 )
 
 // Used to insert organization data
@@ -109,10 +109,29 @@ func (ctx *Context) OrgHandler(w http.ResponseWriter, r *http.Request) {
 		allOrgs, _ := ctx.Store2.GetAll()
 		err := json.NewEncoder(w).Encode(allOrgs)
 		if err != nil {
-
 			http.Error(w, "Unable to encode json", http.StatusInternalServerError)
 			return
 		}
 
 	}
+}
+
+func HandlePost(w http.ResponseWriter, r *http.Request) {
+
+	type jsonBody struct {
+		Key map[string]interface{}
+	}
+	requestBody := jsonBody{}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
+	if err := json.Unmarshal([]byte(body), &requestBody); err != nil {
+		panic(err)
+	}
+
+	if err := json.Unmarshal([]byte(body), &requestBody.Key); err != nil {
+		panic(err)
+	}
+	json.NewEncoder(w).Encode(requestBody)
 }
