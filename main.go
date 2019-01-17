@@ -53,15 +53,20 @@ func main() {
 		fmt.Println("Error creating store")
 	}
 
+	apiEndpoint := ""
+	if os.Getenv("PRODUCTION_MODE") != "production" {
+		apiEndpoint = "/api"
+	}
+
 	mux := http.NewServeMux()
 	fmt.Println("Pipeline-DB Microservice")
-	mux.HandleFunc("/v1/pipeline-db/populate-school", hctx.PopulateDB)
-	mux.HandleFunc("/v1/pipeline-db/populate-organizations", hctx.PopulateDB2)
+	mux.HandleFunc(apiEndpoint+"/v1/pipeline-db/populate-school", hctx.PopulateDB)
+	mux.HandleFunc(apiEndpoint+"/v1/pipeline-db/populate-organizations", hctx.PopulateDB2)
 
-	mux.HandleFunc("/v1/pipeline-db/getallschools", hctx.SchoolHandler)
-	mux.HandleFunc("/v1/pipeline-db/getallorgs", hctx.OrgHandler)
+	mux.HandleFunc(apiEndpoint+"/v1/pipeline-db/getallschools", hctx.SchoolHandler)
+	mux.HandleFunc(apiEndpoint+"/v1/pipeline-db/getallorgs", hctx.OrgHandler)
 
-	mux.HandleFunc("/post-test", handlers.HandlePost)
+	mux.HandleFunc(apiEndpoint+"/post-test", handlers.HandlePost)
 	log.Printf("server listening at http://%s...", portAddr)
 	// log.Fatal(http.ListenAndServeTLS(portAddr, TLSCERT, TLSKEY, mux))
 	log.Fatal(http.ListenAndServe(portAddr, mux))

@@ -1,30 +1,25 @@
 package models
 
-import (
-	"gopkg.in/mgo.v2/bson"
-)
-
 // in DB
 type Organization struct {
-	OrganizationId bson.ObjectId `bson:"_id"`
-	OrgId          int           `bson:"OrgID"`
-	OrgTitle       string        `bson:"OrgTitle"`
-	OrgWebsite     string        `bson:"OrgWebsite"`
-	StreetAddress  string        `bson:"StreetAddress"`
-	City           string        `bson:"City"`
-	State          string        `bson:"State"`
-	ZipCode        string        `bson:"ZipCode"`
-	Phone          string        `bson:"Phone"`
-	Email          string        `bson:"Email"`
-	ActivityDesc   string        `bson:"ActivityDesc"`
-	Lat            float64       `bson:"Lat"`
-	Long           float64       `bson:"Long"`
-	HasShadow      bool          `bson:"HasShadow"`
-	HasCost        bool          `bson:"HasCost"`
-	HasTransport   bool          `bson:"HasTransport"`
-	Under18        bool          `bson:"Under18"`
-	CareerEmp      []string      `bson:"CareerEmp"`
-	GradeLevels    []int         `bson:"GradeLevels"`
+	OrgId         int      `bson:"_id"`
+	OrgTitle      string   `bson:"OrgTitle"`
+	OrgWebsite    string   `bson:"OrgWebsite"`
+	StreetAddress string   `bson:"StreetAddress"`
+	City          string   `bson:"City"`
+	State         string   `bson:"State"`
+	ZipCode       string   `bson:"ZipCode"`
+	Phone         string   `bson:"Phone"`
+	Email         string   `bson:"Email"`
+	ActivityDesc  string   `bson:"ActivityDesc"`
+	Lat           float64  `bson:"Lat"`
+	Long          float64  `bson:"Long"`
+	HasShadow     bool     `bson:"HasShadow"`
+	HasCost       bool     `bson:"HasCost"`
+	HasTransport  bool     `bson:"HasTransport"`
+	Under18       bool     `bson:"Under18"`
+	CareerEmp     []string `bson:"CareerEmp"`
+	GradeLevels   []int    `bson:"GradeLevels"`
 }
 
 type UpdateOrganization struct {
