@@ -32,7 +32,7 @@ func NewOrganizationStore(sess *mgo.Session, dbName string, collectionName strin
 		session: sess,
 		dbname:  dbName,
 		colname: collectionName,
-		col:     sess.DB("mongodb").C("organization"),
+		col:     sess.DB(dbName).C(collectionName),
 	}
 
 	return os, nil
