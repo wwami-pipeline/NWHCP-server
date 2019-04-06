@@ -33,8 +33,8 @@ func main() {
 	} else {
 		fmt.Println("Success!")
 	}
-	schoolStore, err := stores.NewSchoolStore(mongoSession, "school", "mongodb")
-	orgStore, err := stores.NewOrganizationStore(mongoSession, "organization", "mongodb")
+	schoolStore, err := stores.NewSchoolStore(mongoSession, "mongodb", "school")
+	orgStore, err := stores.NewOrganizationStore(mongoSession, "mongodb", "organization")
 
 	hctx := &handlers.Context{
 		Store1: schoolStore,
