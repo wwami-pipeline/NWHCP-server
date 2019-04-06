@@ -55,16 +55,16 @@ func main() {
 
 	apiEndpoint := ""
 	if os.Getenv("PRODUCTION_MODE") != "production" {
-		apiEndpoint = "/api"
+		apiEndpoint = "/api/v1"
 	}
 
 	mux := http.NewServeMux()
 	fmt.Println("Pipeline-DB Microservice")
-	mux.HandleFunc(apiEndpoint+"/v1/pipeline-db/populate-school", hctx.PopulateDB)
-	mux.HandleFunc(apiEndpoint+"/v1/pipeline-db/populate-organizations", hctx.PopulateDB2)
+	mux.HandleFunc(apiEndpoint+"/pipeline-db/populate-school", hctx.PopulateDB)
+	mux.HandleFunc(apiEndpoint+"/pipeline-db/populate-organizations", hctx.PopulateDB2)
 
-	mux.HandleFunc(apiEndpoint+"/v1/pipeline-db/getallschools", hctx.SchoolHandler)
-	mux.HandleFunc(apiEndpoint+"/v1/pipeline-db/getallorgs", hctx.OrgHandler)
+	mux.HandleFunc(apiEndpoint+"/pipeline-db/getallschools", hctx.SchoolHandler)
+	mux.HandleFunc(apiEndpoint+"/pipeline-db/getallorgs", hctx.OrgHandler)
 
 	mux.HandleFunc(apiEndpoint+"/post-test", handlers.HandlePost)
 	log.Printf("server listening at http://%s...", portAddr)
