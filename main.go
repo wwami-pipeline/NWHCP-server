@@ -33,12 +33,11 @@ func main() {
 	} else {
 		fmt.Println("Success!")
 	}
-	schoolStore, err := stores.NewSchoolStore(mongoSession, "mongodb", "school")
-	orgStore, err := stores.NewOrganizationStore(mongoSession, "mongodb", "organization")
+	//schoolStore, err := stores.NewSchoolStore(mongoSession, "mongodb", "school")
+	orgStore, err := stores.NewOrgStore(mongoSession, "mongodb", "organization")
 
-	hctx := &handlers.Context{
-		Store1: schoolStore,
-		Store2: orgStore,
+	hctx := &handlers.HandlerContext{
+		OrgStore: orgStore,
 	}
 
 	//ignore compiler
@@ -60,13 +59,11 @@ func main() {
 
 	mux := http.NewServeMux()
 	fmt.Println("Pipeline-DB Microservice")
-	mux.HandleFunc(apiEndpoint+"/pipeline-db/populate-school", hctx.PopulateDB)
-	mux.HandleFunc(apiEndpoint+"/pipeline-db/populate-organizations", hctx.PopulateDB2)
+	mux.HandleFunc(apiEndpoint+"/pipeline-db/populate-organizations", hctx.InsertOrgs)
 
-	mux.HandleFunc(apiEndpoint+"/pipeline-db/getallschools", hctx.SchoolHandler)
-	mux.HandleFunc(apiEndpoint+"/pipeline-db/getallorgs", hctx.OrgHandler)
+	mux.HandleFunc(apiEndpoint+"/pipeline-db/getallorgs", hctx.GetAllOrgs)
 
-	mux.HandleFunc(apiEndpoint+"/post-test", handlers.HandlePost)
+	// mux.HandleFunc(apiEndpoint+"/post-test", handlers.HandlePost)
 	log.Printf("server listening at http://%s...", portAddr)
 	// log.Fatal(http.ListenAndServeTLS(portAddr, TLSCERT, TLSKEY, mux))
 	log.Fatal(http.ListenAndServe(portAddr, mux))

@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"fmt"
+	"errors"
 	"log"
 
 	"pipeline-db/models"
@@ -10,7 +10,8 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-type OrganizationStore struct {
+//OrgStore represents a mongoDB data store that implements the abstract store interface
+type OrgStore struct {
 	//the mongo session
 	session *mgo.Session
 	//the database name to use
@@ -21,14 +22,14 @@ type OrganizationStore struct {
 	col *mgo.Collection
 }
 
-// Creates new Organization Store with mongo session, dbname, and collection name
-func NewOrganizationStore(sess *mgo.Session, dbName string, collectionName string) (*OrganizationStore, error) {
+// NewOrgStore creates new Organization Store with mongo session, dbname, and collection name
+func NewOrgStore(sess *mgo.Session, dbName string, collectionName string) (*OrgStore, error) {
 	if sess == nil {
 		panic("nil pointer passed for session")
 	}
 
 	//return a new MongoStore
-	os := &OrganizationStore{
+	os := &OrgStore{
 		session: sess,
 		dbname:  dbName,
 		colname: collectionName,
@@ -38,51 +39,60 @@ func NewOrganizationStore(sess *mgo.Session, dbName string, collectionName strin
 	return os, nil
 }
 
-// Returns an organization based on the ID
-func (os *OrganizationStore) GetByID(orgID int) (*models.Organization, error) {
+// GetByID returns an organization based on the ID
+func (os *OrgStore) GetByID(orgID int) (*models.Organization, error) {
 	org := &models.Organization{}
-	err := os.col.Find(bson.M{"orgID": orgID}).One(org)
+
+	err := os.col.Find(bson.M{"orgid": orgID}).One(org)
 	if err != nil {
 		return nil, err
 	}
 	return org, nil
 }
 
-// Inserts an organization checks for duplicates
-func (os *OrganizationStore) Insert(org *models.Organization) (*models.Organization, error) {
+// GetByName returns an organization based on the orgTitle
+func (os *OrgStore) GetByName(orgTitle string) (*models.Organization, error) {
+	org := &models.Organization{}
+	err := os.col.Find(bson.M{"orgtitle": orgTitle}).One(org)
+	if err != nil {
+		return nil, err
+	}
+	return org, nil
+}
+
+//Insert inserts an organization checks for duplicates
+func (os *OrgStore) Insert(org *models.Organization) (*models.Organization, error) {
 	checkOrg, _ := os.GetByName(org.OrgTitle)
 	if checkOrg != nil {
-		log.Printf("Organization already exists, check if you want to update instead")
-		return nil, nil
-	} else {
-		if err := os.col.Insert(org); err != nil {
-			log.Printf(err.Error())
-			return nil, err
-		}
-		return org, nil
+		log.Printf("Organization '%s' already exists, check if you want to update instead", org.OrgTitle)
+		return nil, errors.New("Organization already exists")
 	}
-}
-
-// Returns an organization based on the orgTitle
-func (os *OrganizationStore) GetByName(orgTitle string) (*models.Organization, error) {
-	org := &models.Organization{}
-	err := os.col.Find(bson.M{"OrgTitle": orgTitle}).One(org)
-	if err != nil {
+	if err := os.col.Insert(org); err != nil {
+		log.Printf(err.Error())
 		return nil, err
 	}
-	return org, nil
-}
-
-// Updates an organization based on the ID
-func (os *OrganizationStore) Update(orgTitle string, updateOrg *models.UpdateOrganization) error {
-	if err := os.col.Update(bson.M{"OrgTitle": orgTitle}, bson.M{"$set": updateOrg}); err != nil {
-		return fmt.Errorf("error updating organization: %v", err)
+	insertedOrg, err := os.GetByName(org.OrgTitle)
+	if err != nil {
+		log.Printf("Error getting the newly-inserted organization from database")
 	}
-	return nil
+	return insertedOrg, nil
 }
 
-// Deletes an organization based on the ID
-func (os *SchoolStore) Delete(orgID bson.ObjectId) error {
+// Update updates an organization based on the ID
+func (os *OrgStore) Update(orgTitle string, updateOrg *models.Organization) (*models.Organization, error) {
+	if err := os.col.Update(bson.M{"orgtitle": orgTitle}, bson.M{"$set": updateOrg}); err != nil {
+		return nil, err
+	}
+	updatedOrg, err := os.GetByName(orgTitle)
+	if err != nil {
+		log.Printf("Error getting the updated organization from the database: %v\n", err)
+		return nil, err
+	}
+	return updatedOrg, nil
+}
+
+// Delete deletes an organization based on the ID
+func (os *OrgStore) Delete(orgID int) error {
 	err := os.col.RemoveId(orgID)
 	if err != nil {
 		return err
@@ -90,14 +100,12 @@ func (os *SchoolStore) Delete(orgID bson.ObjectId) error {
 	return nil
 }
 
-// Returns all organizations in database
-func (os *OrganizationStore) GetAll() ([]*models.Organization, error) {
+// GetAll returns all organizations in database
+func (os *OrgStore) GetAll() ([]*models.Organization, error) {
 	allOrgs := []*models.Organization{}
 	err := os.col.Find(nil).All(&allOrgs)
 	if err != nil {
 		return nil, err
 	}
-	// log.Printf("Org getAll() called %v", allOrgs[0])
-	log.Println(len(allOrgs))
 	return allOrgs, nil
 }

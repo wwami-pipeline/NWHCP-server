@@ -2,68 +2,47 @@ package handlers
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
 	"net/http"
+	"path"
 	"pipeline-db/models"
+	"strconv"
+	"strings"
 )
 
-// Used to insert organization data
-func (ctx *Context) PopulateDB(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-	w.Header().Add("Access-Control-Allow-Origin", "*")
+const contentTypeHeader = "Content-Type"
+const contentTypeApplicationJSON = "application/json"
+const headerAccessControlAllowOrigin = "Access-Control-Allow-Origin"
+const corsAnyOrigin = "*"
+
+//InsertOrgs inserts organization data
+func (ctx *HandlerContext) InsertOrgs(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add(contentTypeHeader, contentTypeApplicationJSON)
+	w.Header().Add(headerAccessControlAllowOrigin, corsAnyOrigin)
 	switch r.Method {
 	case "POST":
-		decoder := json.NewDecoder(r.Body)
-
-		var schools []models.School
-		err := decoder.Decode(&schools)
-		if err != nil {
-			panic(err)
+		if !strings.HasPrefix(r.Header.Get(contentTypeHeader), contentTypeApplicationJSON) {
+			http.Error(w, fmt.Sprintf("The request body must be in JSON"), http.StatusUnsupportedMediaType)
+			return
 		}
-		defer r.Body.Close()
-		for _, school := range schools {
-			dbSchool := &models.School{}
-			dbSchool.SchoolName = school.SchoolName
-			dbSchool.Street = school.Street
-			dbSchool.City = school.City
-			dbSchool.County = school.County
-			// Issue with FullAddress not going in, taking out for now. Address can be built with
-			// above components
-			// dbSchool.FullAddress = school.FullAddress
-			dbSchool.Lat = school.Lat
-			dbSchool.Lng = school.Lng
-			dbSchool.SchoolDistrictName = school.SchoolDistrictName
-			dbSchool.Zip = school.Zip
-			ctx.Store1.Insert(dbSchool)
-
-		}
-	}
-}
-
-// Used to insert organization data
-func (ctx *Context) PopulateDB2(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-	w.Header().Add("Access-Control-Allow-Origin", "*")
-	switch r.Method {
-	case "POST":
-		decoder := json.NewDecoder(r.Body)
 
 		var orgs []models.Organization
-		err := decoder.Decode(&orgs)
-		if err != nil {
-			panic(err)
+
+		if err := json.NewDecoder(r.Body).Decode(&orgs); err != nil {
+			http.Error(w, fmt.Sprintf("Error decoding JSON: %v", err),
+				http.StatusBadRequest)
+			return
 		}
-		defer r.Body.Close()
+
+		var insertedOrgs []models.Organization
 
 		for _, org := range orgs {
 			dbOrg := &models.Organization{}
 			dbOrg.OrgId = org.OrgId
-			print(org.OrgId)
 			dbOrg.OrgTitle = org.OrgTitle
 			dbOrg.OrgWebsite = org.OrgWebsite
 			dbOrg.StreetAddress = org.StreetAddress
 			dbOrg.City = org.City
-
 			dbOrg.State = org.State
 			dbOrg.ZipCode = org.ZipCode
 			dbOrg.Phone = org.Phone
@@ -77,61 +56,131 @@ func (ctx *Context) PopulateDB2(w http.ResponseWriter, r *http.Request) {
 			dbOrg.Under18 = org.Under18
 			dbOrg.CareerEmp = org.CareerEmp
 			dbOrg.GradeLevels = org.GradeLevels
-			ctx.Store2.Insert(dbOrg)
+			insertedOrg, err := ctx.OrgStore.Insert(dbOrg)
+			if err != nil {
+				http.Error(w, fmt.Sprintf("Error inserting new organization '%v' into the database: %v", org.OrgTitle, err),
+					http.StatusBadRequest)
+				return
+			}
+			insertedOrgs = append(insertedOrgs, *insertedOrg)
 		}
-	}
-}
+		w.WriteHeader(http.StatusCreated)
 
-// Used to grab school data
-func (ctx *Context) SchoolHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-	w.Header().Add("Access-Control-Allow-Origin", "*")
-	switch r.Method {
-	case "GET":
-		allSchools, _ := ctx.Store1.GetAll()
-		err := json.NewEncoder(w).Encode(allSchools)
-		if err != nil {
-
-			http.Error(w, "Unable to encode json", http.StatusInternalServerError)
+		if err := json.NewEncoder(w).Encode(insertedOrgs); err != nil {
+			http.Error(w, fmt.Sprintf("Error encoding JSON: %v", err),
+				http.StatusInternalServerError)
 			return
 		}
 
+	default:
+		http.Error(w, "Method not supported", http.StatusMethodNotAllowed)
+		return
 	}
 }
 
-// Used to grab organization data
-func (ctx *Context) OrgHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-	w.Header().Add("Access-Control-Allow-Origin", "*")
+//GetAllOrgs is used to grab organization data
+func (ctx *HandlerContext) GetAllOrgs(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add(contentTypeHeader, contentTypeApplicationJSON)
+	w.Header().Add(headerAccessControlAllowOrigin, corsAnyOrigin)
 
 	switch r.Method {
 	case "GET":
-		allOrgs, _ := ctx.Store2.GetAll()
-		err := json.NewEncoder(w).Encode(allOrgs)
+		allOrgs, err := ctx.OrgStore.GetAll()
 		if err != nil {
-			http.Error(w, "Unable to encode json", http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("Error getting organizations fromn the data store:  %v", err),
+				http.StatusNotFound)
 			return
 		}
 
+		w.WriteHeader(http.StatusOK)
+
+		if err := json.NewEncoder(w).Encode(allOrgs); err != nil {
+			http.Error(w, fmt.Sprintf("Error encoding JSON: %v", err),
+				http.StatusInternalServerError)
+			return
+		}
+
+	default:
+		http.Error(w, "Method not supported", http.StatusMethodNotAllowed)
+		return
 	}
 }
 
-func HandlePost(w http.ResponseWriter, r *http.Request) {
+// SpecificOrgHandler handles requests for a specific organization.
+// The resource path will be /v1/pipeline-db/org/{id}}, where {UserID} will be the organization's ID.
+func (ctx *HandlerContext) SpecificOrgHandler(w http.ResponseWriter, r *http.Request) {
 
-	type jsonBody struct {
-		Key map[string]interface{}
-	}
-	requestBody := jsonBody{}
-	body, err := ioutil.ReadAll(r.Body)
+	idString := path.Base(r.URL.Path)
+
+	id, err := strconv.Atoi(idString)
 	if err != nil {
-		panic(err)
-	}
-	if err := json.Unmarshal([]byte(body), &requestBody); err != nil {
-		panic(err)
+		http.Error(w, fmt.Sprintf("Did not provide {id} as a number in /v1/pipeline-db/org/{id}, please provide the correct ID"),
+			http.StatusForbidden)
+		return
 	}
 
-	if err := json.Unmarshal([]byte(body), &requestBody.Key); err != nil {
-		panic(err)
+	org, err := ctx.OrgStore.GetByID(id)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("No organization is found with the ID %d in the data store:  %v", id, err),
+			http.StatusNotFound)
+		return
 	}
-	json.NewEncoder(w).Encode(requestBody)
+
+	switch r.Method {
+
+	case http.MethodGet:
+		w.Header().Add(contentTypeHeader, contentTypeApplicationJSON)
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(org); err != nil {
+			http.Error(w, fmt.Sprintf("Error encoding JSON: %v", err),
+				http.StatusInternalServerError)
+			return
+		}
+
+	case http.MethodPatch:
+		if !strings.HasPrefix(r.Header.Get(contentTypeHeader), contentTypeApplicationJSON) {
+			http.Error(w, fmt.Sprintf("The request body must be in JSON"), http.StatusUnsupportedMediaType)
+			return
+		}
+
+		orgName := org.OrgTitle
+
+		var updateOrg models.Organization
+
+		if err := json.NewDecoder(r.Body).Decode(&updateOrg); err != nil {
+			http.Error(w, fmt.Sprintf("Error decoding JSON: %v", err),
+				http.StatusBadRequest)
+			return
+		}
+
+		updatedOrg, err := ctx.OrgStore.Update(orgName, &updateOrg)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error updating the organization: %v", err),
+				http.StatusBadRequest)
+			return
+		}
+
+		w.Header().Add(contentTypeHeader, contentTypeApplicationJSON)
+		w.WriteHeader(http.StatusOK)
+
+		if err := json.NewEncoder(w).Encode(updatedOrg); err != nil {
+			http.Error(w, fmt.Sprintf("Error encoding JSON: %v", err),
+				http.StatusInternalServerError)
+			return
+		}
+
+	case http.MethodDelete:
+		err := ctx.OrgStore.Delete(org.OrgId)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error deleting the organization: %v", err),
+				http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("The orgainzation was successful deleted"))
+
+	default:
+		http.Error(w, "Method not supported", http.StatusMethodNotAllowed)
+		return
+	}
 }
