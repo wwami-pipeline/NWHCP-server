@@ -2,7 +2,6 @@ package stores
 
 import (
 	"pipeline-db/models"
-	"gopkg.in/mgo.v2/bson"
 )
 
 //Store represents a session data store.
@@ -11,17 +10,21 @@ import (
 //session data could be stored in memory in a concurrent map,
 //or more typically in a shared key/value server store like redis.
 type Store interface {
-	//GetByID returns the User with the given ID
-	GetByID(id bson.ObjectId) (*models.School, error)
+	//GetByID returns the Org with the given ID
+	GetByID(id int) (*models.Organization, error)
 
-	GetByName(schoolName string) (*models.School, error)
+	//GetByName returns the Org with the given game
+	GetByName(orgName string) (*models.Organization, error)
 
-	//Insert converts new tags into tags and adds it to an image.
-	Insert(school *models.School) (*models.School, error)
+	//Insert inserts the organization into database
+	Insert(org *models.Organization) (*models.Organization, error)
 
-	// Updates the school based on the schoolname.
-	Update(schoolName string, updateSchool *models.UpdateSchool) error
+	// Updates the organization based on the name.
+	Update(orgName string, updateOrganization *models.Organization) (*models.Organization, error)
 
-	// Get all schools in the database
-	GetAll() ([]*models.School, error)
+	// Delete deletes the organization associated with the ID
+	Delete(orgID int) error
+
+	// Get all organizations in the database
+	GetAll() ([]*models.Organization, error)
 }
