@@ -27,4 +27,7 @@ type Store interface {
 
 	// Get all organizations in the database
 	GetAll() ([]*models.Organization, error)
+
+	//SearchOrgs get the organizations that matched certain searching criteria
+	SearchOrgs(orginfo *models.OrgInfo) ([]*models.Organization, error)
 }
