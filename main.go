@@ -61,7 +61,7 @@ func main() {
 	fmt.Println("Pipeline-DB Microservice")
 	mux.HandleFunc(apiEndpoint+"/pipeline-db/populate-organizations", hctx.InsertOrgs)
 	mux.HandleFunc(apiEndpoint+"/pipeline-db/getallorgs", hctx.GetAllOrgs)
-	mux.HandleFunc(apiEndpoint+"/v1/search", hctx.SearchOrgsHandler)
+	mux.HandleFunc(apiEndpoint+"/search", hctx.SearchOrgsHandler)
 
 	// mux.HandleFunc(apiEndpoint+"/post-test", handlers.HandlePost)
 	log.Printf("server listening at http://%s...", portAddr)
