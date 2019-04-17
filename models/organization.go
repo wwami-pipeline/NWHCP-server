@@ -21,3 +21,14 @@ type Organization struct {
 	CareerEmp     []string `bson:"CareerEmp"`
 	GradeLevels   []int    `bson:"GradeLevels"`
 }
+
+// OrgInfo represents organization information for buiding searching criteria
+type OrgInfo struct {
+	SearchContent string   `json: "SearchContent"`
+	HasShadow     bool     `json: "HasShadow"`
+	HasCost       bool     `json: "HasCost"`
+	HasTransport  bool     `json: "HasTransport"`
+	Under18       bool     `json: "Under18"`
+	CareerEmp     []string `json: "CareerEmp"`
+	GradeLevels   []int    `json: "GradeLevels"`
+}

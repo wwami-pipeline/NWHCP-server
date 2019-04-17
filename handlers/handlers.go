@@ -184,3 +184,40 @@ func (ctx *HandlerContext) SpecificOrgHandler(w http.ResponseWriter, r *http.Req
 		return
 	}
 }
+
+func (ctx *HandlerContext) SearchOrgsHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodPost:
+		if !strings.HasPrefix(r.Header.Get(contentTypeHeader), contentTypeApplicationJSON) {
+			http.Error(w, fmt.Sprintf("The request body must be in JSON"), http.StatusUnsupportedMediaType)
+			return
+		}
+
+		orgInfo := &models.OrgInfo{}
+		if err := json.NewDecoder(r.Body).Decode(orgInfo); err != nil {
+			http.Error(w, fmt.Sprintf("Error decoding JSON: %v", err),
+				http.StatusBadRequest)
+			return
+		}
+
+		orgs, err := ctx.OrgStore.SearchOrgs(orgInfo)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error getting the org info from the database: %v", err),
+				http.StatusBadRequest)
+			return
+		}
+
+		w.Header().Add(contentTypeHeader, contentTypeApplicationJSON)
+		w.WriteHeader(http.StatusOK)
+
+		if err := json.NewEncoder(w).Encode(orgs); err != nil {
+			http.Error(w, fmt.Sprintf("Error encoding JSON: %v", err),
+				http.StatusInternalServerError)
+			return
+		}
+
+	default:
+		http.Error(w, "Method not supported", http.StatusMethodNotAllowed)
+		return
+	}
+}

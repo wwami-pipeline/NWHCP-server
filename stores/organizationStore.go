@@ -10,6 +10,20 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+//These are the fields that being searched by client
+const (
+	HasShadow    = "hasshadow"
+	HasCost      = "hascost"
+	HasTransport = "hastransport"
+	Under18      = "under18"
+	CareerEmp    = "careeremp"
+	GradeLevels  = "gradelevels"
+	OrgTitle     = "orgtitle"
+	StreetAddr   = "streetaddress"
+	City         = "city"
+	State        = "state"
+)
+
 //OrgStore represents a mongoDB data store that implements the abstract store interface
 type OrgStore struct {
 	//the mongo session
@@ -108,4 +122,87 @@ func (os *OrgStore) GetAll() ([]*models.Organization, error) {
 		return nil, err
 	}
 	return allOrgs, nil
+}
+
+// SearchOrgs gets the organizations that matched certain searching criteria
+func (os *OrgStore) SearchOrgs(orginfo *models.OrgInfo) ([]*models.Organization, error) {
+	allOrgs := []*models.Organization{}
+
+	andQuery := []bson.M{}
+	andQuery = append(andQuery,
+		bson.M{"$or": buildOrQueryForSearchContent(orginfo)},
+		bson.M{"$or": buildOrQueryForCareerEmp(orginfo)},
+		bson.M{"$or": buildOrQueryForGradeLevels(orginfo)},
+		bson.M{"$and": andQueryForCheckBox(orginfo)})
+
+	err := os.col.Find(bson.M{"$and": andQuery}).All(&allOrgs)
+	if err != nil {
+		return nil, err
+	}
+
+	return allOrgs, nil
+}
+
+func buildOrQueryForSearchContent(orginfo *models.OrgInfo) []bson.M {
+	searchFields := make([]string, 4)
+	searchFields = append(searchFields, OrgTitle, StreetAddr, City, State)
+
+	orQuery := []bson.M{}
+	for _, field := range searchFields {
+		query := bson.M{field: bson.M{"$regex": orginfo.SearchContent, "$options": "i"}}
+		orQuery = append(orQuery, query)
+	}
+	if len(orQuery) == 0 {
+		orQuery = append(orQuery, nil)
+	}
+	return orQuery
+}
+
+func buildOrQueryForCareerEmp(orginfo *models.OrgInfo) []bson.M {
+	orQuery := []bson.M{}
+	for _, c := range orginfo.CareerEmp {
+		query := bson.M{CareerEmp: c}
+		orQuery = append(orQuery, query)
+	}
+	if len(orQuery) == 0 {
+		orQuery = append(orQuery, nil)
+	}
+	return orQuery
+}
+
+func buildOrQueryForGradeLevels(orginfo *models.OrgInfo) []bson.M {
+	orQuery := []bson.M{}
+	for _, c := range orginfo.GradeLevels {
+		query := bson.M{GradeLevels: c}
+		orQuery = append(orQuery, query)
+	}
+	if len(orQuery) == 0 {
+		orQuery = append(orQuery, nil)
+	}
+	return orQuery
+}
+
+func andQueryForCheckBox(orginfo *models.OrgInfo) []bson.M {
+	andQuery := []bson.M{}
+	if orginfo.HasShadow {
+		query := bson.M{HasShadow: orginfo.HasShadow}
+		andQuery = append(andQuery, query)
+	}
+	if orginfo.HasCost {
+		query := bson.M{HasCost: orginfo.HasCost}
+		andQuery = append(andQuery, query)
+	}
+	if orginfo.HasTransport {
+		query := bson.M{HasTransport: orginfo.HasTransport}
+		andQuery = append(andQuery, query)
+	}
+	if orginfo.Under18 {
+		query := bson.M{Under18: orginfo.Under18}
+		andQuery = append(andQuery, query)
+	}
+	if len(andQuery) == 0 {
+		andQuery = append(andQuery, nil)
+	}
+
+	return andQuery
 }
