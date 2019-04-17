@@ -1,3 +1,4 @@
 mongoDB/
 vendor/
 .DS_store
+.vscode/
