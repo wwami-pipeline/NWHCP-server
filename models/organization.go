@@ -3,7 +3,7 @@ package models
 // Organization represents information for a new org
 type Organization struct {
 	OrgId         int      `bson:"_id"`
-	OrgTitle      string   `bson:"orgtitle"`
+	OrgTitle      string   `bson:"OrgTitle"`
 	OrgWebsite    string   `bson:"OrgWebsite"`
 	StreetAddress string   `bson:"StreetAddress"`
 	City          string   `bson:"City"`

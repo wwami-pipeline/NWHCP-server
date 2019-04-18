@@ -12,16 +12,16 @@ import (
 
 //These are the fields that being searched by client
 const (
-	HasShadow    = "hasshadow"
-	HasCost      = "hascost"
-	HasTransport = "hastransport"
-	Under18      = "under18"
-	CareerEmp    = "careeremp"
-	GradeLevels  = "gradelevels"
-	OrgTitle     = "orgtitle"
-	StreetAddr   = "streetaddress"
-	City         = "city"
-	State        = "state"
+	HasShadow    = "HasShadow"
+	HasCost      = "HasCost"
+	HasTransport = "HasTransport"
+	Under18      = "Under18"
+	CareerEmp    = "CareerEmp"
+	GradeLevels  = "GradeLevels"
+	OrgTitle     = "OrgTitle"
+	StreetAddr   = "StreetAddress"
+	City         = "City"
+	State        = "State"
 )
 
 //OrgStore represents a mongoDB data store that implements the abstract store interface
@@ -57,7 +57,7 @@ func NewOrgStore(sess *mgo.Session, dbName string, collectionName string) (*OrgS
 func (os *OrgStore) GetByID(orgID int) (*models.Organization, error) {
 	org := &models.Organization{}
 
-	err := os.col.Find(bson.M{"orgid": orgID}).One(org)
+	err := os.col.Find(bson.M{"OrgId": orgID}).One(org)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (os *OrgStore) GetByID(orgID int) (*models.Organization, error) {
 // GetByName returns an organization based on the orgTitle
 func (os *OrgStore) GetByName(orgTitle string) (*models.Organization, error) {
 	org := &models.Organization{}
-	err := os.col.Find(bson.M{"orgtitle": orgTitle}).One(org)
+	err := os.col.Find(bson.M{"OrgTitle": orgTitle}).One(org)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (os *OrgStore) Insert(org *models.Organization) (*models.Organization, erro
 
 // Update updates an organization based on the ID
 func (os *OrgStore) Update(orgTitle string, updateOrg *models.Organization) (*models.Organization, error) {
-	if err := os.col.Update(bson.M{"orgtitle": orgTitle}, bson.M{"$set": updateOrg}); err != nil {
+	if err := os.col.Update(bson.M{"OrgTitle": orgTitle}, bson.M{"$set": updateOrg}); err != nil {
 		return nil, err
 	}
 	updatedOrg, err := os.GetByName(orgTitle)

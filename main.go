@@ -59,7 +59,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	fmt.Println("Pipeline-DB Microservice")
-	mux.HandleFunc(apiEndpoint+"/pipeline-db/populate-organizations", hctx.InsertOrgs)
+	mux.HandleFunc(apiEndpoint+"/pipeline-db/poporgs", hctx.InsertOrgs)
 	mux.HandleFunc(apiEndpoint+"/pipeline-db/getallorgs", hctx.GetAllOrgs)
 	mux.HandleFunc(apiEndpoint+"/search", hctx.SearchOrgsHandler)
 
