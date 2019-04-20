@@ -53,12 +53,10 @@ func main() {
 	}
 
 	apiEndpoint := "/api/v1"
-	// if os.Getenv("PRODUCTION_MODE") != "production" {
-	// 	apiEndpoint = "/api/v1"
-	// }
 
 	mux := http.NewServeMux()
 	fmt.Println("Pipeline-DB Microservice")
+
 	mux.HandleFunc(apiEndpoint+"/pipeline-db/poporgs", hctx.InsertOrgs)
 	mux.HandleFunc(apiEndpoint+"/pipeline-db/getallorgs", hctx.GetAllOrgs)
 	mux.HandleFunc(apiEndpoint+"/search", hctx.SearchOrgsHandler)

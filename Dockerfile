@@ -13,6 +13,6 @@ WORKDIR /root/
 
 COPY --from=builder /NWHCP-server/NWHCP-server .
 
-ENV PRODUCTION_MODE production
+ENV APP_ENV production
 
 CMD ["./NWHCP-server"]
