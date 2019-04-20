@@ -76,7 +76,7 @@ func (os *OrgStore) GetByName(orgTitle string) (*models.Organization, error) {
 
 //Insert inserts an organization checks for duplicates
 func (os *OrgStore) Insert(org *models.Organization) (*models.Organization, error) {
-	checkOrg, _ := os.GetByName(org.OrgTitle)
+	checkOrg, _ := os.GetByID(org.OrgId)
 	if checkOrg != nil {
 		log.Printf("Organization '%s' already exists, check if you want to update instead", org.OrgTitle)
 		return nil, errors.New("Organization already exists")
