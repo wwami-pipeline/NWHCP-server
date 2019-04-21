@@ -12,14 +12,10 @@ import (
 
 const contentTypeHeader = "Content-Type"
 const contentTypeApplicationJSON = "application/json"
-const headerAccessControlAllowOrigin = "Access-Control-Allow-Origin"
-const corsAnyOrigin = "*"
 
 //InsertOrgs inserts organization data
 func (ctx *HandlerContext) InsertOrgs(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add(contentTypeHeader, contentTypeApplicationJSON)
-	w.Header().Add(headerAccessControlAllowOrigin, corsAnyOrigin)
-	// if os.Getenv("APP_ENV") == "production" && r.Header.Get("AUTH_TOKEN_FOR_PYTHON") != os.Getenv("AUTH_TOKEN_FOR_PYTHON") {
+	w.Header().Add(contentTypeHeader, contentTypeApplicationJSON) // if os.Getenv("APP_ENV") == "production" && r.Header.Get("AUTH_TOKEN_FOR_PYTHON") != os.Getenv("AUTH_TOKEN_FOR_PYTHON") {
 	// 	return
 	// }
 	switch r.Method {
@@ -84,7 +80,6 @@ func (ctx *HandlerContext) InsertOrgs(w http.ResponseWriter, r *http.Request) {
 //GetAllOrgs is used to grab organization data
 func (ctx *HandlerContext) GetAllOrgs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add(contentTypeHeader, contentTypeApplicationJSON)
-	w.Header().Add(headerAccessControlAllowOrigin, corsAnyOrigin)
 
 	switch r.Method {
 	case "GET":
