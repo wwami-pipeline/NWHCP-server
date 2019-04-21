@@ -19,6 +19,9 @@ const corsAnyOrigin = "*"
 func (ctx *HandlerContext) InsertOrgs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add(contentTypeHeader, contentTypeApplicationJSON)
 	w.Header().Add(headerAccessControlAllowOrigin, corsAnyOrigin)
+	// if os.Getenv("APP_ENV") == "production" && r.Header.Get("AUTH_TOKEN_FOR_PYTHON") != os.Getenv("AUTH_TOKEN_FOR_PYTHON") {
+	// 	return
+	// }
 	switch r.Method {
 	case "POST":
 		if !strings.HasPrefix(r.Header.Get(contentTypeHeader), contentTypeApplicationJSON) {
@@ -60,9 +63,9 @@ func (ctx *HandlerContext) InsertOrgs(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				http.Error(w, fmt.Sprintf("Error inserting new organization '%v' into the database: %v", org.OrgTitle, err),
 					http.StatusBadRequest)
-				return
+			} else {
+				insertedOrgs = append(insertedOrgs, *insertedOrg)
 			}
-			insertedOrgs = append(insertedOrgs, *insertedOrg)
 		}
 		w.WriteHeader(http.StatusCreated)
 
