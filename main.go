@@ -58,11 +58,11 @@ func main() {
 	fmt.Println("Pipeline-DB Microservice")
 
 	mux.HandleFunc(apiEndpoint+"/pipeline-db/poporgs", hctx.InsertOrgs)
-	mux.HandleFunc(apiEndpoint+"/pipeline-db/getallorgs", hctx.GetAllOrgs)
+	mux.HandleFunc(apiEndpoint+"/orgs", hctx.GetAllOrgs)
 	mux.HandleFunc(apiEndpoint+"/search", hctx.SearchOrgsHandler)
 
 	// mux.HandleFunc(apiEndpoint+"/post-test", handlers.HandlePost)
 	log.Printf("server listening at http://%s...", portAddr)
 	// log.Fatal(http.ListenAndServeTLS(portAddr, TLSCERT, TLSKEY, mux))
-	log.Fatal(http.ListenAndServe(portAddr, mux))
+	log.Fatal(http.ListenAndServe(portAddr, handlers.AddCORS(mux)))
 }
