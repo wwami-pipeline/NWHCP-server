@@ -56,8 +56,7 @@ func NewOrgStore(sess *mgo.Session, dbName string, collectionName string) (*OrgS
 // GetByID returns an organization based on the ID
 func (os *OrgStore) GetByID(orgID int) (*models.Organization, error) {
 	org := &models.Organization{}
-
-	err := os.col.Find(bson.M{"OrgId": orgID}).One(org)
+	err := os.col.Find(bson.M{"_id": orgID}).One(org)
 	if err != nil {
 		return nil, err
 	}
