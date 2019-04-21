@@ -60,7 +60,7 @@ func main() {
 	mux.HandleFunc(apiEndpoint+"/pipeline-db/poporgs", hctx.InsertOrgs)
 	mux.HandleFunc(apiEndpoint+"/pipeline-db/getallorgs", hctx.GetAllOrgs)
 	mux.HandleFunc(apiEndpoint+"/search", hctx.SearchOrgsHandler)
-	mux.HandleFunc(apiEndpoint+"/org", hctx.SpecificOrgHandler)
+	mux.HandleFunc(apiEndpoint+"/org/", hctx.SpecificOrgHandler)
 
 	// mux.HandleFunc(apiEndpoint+"/post-test", handlers.HandlePost)
 	log.Printf("server listening at http://%s...", portAddr)
