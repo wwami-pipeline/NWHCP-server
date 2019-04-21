@@ -107,14 +107,14 @@ func (ctx *HandlerContext) GetAllOrgs(w http.ResponseWriter, r *http.Request) {
 }
 
 // SpecificOrgHandler handles requests for a specific organization.
-// The resource path will be /v1/pipeline-db/org/{id}}, where {UserID} will be the organization's ID.
+// The resource path will be /api/v1/org/{id}}, where {id} will be the organization's ID.
 func (ctx *HandlerContext) SpecificOrgHandler(w http.ResponseWriter, r *http.Request) {
 
 	idString := path.Base(r.URL.Path)
 
 	id, err := strconv.Atoi(idString)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Did not provide {id} as a number in /v1/pipeline-db/org/{id}, please provide the correct ID"),
+		http.Error(w, fmt.Sprintf("Did not provide {id} as a number in /v1/org/{id}, please provide the correct ID"),
 			http.StatusForbidden)
 		return
 	}
