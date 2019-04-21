@@ -30,5 +30,5 @@ type OrgInfo struct {
 	HasTransport  bool     `json: "HasTransport"`
 	Under18       bool     `json: "Under18"`
 	CareerEmp     []string `json: "CareerEmp"`
-	GradeLevels   []int    `json: "GradeLevels"`
+	GradeLevels   []string `json: "GradeLevels"`
 }
