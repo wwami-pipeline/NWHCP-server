@@ -104,6 +104,20 @@ func (ctx *HandlerContext) GetAllOrgs(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (ctx *HandlerContext) DeleteAllOrgsHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodDelete:
+		err := ctx.OrgStore.DeleteAll()
+		if err != nil {
+			http.Error(w, "Cannot truncate collection", http.StatusBadRequest)
+			return
+		}
+	default:
+		http.Error(w, "Method not supported", http.StatusMethodNotAllowed)
+		return
+	}
+}
+
 // SpecificOrgHandler handles requests for a specific organization.
 // The resource path will be /api/v1/org/{id}}, where {id} will be the organization's ID.
 func (ctx *HandlerContext) SpecificOrgHandler(w http.ResponseWriter, r *http.Request) {
@@ -141,8 +155,6 @@ func (ctx *HandlerContext) SpecificOrgHandler(w http.ResponseWriter, r *http.Req
 			return
 		}
 
-		orgName := org.OrgTitle
-
 		var updateOrg models.Organization
 
 		if err := json.NewDecoder(r.Body).Decode(&updateOrg); err != nil {
@@ -151,7 +163,7 @@ func (ctx *HandlerContext) SpecificOrgHandler(w http.ResponseWriter, r *http.Req
 			return
 		}
 
-		updatedOrg, err := ctx.OrgStore.Update(orgName, &updateOrg)
+		updatedOrg, err := ctx.OrgStore.Update(org.OrgId, &updateOrg)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error updating the organization: %v", err),
 				http.StatusBadRequest)

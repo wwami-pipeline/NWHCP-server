@@ -21,6 +21,11 @@ func main() {
 	}
 	log.Printf("PORTADDR: %s", portAddr)
 
+	internalPort := os.Getenv("INTERNAL_PORT")
+	if len(internalPort) == 0 {
+		internalPort = ":4003"
+	}
+
 	dbAddr := os.Getenv("DBADDR") //pipelineDB:27017
 	if len(dbAddr) == 0 {
 		dbAddr = "localhost:27017"
@@ -57,13 +62,23 @@ func main() {
 	mux := http.NewServeMux()
 	fmt.Println("Pipeline-DB Microservice")
 
-	mux.HandleFunc(apiEndpoint+"/pipeline-db/poporgs", hctx.InsertOrgs)
 	mux.HandleFunc(apiEndpoint+"/search", hctx.SearchOrgsHandler)
 	mux.HandleFunc(apiEndpoint+"/orgs", hctx.GetAllOrgs)
 	mux.HandleFunc(apiEndpoint+"/org/", hctx.SpecificOrgHandler)
+
+	mux2 := http.NewServeMux()
+	mux2.HandleFunc(apiEndpoint+"/pipeline-db/truncate", hctx.DeleteAllOrgsHandler)
+	mux2.HandleFunc(apiEndpoint+"/pipeline-db/poporgs", hctx.InsertOrgs)
+	go serve(mux2, internalPort)
 
 	// mux.HandleFunc(apiEndpoint+"/post-test", handlers.HandlePost)
 	log.Printf("server listening at http://%s...", portAddr)
 	// log.Fatal(http.ListenAndServeTLS(portAddr, TLSCERT, TLSKEY, mux))
 	log.Fatal(http.ListenAndServe(portAddr, handlers.AddCORS(mux)))
+
+}
+
+func serve(mux *http.ServeMux, addr string) {
+	log.Fatal(http.ListenAndServe(addr, handlers.AddCORS(mux)))
+	log.Printf("server is listening at %s...", addr)
 }

@@ -83,14 +83,14 @@ func (os *OrgStore) GetByName(orgTitle string) (*models.Organization, error) {
 func (os *OrgStore) Insert(org *models.Organization) (*models.Organization, error) {
 	checkOrg, _ := os.GetByID(org.OrgId)
 	if checkOrg != nil {
-		log.Printf("Organization '%s' already exists, check if you want to update instead", org.OrgTitle)
+		log.Printf("Organization with ID '%s' already exists, updating", org.OrgId)
 		return nil, errors.New("Organization already exists")
 	}
 	if err := os.col.Insert(org); err != nil {
 		log.Printf(err.Error())
 		return nil, err
 	}
-	insertedOrg, err := os.GetByName(org.OrgTitle)
+	insertedOrg, err := os.GetByID(org.OrgId)
 	if err != nil {
 		log.Printf("Error getting the newly-inserted organization from database")
 	}
@@ -98,11 +98,11 @@ func (os *OrgStore) Insert(org *models.Organization) (*models.Organization, erro
 }
 
 // Update updates an organization based on the ID
-func (os *OrgStore) Update(orgTitle string, updateOrg *models.Organization) (*models.Organization, error) {
-	if err := os.col.Update(bson.M{"OrgTitle": orgTitle}, bson.M{"$set": updateOrg}); err != nil {
+func (os *OrgStore) Update(orgID int, updateOrg *models.Organization) (*models.Organization, error) {
+	if err := os.col.Update(bson.M{"_id": orgID}, bson.M{"$set": updateOrg}); err != nil {
 		return nil, err
 	}
-	updatedOrg, err := os.GetByName(orgTitle)
+	updatedOrg, err := os.GetByID(orgID)
 	if err != nil {
 		log.Printf("Error getting the updated organization from the database: %v\n", err)
 		return nil, err
@@ -117,6 +117,12 @@ func (os *OrgStore) Delete(orgID int) error {
 		return err
 	}
 	return nil
+}
+
+// DeleteAll truncates an organization collection
+func (os *OrgStore) DeleteAll() error {
+	_, err := os.col.RemoveAll(nil)
+	return err
 }
 
 // GetAll returns all organizations in database
