@@ -22,13 +22,7 @@ const (
 	StreetAddr   = "StreetAddress"
 	City         = "City"
 	State        = "State"
-
-	MiddleSchool = "Middle School"
-	HighSchool   = "High School"
 )
-
-var MiddleSchoolNum = []int{6, 7, 8}
-var HighSchoolNum = []int{9, 10, 11, 12}
 
 //OrgStore represents a mongoDB data store that implements the abstract store interface
 type OrgStore struct {
@@ -184,16 +178,7 @@ func buildOrQueryForCareerEmp(orginfo *models.OrgInfo) []bson.M {
 func buildOrQueryForGradeLevels(orginfo *models.OrgInfo) []bson.M {
 	orQuery := []bson.M{}
 
-	levelsNums := []int{}
 	for _, c := range orginfo.GradeLevels {
-		if c == HighSchool {
-			levelsNums = append(levelsNums, HighSchoolNum...)
-		} else if c == MiddleSchool {
-			levelsNums = append(levelsNums, MiddleSchoolNum...)
-		}
-	}
-
-	for _, c := range levelsNums {
 		query := bson.M{GradeLevels: c}
 		orQuery = append(orQuery, query)
 	}
