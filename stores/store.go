@@ -20,10 +20,13 @@ type Store interface {
 	Insert(org *models.Organization) (*models.Organization, error)
 
 	// Updates the organization based on the name.
-	Update(orgName string, updateOrganization *models.Organization) (*models.Organization, error)
+	Update(orgID int, updateOrganization *models.Organization) (*models.Organization, error)
 
 	// Delete deletes the organization associated with the ID
 	Delete(orgID int) error
+
+	// DeleteAll deletes the organization collection
+	DeleteAll() error
 
 	// Get all organizations in the database
 	GetAll() ([]*models.Organization, error)
