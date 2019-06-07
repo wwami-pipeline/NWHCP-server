@@ -1,4 +1,4 @@
-# Waypoint Database
+# NWCHP server
 
 
 ## About
