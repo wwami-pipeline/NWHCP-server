@@ -8,6 +8,8 @@ Database runs on MongoDB allows for getting by ID/name, inserting, updating, and
 Clone down the repository. 
 
 To run locally:
+  - Install go 1.11+ (because it's using go modules, go.mod is like package.json in node.js)
+  - Run ```go mod vendor``` to install dependencies. You should run it when adding new dependencies.
   - Start mongoDB on port 27017
   - Run ```go run main.go```
 
