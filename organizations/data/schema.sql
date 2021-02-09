@@ -1,5 +1,5 @@
 CREATE DATABASE accounts_db
-USER accounts_db
+USE accounts_db
 
 CREATE TABLE [user] (
     [user_id] INT NOT NULL AUTO_INCREMENT,
