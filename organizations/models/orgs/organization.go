@@ -1,4 +1,4 @@
-package models
+package orgs
 
 // Organization represents information for a new org
 type Organization struct {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"path"
-	"pipeline-db/models"
+	"pipeline-db/models/orgs"
 	"strconv"
 	"strings"
 )
@@ -25,7 +25,7 @@ func (ctx *HandlerContext) InsertOrgs(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var orgs []models.Organization
+		var orgs []orgs.Organization
 
 		if err := json.NewDecoder(r.Body).Decode(&orgs); err != nil {
 			http.Error(w, fmt.Sprintf("Error decoding JSON: %v", err),
@@ -33,10 +33,10 @@ func (ctx *HandlerContext) InsertOrgs(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var insertedOrgs []models.Organization
+		var insertedOrgs []orgs.Organization
 
 		for _, org := range orgs {
-			dbOrg := &models.Organization{}
+			dbOrg := &orgs.Organization{}
 			dbOrg.OrgId = org.OrgId
 			dbOrg.OrgTitle = org.OrgTitle
 			dbOrg.OrgWebsite = org.OrgWebsite
@@ -155,7 +155,7 @@ func (ctx *HandlerContext) SpecificOrgHandler(w http.ResponseWriter, r *http.Req
 			return
 		}
 
-		var updateOrg models.Organization
+		var updateOrg orgs.Organization
 
 		if err := json.NewDecoder(r.Body).Decode(&updateOrg); err != nil {
 			http.Error(w, fmt.Sprintf("Error decoding JSON: %v", err),
@@ -203,7 +203,7 @@ func (ctx *HandlerContext) SearchOrgsHandler(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		orgInfo := &models.OrgInfo{}
+		orgInfo := &orgs.OrgInfo{}
 		if err := json.NewDecoder(r.Body).Decode(orgInfo); err != nil {
 			http.Error(w, fmt.Sprintf("Error decoding JSON: %v", err),
 				http.StatusBadRequest)

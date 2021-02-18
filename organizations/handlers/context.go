@@ -1,7 +1,7 @@
 package handlers
 
-import "pipeline-db/stores"
+import "pipeline-db/models/orgs"
 
 type HandlerContext struct {
-	OrgStore stores.Store
+	OrgStore orgs.Store
 }
