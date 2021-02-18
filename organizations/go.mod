@@ -1,5 +1,7 @@
 module pipeline-db
 
+go 1.14
+
 require (
 	github.com/fatih/gomodifytags v0.0.0-20180914191908-141225bf62b6 // indirect
 	github.com/lukehoban/go-outline v0.0.0-20161011150102-e78556874252 // indirect

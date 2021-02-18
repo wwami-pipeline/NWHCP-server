@@ -31,9 +31,12 @@ func (db *Database) GetByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
+// Insert blah should I store as string or date?
 func (db *Database) Insert(user *User) (*User, error) {
-	insq := "INSERT INTO Users(Email, PassHash, FirstName, LastName) VALUES (?,?,?,?)"
-	res, err := db.DB.Exec(insq, user.Email, user.PassHash, user.FirstName, user.LastName)
+	insq := "INSERT INTO Users(Email, PassHash, FirstName, LastName, BirthDate, JoinDate) VALUES (?,?,?,?,?,?)"
+	birthDate, _ := time.Parse("2006-01-02", user.BirthDate)
+	joinDate, _ := time.Parse("2006-01-02", user.JoinDate)
+	res, err := db.DB.Exec(insq, user.Email, user.PassHash, user.FirstName, user.LastName, birthDate, joinDate)
 	if err != nil {
 		return nil, err
 	}
