@@ -2,10 +2,8 @@ package users
 
 import (
 	"fmt"
-	"math"
 	"net/mail"
 	"strings"
-	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -20,7 +18,6 @@ type User struct {
 	PassHash  []byte `json:"-"` //never JSON encoded/decoded
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
-	BirthDate string `json:"birthDate"`
 	JoinDate  string `json:"joinDate"`
 }
 
@@ -37,7 +34,6 @@ type NewUser struct {
 	PasswordConf string `json:"passwordConf"`
 	FirstName    string `json:"firstName"`
 	LastName     string `json:"lastName"`
-	BirthDate    string `json:"birthDate"`
 }
 
 //Updates represents allowed updates to a user profile
@@ -59,16 +55,6 @@ func (nu *NewUser) Validate() error {
 	if len(nu.Password) != len(nu.PasswordConf) || strings.Compare(nu.Password, nu.PasswordConf) != 0 {
 		return fmt.Errorf("Password and confirmation do not match")
 	}
-	curTime := time.Now()
-	// .Format("01-02-2006")
-	birthDate, err := time.Parse("2006-01-02 15:04", nu.BirthDate)
-	if err != nil {
-		return fmt.Errorf("Invalid Birth Date")
-	}
-	if math.Floor(curTime.Sub(birthDate).Hours()/24/365) < 13 {
-		return fmt.Errorf("User must be 13 years old or older to create an account")
-	}
-
 	return nil
 }
 

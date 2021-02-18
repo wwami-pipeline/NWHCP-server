@@ -1,10 +1,8 @@
-package stores
+package orgs
 
 import (
 	"errors"
 	"log"
-
-	"pipeline-db/models"
 
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -54,8 +52,8 @@ func NewOrgStore(sess *mgo.Session, dbName string, collectionName string) (*OrgS
 }
 
 // GetByID returns an organization based on the ID
-func (os *OrgStore) GetByID(orgID int) (*models.Organization, error) {
-	org := &models.Organization{}
+func (os *OrgStore) GetByID(orgID int) (*Organization, error) {
+	org := &Organization{}
 	err := os.col.Find(bson.M{"_id": orgID}).One(org)
 	if err != nil {
 		return nil, err
@@ -64,8 +62,8 @@ func (os *OrgStore) GetByID(orgID int) (*models.Organization, error) {
 }
 
 // GetByName returns an organization based on the orgTitle
-func (os *OrgStore) GetByName(orgTitle string) (*models.Organization, error) {
-	org := &models.Organization{}
+func (os *OrgStore) GetByName(orgTitle string) (*Organization, error) {
+	org := &Organization{}
 	err := os.col.Find(bson.M{"OrgTitle": orgTitle}).One(org)
 	if err != nil {
 		return nil, err
@@ -74,7 +72,7 @@ func (os *OrgStore) GetByName(orgTitle string) (*models.Organization, error) {
 }
 
 //Insert inserts an organization checks for duplicates
-func (os *OrgStore) Insert(org *models.Organization) (*models.Organization, error) {
+func (os *OrgStore) Insert(org *Organization) (*Organization, error) {
 	checkOrg, _ := os.GetByID(org.OrgId)
 	if checkOrg != nil {
 		log.Printf("Organization with ID '%s' already exists, updating", org.OrgId)
@@ -92,7 +90,7 @@ func (os *OrgStore) Insert(org *models.Organization) (*models.Organization, erro
 }
 
 // Update updates an organization based on the ID
-func (os *OrgStore) Update(orgID int, updateOrg *models.Organization) (*models.Organization, error) {
+func (os *OrgStore) Update(orgID int, updateOrg *Organization) (*Organization, error) {
 	if err := os.col.Update(bson.M{"_id": orgID}, bson.M{"$set": updateOrg}); err != nil {
 		return nil, err
 	}
@@ -120,8 +118,8 @@ func (os *OrgStore) DeleteAll() error {
 }
 
 // GetAll returns all organizations in database
-func (os *OrgStore) GetAll() ([]*models.Organization, error) {
-	allOrgs := []*models.Organization{}
+func (os *OrgStore) GetAll() ([]*Organization, error) {
+	allOrgs := []*Organization{}
 	err := os.col.Find(nil).All(&allOrgs)
 	if err != nil {
 		return nil, err
@@ -130,8 +128,8 @@ func (os *OrgStore) GetAll() ([]*models.Organization, error) {
 }
 
 // SearchOrgs gets the organizations that matched certain searching criteria
-func (os *OrgStore) SearchOrgs(orginfo *models.OrgInfo) ([]*models.Organization, error) {
-	allOrgs := []*models.Organization{}
+func (os *OrgStore) SearchOrgs(orginfo *OrgInfo) ([]*Organization, error) {
+	allOrgs := []*Organization{}
 
 	andQuery := []bson.M{}
 	andQuery = append(andQuery,
@@ -148,7 +146,7 @@ func (os *OrgStore) SearchOrgs(orginfo *models.OrgInfo) ([]*models.Organization,
 	return allOrgs, nil
 }
 
-func buildOrQueryForSearchContent(orginfo *models.OrgInfo) []bson.M {
+func buildOrQueryForSearchContent(orginfo *OrgInfo) []bson.M {
 	searchFields := make([]string, 4)
 	searchFields = append(searchFields, OrgTitle, StreetAddr, City, State)
 
@@ -163,7 +161,7 @@ func buildOrQueryForSearchContent(orginfo *models.OrgInfo) []bson.M {
 	return orQuery
 }
 
-func buildOrQueryForCareerEmp(orginfo *models.OrgInfo) []bson.M {
+func buildOrQueryForCareerEmp(orginfo *OrgInfo) []bson.M {
 	orQuery := []bson.M{}
 	for _, c := range orginfo.CareerEmp {
 		query := bson.M{CareerEmp: c}
@@ -175,7 +173,7 @@ func buildOrQueryForCareerEmp(orginfo *models.OrgInfo) []bson.M {
 	return orQuery
 }
 
-func buildOrQueryForGradeLevels(orginfo *models.OrgInfo) []bson.M {
+func buildOrQueryForGradeLevels(orginfo *OrgInfo) []bson.M {
 	orQuery := []bson.M{}
 
 	for _, c := range orginfo.GradeLevels {
@@ -188,7 +186,7 @@ func buildOrQueryForGradeLevels(orginfo *models.OrgInfo) []bson.M {
 	return orQuery
 }
 
-func andQueryForCheckBox(orginfo *models.OrgInfo) []bson.M {
+func andQueryForCheckBox(orginfo *OrgInfo) []bson.M {
 	andQuery := []bson.M{}
 	if orginfo.HasShadow {
 		query := bson.M{HasShadow: orginfo.HasShadow}
