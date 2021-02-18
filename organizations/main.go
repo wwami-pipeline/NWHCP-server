@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 	"pipeline-db/handlers"
-	"pipeline-db/stores"
+	"pipeline-db/models/orgs"
 
 	mgo "gopkg.in/mgo.v2"
 )
