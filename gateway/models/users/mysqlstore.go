@@ -78,3 +78,25 @@ func (db *Database) TrackLogin(id int64, ip string, time time.Time) error {
 	}
 	return nil
 }
+
+// GetOrgs for SQL
+func (db *Database) GetOrgs(id int64) ([]*Orgs, error) {
+	// ("SELECT OrgID, OrgTitle FROM UserOrg UO JOIN Organization O on UO.OrgID = O.OrgID WHERE UserID = ?", userID)
+	query := "SELECT OrgID, OrgTitle FROM UserOrg UO JOIN Organization O on UO.OrgID = O.OrgID WHERE UserID = ?"
+	orgs, error := db.DB.Query(query, id)
+	if error != nil {
+		return nil, error
+	}
+	// userOrgs[] =
+	userOrgs := []*Orgs{}
+	for orgs.Next() {
+		temp := &Orgs{}
+		if errRow := orgs.Scan(&temp.OrgID, &temp.OrgTitle); errRow != nil {
+			// http.Error(w, "Database error", http.StatusInternalServerError)
+			// return org{}, errors.New("Database error")
+			return nil, errRow
+		}
+		userOrgs = append(userOrgs, temp)
+	}
+	return userOrgs, nil
+}
