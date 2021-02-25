@@ -29,4 +29,7 @@ type Store interface {
 
 	//Tracks a single login
 	TrackLogin(id int64, ip string, time time.Time) error
+
+	//GetUserOrgs
+	GetOrgs(id int64) ([]*Orgs, error)
 }

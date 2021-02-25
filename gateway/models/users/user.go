@@ -42,6 +42,12 @@ type Updates struct {
 	LastName  string `json:"lastName"`
 }
 
+//Orgs represents the users' organizations
+type Orgs struct {
+	OrgID    int64  `json:"OrgID"`
+	OrgTitle string `json:"OrgTitle"`
+}
+
 //Validate validates the new user and returns an error if
 //any of the validation rules fail, or nil if its valid
 func (nu *NewUser) Validate() error {
