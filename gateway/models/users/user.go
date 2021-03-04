@@ -12,6 +12,7 @@ import (
 var bcryptCost = 13
 
 //User represents a user account in the database
+// how do I store the stuff?
 type User struct {
 	ID        int64  `json:"id"`
 	Email     string `json:"-"` //never JSON encoded/decoded
@@ -46,6 +47,15 @@ type Updates struct {
 type Orgs struct {
 	OrgID    int64  `json:"OrgID"`
 	OrgTitle string `json:"OrgTitle"`
+}
+
+//UserOrgs represents the User's Organizations
+type UserOrgs struct {
+	ID        int64   `json:"id"`
+	Email     string  `json:"-"` //never JSON encoded/decoded
+	FirstName string  `json:"firstName"`
+	LastName  string  `json:"lastName"`
+	Orgs      []*Orgs `json:"orgs"`
 }
 
 //Validate validates the new user and returns an error if

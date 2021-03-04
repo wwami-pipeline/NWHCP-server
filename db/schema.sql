@@ -17,7 +17,7 @@ CREATE TABLE organization (
 	org_id INT NOT NULL AUTO_INCREMENT,
 	org_title VARCHAR(128) NOT NULL,
 	PRIMARY KEY (org_id)
-)
+);
 
 CREATE TABLE user_org (
 	id INT NOT NULL AUTO_INCREMENT,
@@ -26,4 +26,4 @@ CREATE TABLE user_org (
 	PRIMARY KEY (id),
 	FOREIGN KEY ([user_id]) REFERENCES [user]([user_id]),
 	FOREIGN KEY (org_id) REFERENCES organization(org_id)
-)
+);
