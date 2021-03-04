@@ -195,11 +195,13 @@ func (handler *Handler) GetUserInfoHandler(w http.ResponseWriter, r *http.Reques
 		Email     string
 		FirstName string
 		LastName  string
+		Orgs      []string
 	}{
 		user.ID,
 		user.Email,
 		user.FirstName,
 		user.LastName,
+		user.Orgs,
 	}
 	json, jsonErr := json.Marshal(userInfo)
 	if jsonErr != nil {
