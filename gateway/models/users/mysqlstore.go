@@ -80,7 +80,8 @@ func (db *Database) TrackLogin(id int64, ip string, time time.Time) error {
 }
 
 // GetOrgs for SQL
-func (db *Database) GetOrgs(id int64) ([]*Orgs, error) {
+// func (db *Database) GetOrgs(id int64) ([]*Orgs, error) {
+func (db *Database) GetOrgs(id int64) (*UserOrgs, error) {
 	// ("SELECT OrgID, OrgTitle FROM UserOrg UO JOIN Organization O on UO.OrgID = O.OrgID WHERE UserID = ?", userID)
 	query := "SELECT OrgID, OrgTitle FROM UserOrg UO JOIN Organization O on UO.OrgID = O.OrgID WHERE UserID = ?"
 	orgs, error := db.DB.Query(query, id)
@@ -88,7 +89,18 @@ func (db *Database) GetOrgs(id int64) ([]*Orgs, error) {
 		return nil, error
 	}
 	// userOrgs[] =
+	usr, err := db.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
 	userOrgs := []*Orgs{}
+	ret := &UserOrgs{}
+	ret.ID = usr.ID
+	ret.Email = usr.Email
+	ret.FirstName = usr.FirstName
+	ret.LastName = usr.LastName
+
 	for orgs.Next() {
 		temp := &Orgs{}
 		if errRow := orgs.Scan(&temp.OrgID, &temp.OrgTitle); errRow != nil {
@@ -98,5 +110,9 @@ func (db *Database) GetOrgs(id int64) ([]*Orgs, error) {
 		}
 		userOrgs = append(userOrgs, temp)
 	}
-	return userOrgs, nil
+
+	ret.Orgs = userOrgs
+
+	return ret, nil
+	// return userOrgs, nil
 }
