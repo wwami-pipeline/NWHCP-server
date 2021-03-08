@@ -1,12 +1,12 @@
 package main
 
 import (
+	"NWHCP/NWHCP-server/gateway/handlers"
+	"NWHCP/NWHCP-server/gateway/models/users"
+	"NWHCP/NWHCP-server/gateway/sessions"
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"info441-finalproj/servers/gateway/handlers"
-	"info441-finalproj/servers/gateway/models/users"
-	"info441-finalproj/servers/gateway/sessions"
 	"log"
 	"math/rand"
 	"net/http"
@@ -25,7 +25,8 @@ func main() {
 	key := os.Getenv("TLSKEY")
 	sess := os.Getenv("SESSIONKEY")
 	redisAddr := os.Getenv("REDISADDR")
-	meetingAddr := os.Getenv("MEETINGADDR")
+	// meetingAddr := os.Getenv("MEETINGADDR")
+	orgsAddr := os.Getenv("ORGSADDR")
 	dsn := os.Getenv("DSN")
 
 	if len(addr) == 0 {
@@ -61,8 +62,8 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	meetingDirector := func(r *http.Request) {
-		addresses := strings.Split(meetingAddr, ", ")
+	orgsDirector := func(r *http.Request) {
+		addresses := strings.Split(orgsAddr, ", ")
 		serv := addresses[0]
 		if len(addresses) > 1 {
 			rand.Seed(time.Now().UnixNano())
@@ -81,14 +82,17 @@ func main() {
 		r.URL.Scheme = "http"
 	}
 
-	meetingProxy := &httputil.ReverseProxy{Director: meetingDirector}
+	// meetingProxy := &httputil.ReverseProxy{Director: meetingDirector}
+	orgsProxy := &httputil.ReverseProxy{Director: orgsDirector}
 
 	mux.HandleFunc("/users", handler.UsersHandler)
 	mux.HandleFunc("/sessions", handler.SessionsHandler)
 	mux.HandleFunc("/getuser/", handler.GetUserInfoHandler)
-	mux.Handle("/meeting", meetingProxy)
-	mux.Handle("/meeting/", meetingProxy)
-	mux.Handle("/user/", meetingProxy)
+	// mux.Handle("/meeting", meetingProxy)
+	// mux.Handle("/meeting/", meetingProxy)
+	// mux.Handle("/user/", meetingProxy)
+	mux.Handle("/orgs", orgsProxy)
+	mux.Handle("/orgs/", orgsProxy)
 
 	newMux := handlers.NewPreflight(mux)
 
