@@ -78,18 +78,10 @@ func (db *Database) TrackLogin(id int64, ip string, time time.Time) error {
 	return nil
 }
 
-<<<<<<< HEAD
-// GetOrgs for SQL gets the Specific User's Organizations that they saved
-// func (db *Database) GetOrgs(id int64) ([]*Orgs, error) {
-func (db *Database) GetOrgs(id int64) (*UserOrgs, error) {
-	// ("SELECT OrgID, OrgTitle FROM UserOrg UO JOIN Organization O on UO.OrgID = O.OrgID WHERE UserID = ?", userID)
-	query := "SELECT OrgID, OrgTitle FROM UserOrg UO JOIN Organization O on UO.OrgID = O.OrgID WHERE UserID = ?"
-=======
 // GetOrgs for SQL
-func (db *Database) GetOrgs(id int64) (*userOrgs, error) {
+func (db *Database) GetOrgs(id int64) (*UserOrgs, error) {
 	// ("SELECT OrgID, OrgTitle FROM UserOrg UO JOIN Organization O on UO.OrgID = O.OrgID WHERE user_id = ?", user_id)
 	query := "SELECT org_id, org_title FROM user_org UO JOIN organization O on UO.org_id = O.org_id WHERE user_id = ?"
->>>>>>> 3c658731ba38525d3e18e8a38d76991b66adf5c1
 	orgs, error := db.DB.Query(query, id)
 	if error != nil {
 		return nil, error
