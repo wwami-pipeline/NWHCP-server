@@ -19,10 +19,7 @@ type User struct {
 	PassHash  []byte `json:"-"` //never JSON encoded/decoded
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
-	// BirthDate time.Time `json:"birthDate"`
-	// JoinDate  time.Time `json:"joinDate"`
-	BirthDate string `json:"birthDate"`
-	JoinDate  string `json:"joinDate"`
+	BirthDate  string `json:"birthDate"`
 }
 
 //Credentials represents user sign-in credentials
