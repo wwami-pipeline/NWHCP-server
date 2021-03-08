@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"NWHCP/NWHCP-server/gateway/models/users"
+	"NWHCP/NWHCP-server/gateway/sessions"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -9,11 +11,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"info441-finalproj/servers/gateway/models/users"
-	"info441-finalproj/servers/gateway/sessions"
+	// "info441-finalproj/servers/gateway/models/users"
+	// "info441-finalproj/servers/gateway/sessions"
 )
 
+// UsersHandler blah
 func (handler *Handler) UsersHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method must be POST", http.StatusMethodNotAllowed)
@@ -49,6 +51,7 @@ func (handler *Handler) UsersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(userJSON)
 }
 
+// SpecificUserHandler blah
 func (handler *Handler) SpecificUserHandler(w http.ResponseWriter, r *http.Request) {
 	state := &SessionState{}
 	_, sessionErr := sessions.GetState(r, handler.SessionKey, handler.SessionStore, state)
@@ -113,6 +116,7 @@ func (handler *Handler) SpecificUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+// SessionsHandler blah
 func (handler *Handler) SessionsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method must be POST", http.StatusMethodNotAllowed)
@@ -151,6 +155,7 @@ func (handler *Handler) SessionsHandler(w http.ResponseWriter, r *http.Request) 
 	w.Write(userJSON)
 }
 
+// SpecificSessionHandler balh
 func (handler *Handler) SpecificSessionHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "DELETE" {
 		http.Error(w, "Method must be DELETE", http.StatusMethodNotAllowed)
@@ -168,6 +173,7 @@ func (handler *Handler) SpecificSessionHandler(w http.ResponseWriter, r *http.Re
 	w.Write([]byte("signed out"))
 }
 
+// GetUserInfoHandler blah
 func (handler *Handler) GetUserInfoHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Method must be GET", http.StatusMethodNotAllowed)
@@ -186,24 +192,25 @@ func (handler *Handler) GetUserInfoHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	id := int64(temp)
-	user, err := handler.UserStore.GetByID(id)
+	// user, err := handler.UserStore.GetByID(id)
+	user, err := handler.UserStore.GetOrgs(id)
 	if err != nil {
 		http.Error(w, "Could not find user", http.StatusBadRequest)
 	}
-	userInfo := &struct {
-		id        int64
-		Email     string
-		FirstName string
-		LastName  string
-		Orgs      []string
-	}{
-		user.ID,
-		user.Email,
-		user.FirstName,
-		user.LastName,
-		user.Orgs,
-	}
-	json, jsonErr := json.Marshal(userInfo)
+	// userInfo := &struct {
+	// 	id        int64
+	// 	Email     string
+	// 	FirstName string
+	// 	LastName  string
+	// 	Orgs      []Orgs
+	// }{
+	// 	user.ID,
+	// 	user.Email,
+	// 	user.FirstName,
+	// 	user.LastName,
+	// 	user.Orgs,
+	// }
+	json, jsonErr := json.Marshal(user)
 	if jsonErr != nil {
 		http.Error(w, "Issue with encoding JSON", http.StatusInternalServerError)
 		return

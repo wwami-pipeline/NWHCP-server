@@ -31,5 +31,5 @@ type Store interface {
 	TrackLogin(id int64, ip string, time time.Time) error
 
 	//GetUserOrgs
-	GetOrgs(id int64) ([]*Orgs, error)
+	GetOrgs(id int64) (*UserOrgs, error)
 }
