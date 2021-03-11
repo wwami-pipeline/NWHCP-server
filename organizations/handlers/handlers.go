@@ -23,9 +23,9 @@ func (ctx *HandlerContext) InsertOrgs(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("The request body must be in JSON"), http.StatusUnsupportedMediaType)
 			return
 		}
-		var orgs []orgs.Organization
+		var o []orgs.Organization
 
-		if err := json.NewDecoder(r.Body).Decode(&orgs); err != nil {
+		if err := json.NewDecoder(r.Body).Decode(&o); err != nil {
 			http.Error(w, fmt.Sprintf("Error decoding JSON: %v", err),
 				http.StatusBadRequest)
 			return
@@ -33,7 +33,7 @@ func (ctx *HandlerContext) InsertOrgs(w http.ResponseWriter, r *http.Request) {
 
 		var insertedOrgs []orgs.Organization
 
-		for _, org := range orgs {
+		for _, org := range o {
 			dbOrg := &orgs.Organization{}
 			dbOrg.OrgId = org.OrgId
 			dbOrg.OrgTitle = org.OrgTitle
@@ -61,8 +61,8 @@ func (ctx *HandlerContext) InsertOrgs(w http.ResponseWriter, r *http.Request) {
 				insertedOrgs = append(insertedOrgs, *insertedOrg)
 			}
 			insq := "INSERT INTO organization(org_title) VALUES(?)"
-			res, err := ctx.dbStore.Exec(insq, org.OrgTitle)
-			if err != nil {
+			_, err2 := ctx.dbStore.Exec(insq, org.OrgTitle)
+			if err2 != nil {
 				http.Error(w, "Error with connecting to database", http.StatusInternalServerError)
 				return
 			}
