@@ -1,9 +1,9 @@
 package main
 
 import (
-	"NWHCP/NWHCP-server/gateway/handlers"
-	"NWHCP/NWHCP-server/gateway/models/users"
-	"NWHCP/NWHCP-server/gateway/sessions"
+	"NWHCP-server/gateway/handlers"
+	"NWHCP-server/gateway/models/users"
+	"NWHCP-server/gateway/sessions"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -93,6 +93,7 @@ func main() {
 	// mux.Handle("/user/", meetingProxy)
 	mux.Handle("/orgs", orgsProxy)
 	mux.Handle("/orgs/", orgsProxy)
+	// mux.Handle("/search", orgsProxy)
 
 	newMux := handlers.NewPreflight(mux)
 
