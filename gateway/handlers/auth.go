@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"NWHCP/NWHCP-server/gateway/models/users"
-	"NWHCP/NWHCP-server/gateway/sessions"
+	"NWHCP-server/gateway/models/users"
+	"NWHCP-server/gateway/sessions"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
