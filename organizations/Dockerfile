@@ -1,6 +1,6 @@
 FROM golang:alpine as builder
 
-WORKDIR /NWHCP-server
+WORKDIR /organizations
 
 COPY . ./
 
@@ -11,8 +11,8 @@ FROM scratch
 
 WORKDIR /root/
 
-COPY --from=builder /NWHCP-server/NWHCP-server .
+COPY --from=builder /organizations/organizations .
 
 ENV APP_ENV production
 
-CMD ["./NWHCP-server"]
+CMD ["./organizations"]
