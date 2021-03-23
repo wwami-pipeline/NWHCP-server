@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,6 +9,9 @@ import (
 	"pipeline-db/handlers"
 	"pipeline-db/models/orgs"
 
+	// "pipeline-db/orgs"
+
+	"github.com/gorilla/mux"
 	mgo "gopkg.in/mgo.v2"
 )
 
@@ -39,7 +43,8 @@ func main() {
 		fmt.Println("Success!")
 	}
 	//schoolStore, err := stores.NewSchoolStore(mongoSession, "mongodb", "school")
-	orgStore, err := stores.NewOrgStore(mongoSession, "mongodb", "organization")
+	orgStore, err := orgs.NewOrgStore(mongoSession, "mongodb", "organization")
+	// orgStore, err := stores.NewOrgStore(mongoSession, "mongodb", "organization")
 	dsn := os.Getenv("DSN")
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
@@ -47,7 +52,7 @@ func main() {
 	}
 	hctx := &handlers.HandlerContext{
 		OrgStore: orgStore,
-		dbStore: db
+		Db:       db,
 	}
 
 	//ignore compiler
@@ -63,7 +68,7 @@ func main() {
 	}
 
 	apiEndpoint := "/api/v1"
-	mux := http.NewRouter()
+	mux := mux.NewRouter()
 	fmt.Println("Pipeline-DB Microservice")
 	mux.HandleFunc(apiEndpoint+"/search", hctx.SearchOrgsHandler)
 	mux.HandleFunc(apiEndpoint+"/orgs", hctx.GetAllOrgs)
