@@ -61,7 +61,7 @@ func (ctx *HandlerContext) InsertOrgs(w http.ResponseWriter, r *http.Request) {
 				insertedOrgs = append(insertedOrgs, *insertedOrg)
 			}
 			insq := "INSERT INTO organization(org_title) VALUES(?)"
-			_, err2 := ctx.dbStore.Exec(insq, org.OrgTitle)
+			_, err2 := ctx.Db.Exec(insq, org.OrgTitle)
 			if err2 != nil {
 				http.Error(w, "Error with connecting to database", http.StatusInternalServerError)
 				return
