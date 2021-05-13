@@ -14,18 +14,18 @@ func GetNewStore(db *sql.DB) *Database {
 }
 
 func (db *Database) GetByID(id int64) (*User, error) {
-	row := db.DB.QueryRow("SELECT * FROM user WHERE user_id = ?", id)
+	row := db.DB.QueryRow("SELECT * FROM Users WHERE UserID = ?", id)
 	user := User{}
-	if err := row.Scan(&user.ID, &user.Email, &user.PassHash, &user.FirstName, &user.LastName); err != nil {
+	if err := row.Scan(&user.ID, &user.Email, &user.PassHash, &user.FirstName, &user.LastName, &user.JoinDate); err != nil {
 		return nil, ErrUserNotFound
 	}
 	return &user, nil
 }
 
 func (db *Database) GetByEmail(email string) (*User, error) {
-	row := db.DB.QueryRow("SELECT * FROM user WHERE email = ?", email)
+	row := db.DB.QueryRow("SELECT * FROM Users WHERE Email = ?", email)
 	user := User{}
-	if err := row.Scan(&user.ID, &user.Email, &user.PassHash, &user.FirstName, &user.LastName); err != nil {
+	if err := row.Scan(&user.ID, &user.Email, &user.PassHash, &user.FirstName, &user.LastName, &user.JoinDate); err != nil {
 		return nil, ErrUserNotFound
 	}
 	return &user, nil
@@ -33,9 +33,9 @@ func (db *Database) GetByEmail(email string) (*User, error) {
 
 // Insert blah should I store as string or date?
 func (db *Database) Insert(user *User) (*User, error) {
-	insq := "INSERT INTO user(email, passhash, firstname, lastname, dob) VALUES (?,?,?,?,?)"
-	birthDate, _ := time.Parse("2006-01-02", user.BirthDate)
-	res, err := db.DB.Exec(insq, user.Email, user.PassHash, user.FirstName, user.LastName, birthDate)
+	insq := "INSERT INTO Users(Email, PassHash, FirstName, LastName, JoinDate) VALUES (?,?,?,?,?)"
+	// birthDate, _ := time.Parse("2006-01-02", user.BirthDate)
+	res, err := db.DB.Exec(insq, user.Email, user.PassHash, user.FirstName, user.LastName, user.JoinDate)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (db *Database) Insert(user *User) (*User, error) {
 }
 
 func (db *Database) Update(id int64, updates *Updates) (*User, error) {
-	insq := "UPDATE user SET firstname = ?, lastname = ? WHERE user_id = ?"
+	insq := "UPDATE Users SET FirstName = ?, LastName = ? WHERE UserID = ?"
 	_, err := db.DB.Exec(insq, updates.FirstName, updates.LastName, id)
 	if err != nil {
 		return nil, ErrUserNotFound
@@ -61,7 +61,7 @@ func (db *Database) Update(id int64, updates *Updates) (*User, error) {
 }
 
 func (db *Database) Delete(id int64) error {
-	insq := "DELETE FROM user WHERE user_id = ?"
+	insq := "DELETE FROM Users WHERE UserID = ?"
 	_, err := db.DB.Exec(insq, id)
 	if err != nil {
 		return err
@@ -70,8 +70,8 @@ func (db *Database) Delete(id int64) error {
 }
 
 func (db *Database) TrackLogin(id int64, ip string, time time.Time) error {
-	query := "INSERT INTO SignIns(user_id, IPAddress, SignInDate) VALUES (?,?,?)"
-	_, err := db.DB.Exec(query, id, ip, time)
+	query := "INSERT INTO SignIns(UserID, SignInDate, IPAddress) VALUES (?,?,?)"
+	_, err := db.DB.Exec(query, id, time, ip)
 	if err != nil {
 		return err
 	}

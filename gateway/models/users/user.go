@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/mail"
 	"strings"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -19,7 +20,7 @@ type User struct {
 	PassHash  []byte `json:"-"` //never JSON encoded/decoded
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
-	BirthDate  string `json:"birthDate"`
+	JoinDate  string `json:"joinDate"`
 }
 
 //Credentials represents user sign-in credentials
@@ -85,7 +86,10 @@ func (nu *NewUser) ToUser() (*User, error) {
 	user.FirstName = nu.FirstName
 	user.LastName = nu.LastName
 	user.Email = nu.Email
+	joinDate := time.Now().Format("01-02-2006")
+	user.JoinDate = joinDate
 	user.SetPassword(nu.Password)
+
 	return user, nil
 }
 
@@ -126,7 +130,7 @@ func (u *User) Authenticate(password string) error {
 //is returned if the updates are invalid
 func (u *User) ApplyUpdates(updates *Updates) error {
 	if updates.FirstName == "" && updates.LastName == "" {
-		return fmt.Errorf("Names cannot both be null")
+		return fmt.Errorf("names cannot both be null")
 	}
 	u.FirstName = updates.FirstName
 	u.LastName = updates.LastName
