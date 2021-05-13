@@ -1,34 +1,40 @@
-sh build.sh
+export MYSQL_ROOT_PASSWORD="password"
+export MYSQL_DATABASE=mydatabase
+export TLSCERT=/etc/letsencrypt/live/nwhealthcareerpath.uw.edu/fullchain.pem
+export TLSKEY=/etc/letsencrypt/live/nwhealthcareerpath.uw.edu/privkey.pem
+export REDISADDR=myredis:6379
+export SESSIONKEY="key"
+export SUMMARYADDR="summary:5000"
 
-ssh ec2-user@api.jimhua32.me << EOF
+# docker rm -f helloservertest;
 
-docker rm -f gateway
-docker rm -f redis
 
-docker pull jimhua32/finalprojgateway
+# docker network create verdancynet;
 
-docker run \
-    -d \
-    --name redis \
-    --network serv \
-    redis
+# docker run -d --name myredis --network verdancynet redis;
+# docker run --name myredis -d redis;
 
-docker run \
-    -d \
-    -e ADDR=:443 \
-    -e SESSIONKEY="key" \
-    -e MYSQL_ROOT_PASSWORD="blah" \
-    -e MYSQL_DATABASE="mydatabase" \
-    -e REDISADDR=redis:6379 \
-    -e DSN="root:blah@tcp(database:3306)/mydatabase?parseTime=true" \
-    -e MEETINGADDR="meetings:5000" \
-    -v /etc/letsencrypt:/etc/letsencrypt:ro \
-    -e TLSCERT=/etc/letsencrypt/live/api.jimhua32.me/fullchain.pem \
-    -e TLSKEY=/etc/letsencrypt/live/api.jimhua32.me/privkey.pem \
-    -p 443:443 \
-    --name gateway \
-	--network serv \
-    jimhua32/finalprojgateway
-exit
+# docker rm -f verdancy_db;
 
-EOF
+# docker pull annaqzhou/verdancydb;
+# docker run -d \
+# -p 3306:3306 \
+# --name verdancy_db \
+# --network verdancynet \
+# -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD \
+# -e MYSQL_DATABASE=$MYSQL_DATABASE \
+# annaqzhou/verdancydb;
+
+docker rm -f gateway;
+docker pull annaqzhou/nwhcp-gateway;
+
+docker run -d -p 443:443 \
+-v /etc/letsencrypt:/etc/letsencrypt:ro \
+-e TLSCERT=$TLSCERT \
+-e TLSKEY=$TLSKEY \
+-e SESSIONKEY=$SESSIONKEY \
+-e REDISADDR=$REDISADDR \
+-e SUMMARYADDR=$SUMMARYADDR \
+-e DSN=root:$MYSQL_ROOT_PASSWORD@tcp\(nwhcp-sqldb:3306\)/$MYSQL_DATABASE \
+--network nwhcp_net \
+--name gateway annaqzhou/nwhcp-gateway;

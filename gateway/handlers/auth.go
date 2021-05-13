@@ -1,11 +1,12 @@
 package handlers
 
 import (
-	"NWHCP-server/gateway/models/users"
-	"NWHCP-server/gateway/sessions"
+	"NWHCP/NWHCP-server/gateway/models/users"
+	"NWHCP/NWHCP-server/gateway/sessions"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"path"
 	"strconv"
@@ -33,12 +34,14 @@ func (handler *Handler) UsersHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid user data", http.StatusBadRequest)
 		return
 	}
+	log.Println("hello prior to insert")
 	userRes, insertErr := handler.UserStore.Insert(user)
 	if insertErr != nil {
 		fmt.Println(insertErr)
 		http.Error(w, "User could not be added to the database", http.StatusBadRequest)
 		return
 	}
+	log.Println("hello after insert")
 	state := &SessionState{time.Now(), *userRes}
 	_, sessionErr := sessions.BeginSession(handler.SessionKey, handler.SessionStore, state, w)
 	if sessionErr != nil {
