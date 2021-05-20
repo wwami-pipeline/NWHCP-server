@@ -16,9 +16,15 @@ To run locally:
 Or:
   - Refer to NWHCP-docker/readme.md to use docker-compose to start a mongoDB
 
+To deploy to the server:
+    - run the deploy scripts given in each respective folder
+    - try to not remove the sqldb container as it will delete user information
+    - edit the build.sh and deploy.sh scripts to your respective docker containers and your login for the server
+    - make sure to do `chmod +x build.sh` for shell scripts so the scripts can run
+
 ## API:
 
-The website is hosted at: [https://nwhealthcareerpath.uw.edu](https://nwhealthcareerpath.uw.edu)
+The server is hosted at: [https://nwhealthcareerpath.uw.edu](https://nwhealthcareerpath.uw.edu)
 
 ### /POST /api/v3/search
 
