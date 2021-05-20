@@ -10,22 +10,18 @@ export DBADDR=nwhcp-mongo:27017
 
 # docker rm -f helloservertest;
 
+# docker run -d --name myredis --network nwhcp-docker_default redis;
 
-# docker network create verdancynet;
+# docker rm -f nwhcp-sqldb;
 
-# docker run -d --name myredis --network verdancynet redis;
-# docker run --name myredis -d redis;
-
-# docker rm -f verdancy_db;
-
-# docker pull annaqzhou/verdancydb;
+# docker pull annaqzhou/nwhcp-sqldb;
 # docker run -d \
 # -p 3306:3306 \
-# --name verdancy_db \
-# --network verdancynet \
+# --name nwhcp-sqldb \
+# --network nwhcp-docker_default \
 # -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD \
 # -e MYSQL_DATABASE=$MYSQL_DATABASE \
-# annaqzhou/verdancydb;
+# annaqzhou/nwhcp-sqldb;
 
 docker rm -f gateway;
 docker pull annaqzhou/nwhcp-gateway;
