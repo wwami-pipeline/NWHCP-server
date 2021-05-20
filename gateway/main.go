@@ -135,7 +135,7 @@ func main() {
 
 	mux.HandleFunc("/api/v1/users", handler.UsersHandler)
 	mux.HandleFunc("/api/v1/sessions", handler.SessionsHandler)
-	mux.HandleFunc("/api/v1/getuser/", handler.GetUserInfoHandler)
+	mux.HandleFunc("/api/v1/sessions/{id}", handler.SpecificSessionHandler)
 
 	apiEndpoint := "/api/v2"
 	mux.Handle(apiEndpoint+"/orgs/{id}", orgsProxy)
