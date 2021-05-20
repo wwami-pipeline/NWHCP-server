@@ -18,7 +18,13 @@ CREATE TABLE if not exists SignIns (
 );
 
 CREATE TABLE if not exists organization (
-	org_id INT NOT NULL AUTO_INCREMENT,
-	org_title VARCHAR(128) NOT NULL,
-	PRIMARY KEY (org_id)
+	OrgID INT NOT NULL PRIMARY KEY,
+	OrgTitle VARCHAR(128)
+);
+
+CREATE TABLE if not exists user_org (
+    UserOrgID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    UserID INT NOT NULL,
+    OrgID INT NOT NULL UNIQUE,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );

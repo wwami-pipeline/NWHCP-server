@@ -1,30 +1,54 @@
 package main
 
 import (
-	"NWHCP/NWHCP-server/gateway/handlers"
-	"NWHCP/NWHCP-server/gateway/models/users"
-	"NWHCP/NWHCP-server/gateway/sessions"
+	// "NWHCP/NWHCP-server/gateway/handlers"
+	// "NWHCP/NWHCP-server/gateway/models/users"
+	// "NWHCP/NWHCP-server/gateway/sessions"
+
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"nwhcp/nwhcp-server/gateway/handlers"
+	"nwhcp/nwhcp-server/gateway/models/users"
+	"nwhcp/nwhcp-server/gateway/sessions"
 	"os"
+	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
+	// "github.com/nwhcp-server/gateway/handlers"
+	// "github.com/nwhcp-server/gateway/models/users"
+	// "github.com/nwhcp-server/gateway/sessions"
 )
 
 type Director func(r *http.Request)
 
-func CustomDirector2(target *url.URL) Director {
+func CustomDirector(target []*url.URL, signingKey string, sessionStore sessions.Store) Director {
+	var counter int32 = 0
 	return func(r *http.Request) {
-		r.Header.Add("X-Forwarded-Host", r.Host)
-		r.Host = target.Host
-		r.URL.Host = target.Host
-		r.URL.Scheme = target.Scheme
+		log.Println("hello")
+		targ := target[counter%int32(len(target))]
+		atomic.AddInt32(&counter, 1)
+		state := &handlers.SessionState{}
+		_, err := sessions.GetState(r, signingKey, sessionStore, state)
+		if err != nil {
+			r.Header.Del("X-User")
+			log.Printf("Error getting state: %v", err)
+			return
+		}
+		user, _ := json.Marshal(state.User)
+		r.Header.Add("X-User", string(user))
+		r.Header.Set("X-User", string(user))
+		r.Host = targ.Host
+		r.URL.Host = targ.Host
+		r.URL.Scheme = targ.Scheme
 	}
 }
 
@@ -34,7 +58,7 @@ func main() {
 	key := os.Getenv("TLSKEY")
 	sess := os.Getenv("SESSIONKEY")
 	redisAddr := os.Getenv("REDISADDR")
-	SUMMARYADDR := os.Getenv("SUMMARYADDR")
+	server2addr := os.Getenv("SERVER2ADDR")
 	// meetingAddr := os.Getenv("MEETINGADDR")
 	// orgsAddr := os.Getenv("ORGSADDR")
 	dsn := os.Getenv("DSN")
@@ -70,43 +94,30 @@ func main() {
 		UserStore:    users.GetNewStore(db),
 	}
 
-	mux := http.NewServeMux()
-
-	// orgsDirector := func(r *http.Request) {
-	// 	addresses := strings.Split(orgsAddr, ", ")
-	// 	serv := addresses[0]
-	// 	if len(addresses) > 1 {
-	// 		rand.Seed(time.Now().UnixNano())
-	// 		serv = addresses[rand.Intn(len(addresses))]
-	// 	}
-	// 	r.Header.Del("X-User")
-	// 	state := &handlers.SessionState{}
-	// 	sid, _ := sessions.GetSessionID(r, handler.SessionKey)
-	// 	err := handler.SessionStore.Get(sid, &state)
-	// 	if err == nil {
-	// 		json, _ := json.Marshal(state.User)
-	// 		r.Header.Set("X-User", string(json))
-	// 	}
-	// 	r.Host = serv
-	// 	r.URL.Host = serv
-	// 	r.URL.Scheme = "http"
-	// }
+	orgsAddress := strings.Split(server2addr, ",")
+	var oUrls []*url.URL
+	for _, cur := range orgsAddress {
+		curURL, err := url.Parse(cur)
+		if err != nil {
+			fmt.Printf("Error parsing URL addr: %v", err)
+		}
+		oUrls = append(oUrls, curURL)
+	}
 
 	// meetingProxy := &httputil.ReverseProxy{Director: meetingDirector}
 	// orgsProxy := &httputil.ReverseProxy{Director: orgsDirector}
-	summaryURL := &url.URL{Scheme: "http", Host: SUMMARYADDR}
-	summaryProxy := &httputil.ReverseProxy{Director: CustomDirector2(summaryURL)}
+	orgsProxy := &httputil.ReverseProxy{Director: CustomDirector(oUrls, handler.SessionKey, handler.SessionStore)}
+	mux := mux.NewRouter()
 
 	mux.HandleFunc("/api/v1/users", handler.UsersHandler)
 	mux.HandleFunc("/api/v1/sessions", handler.SessionsHandler)
 	mux.HandleFunc("/api/v1/getuser/", handler.GetUserInfoHandler)
-	mux.Handle("/api/v1/summary", summaryProxy)
-	// mux.Handle("/meeting", meetingProxy)
-	// mux.Handle("/meeting/", meetingProxy)
-	// mux.Handle("/user/", meetingProxy)
-	// mux.Handle("/orgs", orgsProxy)
-	// mux.Handle("/orgs/", orgsProxy)
-	// mux.Handle("/search", orgsProxy)
+
+	apiEndpoint := "/api/v2"
+	// mux.Handle("/api2/v1/orgs", orgsProxy)
+	mux.Handle(apiEndpoint+"/orgs/{id}", orgsProxy)
+	// mux.Handle("/api2/v1/search", orgsProxy)
+	mux.Handle(apiEndpoint+"/getuser/", orgsProxy)
 
 	newMux := handlers.NewPreflight(mux)
 	log.Printf("server is listening at http://%s", addr)
