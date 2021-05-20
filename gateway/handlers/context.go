@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"nwhcp/nwhcp-server/gateway/models/orgs"
 	"nwhcp/nwhcp-server/gateway/models/users"
 	"nwhcp/nwhcp-server/gateway/sessions"
 	// "github.com/nwhcp-server/gateway/models/users"
@@ -14,4 +15,8 @@ type Handler struct {
 	SessionKey   string         `json:"key"`
 	SessionStore sessions.Store `json:"sessions"`
 	UserStore    users.Store    `json:"users"`
+}
+
+type HandlerContext struct {
+	OrgStore orgs.Store
 }

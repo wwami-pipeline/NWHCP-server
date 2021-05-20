@@ -13,6 +13,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"nwhcp/nwhcp-server/gateway/handlers"
+	"nwhcp/nwhcp-server/gateway/models/orgs"
 	"nwhcp/nwhcp-server/gateway/models/users"
 	"nwhcp/nwhcp-server/gateway/sessions"
 	"os"
@@ -23,6 +24,7 @@ import (
 	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
+	"gopkg.in/mgo.v2"
 	// "github.com/nwhcp-server/gateway/handlers"
 	// "github.com/nwhcp-server/gateway/models/users"
 	// "github.com/nwhcp-server/gateway/sessions"
@@ -59,9 +61,31 @@ func main() {
 	sess := os.Getenv("SESSIONKEY")
 	redisAddr := os.Getenv("REDISADDR")
 	server2addr := os.Getenv("SERVER2ADDR")
-	// meetingAddr := os.Getenv("MEETINGADDR")
-	// orgsAddr := os.Getenv("ORGSADDR")
 	dsn := os.Getenv("DSN")
+
+	internalPort := os.Getenv("INTERNAL_PORT")
+	if len(internalPort) == 0 {
+		internalPort = ":4003"
+	}
+
+	dbAddr := os.Getenv("DBADDR") //pipelineDB:27017
+	if len(dbAddr) == 0 {
+		dbAddr = "localhost:27017"
+	}
+	log.Printf("DBADDR: %s", dbAddr)
+
+	mongoSession, err := mgo.Dial(dbAddr)
+	if err != nil {
+		fmt.Println("Error dialing dbaddr: ", err)
+	} else {
+		fmt.Println("Success!")
+	}
+	//schoolStore, err := stores.NewSchoolStore(mongoSession, "mongodb", "school")
+	orgStore, err := orgs.NewOrgStore(mongoSession, "mongodb", "organization")
+
+	hctx := &handlers.HandlerContext{
+		OrgStore: orgStore,
+	}
 
 	if len(addr) == 0 {
 		addr = ":443"
@@ -114,12 +138,25 @@ func main() {
 	mux.HandleFunc("/api/v1/getuser/", handler.GetUserInfoHandler)
 
 	apiEndpoint := "/api/v2"
-	// mux.Handle("/api2/v1/orgs", orgsProxy)
 	mux.Handle(apiEndpoint+"/orgs/{id}", orgsProxy)
-	// mux.Handle("/api2/v1/search", orgsProxy)
 	mux.Handle(apiEndpoint+"/getuser/", orgsProxy)
+
+	apiEndpoint3 := "/api/v3"
+	mux.HandleFunc(apiEndpoint3+"/search", hctx.SearchOrgsHandler)
+	mux.HandleFunc(apiEndpoint3+"/orgs", hctx.GetAllOrgs)
+	mux.HandleFunc(apiEndpoint3+"/orgs/{id}", hctx.SpecificOrgHandler)
+
+	mux2 := http.NewServeMux()
+	mux2.HandleFunc(apiEndpoint3+"/pipeline-db/truncate", hctx.DeleteAllOrgsHandler)
+	mux2.HandleFunc(apiEndpoint3+"/pipeline-db/poporgs", hctx.InsertOrgs)
+	go serve(mux2, internalPort)
 
 	newMux := handlers.NewPreflight(mux)
 	log.Printf("server is listening at http://%s", addr)
 	log.Fatal(http.ListenAndServeTLS(addr, cert, key, newMux))
+}
+
+func serve(mux *http.ServeMux, addr string) {
+	log.Fatal(http.ListenAndServe(addr, handlers.NewPreflight(mux)))
+	log.Printf("server is listening at %s...", addr)
 }
