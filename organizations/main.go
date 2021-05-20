@@ -11,6 +11,7 @@ import (
 
 	// "pipeline-db/orgs"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	mgo "gopkg.in/mgo.v2"
 )
@@ -67,16 +68,17 @@ func main() {
 		fmt.Println("Error creating store")
 	}
 
-	apiEndpoint := "/api/v1"
+	apiEndpoint := "/api/v2"
 	mux := mux.NewRouter()
 	fmt.Println("Pipeline-DB Microservice")
-	mux.HandleFunc(apiEndpoint+"/search", hctx.SearchOrgsHandler)
-	mux.HandleFunc(apiEndpoint+"/orgs", hctx.GetAllOrgs)
-	mux.HandleFunc(apiEndpoint+"/org/", hctx.SpecificOrgHandler)
-	mux2 := http.NewServeMux()
-	mux2.HandleFunc(apiEndpoint+"/pipeline-db/truncate", hctx.DeleteAllOrgsHandler)
-	mux2.HandleFunc(apiEndpoint+"/pipeline-db/poporgs", hctx.InsertOrgs)
-	go serve(mux2, internalPort)
+	// mux.HandleFunc(apiEndpoint+"/search", hctx.SearchOrgsHandler)
+	// mux.HandleFunc(apiEndpoint+"/orgs", hctx.GetAllOrgs)
+	mux.HandleFunc(apiEndpoint+"/orgs/{id}", hctx.SpecificOrgHandler)
+	mux.HandleFunc(apiEndpoint+"/getuser/", hctx.GetUserInfoHandler)
+	// mux2 := http.NewServeMux()
+	// mux2.HandleFunc(apiEndpoint+"/pipeline-db/truncate", hctx.DeleteAllOrgsHandler)
+	// mux2.HandleFunc(apiEndpoint+"/pipeline-db/poporgs", hctx.InsertOrgs)
+	// go serve(mux2, internalPort)
 
 	// mux.HandleFunc(apiEndpoint+"/post-test", handlers.HandlePost)
 	log.Printf("server listening at http://%s...", portAddr)

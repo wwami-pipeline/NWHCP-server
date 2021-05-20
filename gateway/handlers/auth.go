@@ -1,17 +1,21 @@
 package handlers
 
 import (
-	"NWHCP/NWHCP-server/gateway/models/users"
-	"NWHCP/NWHCP-server/gateway/sessions"
+	// "NWHCP/NWHCP-server/gateway/models/users"
+	// "NWHCP/NWHCP-server/gateway/sessions"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"nwhcp/nwhcp-server/gateway/models/users"
+	"nwhcp/nwhcp-server/gateway/sessions"
 	"path"
 	"strconv"
 	"strings"
 	"time"
+	// "github.com/nwhcp-server/gateway/models/users"
+	// "github.com/nwhcp-server/gateway/sessions"
 	// "info441-finalproj/servers/gateway/models/users"
 	// "info441-finalproj/servers/gateway/sessions"
 )
@@ -177,6 +181,7 @@ func (handler *Handler) SpecificSessionHandler(w http.ResponseWriter, r *http.Re
 }
 
 // GetUserInfoHandler blah
+// add check auth to get the user's info
 func (handler *Handler) GetUserInfoHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Method must be GET", http.StatusMethodNotAllowed)
