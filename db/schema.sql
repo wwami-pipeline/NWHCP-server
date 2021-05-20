@@ -17,14 +17,38 @@ CREATE TABLE if not exists SignIns (
     IPAddress VARCHAR(100) NOT NULL UNIQUE
 );
 
-CREATE TABLE if not exists organization (
-	OrgID INT NOT NULL PRIMARY KEY,
-	OrgTitle VARCHAR(128)
-);
-
 CREATE TABLE if not exists user_org (
     UserOrgID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     UserID INT NOT NULL,
-    OrgID INT NOT NULL UNIQUE,
+    OrgID INT NOT NULL,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
+
+
+
+    CONSTRAINT checkDupOrgs
+        CHECK ((SELECT COUNT(OrgID) FROM user_org UO GROUP BY UserID, OrgID) = 1)
+SELECT UserID, OrgID FROM user_org UO
+    GROUP BY UserID, OrgID
+    HAVING COUNT(OrgID) = 1
+
+
+DELIMITER $$
+CREATE FUNCTION FN_NoSameOrgsForUser() RETURNS INT
+BEGIN 
+    DECLARE INT RET;
+    IF EXISTS (
+        SELECT UserID, OrgID FROM user_org UO GROUP BY UserID, OrgID HAVING COUNT(OrgID) = 1;
+    )
+    BEGIN
+        SET RET=1
+    END
+    RETURN RET
+END $$
+
+DELIMITER ;
+
+ALTER TABLE user_org
+ADD CONSTRAINT FN_NoSameOrgsForUser
+CHECK(dbo.FN_NoSameOrgsForUser = 0)
+GO;

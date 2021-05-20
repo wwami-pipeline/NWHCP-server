@@ -5,6 +5,8 @@ export TLSKEY=/etc/letsencrypt/live/nwhealthcareerpath.uw.edu/privkey.pem
 export REDISADDR=myredis:6379
 export SESSIONKEY="key"
 export SERVER2ADDR="http://organizations:5000"
+export INTERNAL_PORT=:90
+export DBADDR=nwhcp-mongo:27017
 
 # docker rm -f helloservertest;
 
@@ -37,5 +39,7 @@ docker run -d -p 443:443 \
 -e SUMMARYADDR=$SUMMARYADDR \
 -e DSN=root:$MYSQL_ROOT_PASSWORD@tcp\(nwhcp-sqldb:3306\)/$MYSQL_DATABASE \
 -e SERVER2ADDR=$SERVER2ADDR \
+-e INTERNAL_PORT=$INTERNAL_PORT \
+-e DBADDR=$DBADDR \
 --network nwhcp-docker_default \
 --name gateway annaqzhou/nwhcp-gateway;
