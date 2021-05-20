@@ -18,6 +18,8 @@ Or:
 
 ## API:
 
+The website is hosted at: [https://nwhealthcareerpath.uw.edu](https://nwhealthcareerpath.uw.edu)
+
 ### /POST /api/v3/search
 
 Sample request body:
