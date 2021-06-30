@@ -26,6 +26,8 @@ To deploy to the server:
 
 The server is hosted at: [https://nwhealthcareerpath.uw.edu](https://nwhealthcareerpath.uw.edu)
 
+To reach the
+
 ### /POST /api/v3/search
 
 Sample request body:
@@ -110,6 +112,7 @@ Sample Request Body:
 ```
 Returns status code `201` and json of the user information:
 Also in the returned response headers, there will be an authorization token used to access the user information
+Returns session ID in Authorization header as Bearer: ________.
 ```
 {
     "id": 1,
