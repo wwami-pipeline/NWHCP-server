@@ -1,7 +1,11 @@
+# Update password
 export MYSQL_ROOT_PASSWORD="password"
 export MYSQL_DATABASE=mydatabase
+# HTTPS keys need be updated every 90 days
+# Need to figure out how to automate this
 export TLSCERT=/etc/letsencrypt/live/nwhealthcareerpath.uw.edu/fullchain.pem
 export TLSKEY=/etc/letsencrypt/live/nwhealthcareerpath.uw.edu/privkey.pem
+# Environment variables
 export REDISADDR=myredis:6379
 export SESSIONKEY="key"
 export SERVER2ADDR="http://organizations:5000"
@@ -23,9 +27,10 @@ export DBADDR=nwhcp-mongo:27017
 # -e MYSQL_DATABASE=$MYSQL_DATABASE \
 # annaqzhou/nwhcp-sqldb;
 
-docker rm -f gateway;
-docker pull annaqzhou/nwhcp-gateway;
+docker rm -f gateway; # mostly for testing because have to remove docker img every tiime you redeploy
+docker pull annaqzhou/nwhcp-gateway; # pull image from dockerhub
 
+# Run server from docker img
 docker run -d -p 443:443 \
 -v /etc/letsencrypt:/etc/letsencrypt:ro \
 -e TLSCERT=$TLSCERT \
