@@ -1,11 +1,12 @@
 package orgs
 
 import (
+	"context"
 	"errors"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
-
-	mgo "gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 //These are the fields that being searched by client
@@ -25,36 +26,34 @@ const (
 //OrgStore represents a mongoDB data store that implements the abstract store interface
 type OrgStore struct {
 	//the mongo session
-	session *mgo.Session
+	session *mongo.Client
 	//the database name to use
 	dbname string
 	//the collection name to use
 	colname string
 	//the Collection object for that dbname/colname
-	col *mgo.Collection
+	col *mongo.Collection
 }
 
 // NewOrgStore creates new Organization Store with mongo session, dbname, and collection name
-func NewOrgStore(sess *mgo.Session, dbName string, collectionName string) (*OrgStore, error) {
+func NewOrgStore(sess *mongo.Client, dbName string, collectionName string) (*OrgStore, error) {
 	if sess == nil {
 		panic("nil pointer passed for session")
 	}
-
 	//return a new MongoStore
 	os := &OrgStore{
 		session: sess,
 		dbname:  dbName,
 		colname: collectionName,
-		col:     sess.DB(dbName).C(collectionName),
+		col:     sess.Database(dbName).Collection(collectionName),
 	}
-
 	return os, nil
 }
 
 // GetByID returns an organization based on the ID
 func (os *OrgStore) GetByID(orgID int) (*Organization, error) {
 	org := &Organization{}
-	err := os.col.Find(bson.M{"_id": orgID}).One(org)
+	err := os.col.FindOne(context.TODO(), bson.M{"OrgId": orgID}).Decode(org)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +63,7 @@ func (os *OrgStore) GetByID(orgID int) (*Organization, error) {
 // GetByName returns an organization based on the orgTitle
 func (os *OrgStore) GetByName(orgTitle string) (*Organization, error) {
 	org := &Organization{}
-	err := os.col.Find(bson.M{"OrgTitle": orgTitle}).One(org)
+	err := os.col.FindOne(context.TODO(), bson.M{"OrgTitle": orgTitle}).Decode(org)
 	if err != nil {
 		return nil, err
 	}
@@ -78,9 +77,9 @@ func (os *OrgStore) Insert(org *Organization) (*Organization, error) {
 		log.Printf("Organization with ID '%s' already exists, updating", org.OrgId)
 		return nil, errors.New("Organization already exists")
 	}
-	if err := os.col.Insert(org); err != nil {
-		log.Printf(err.Error())
-		return nil, err
+	_, err := os.col.InsertOne(context.TODO(), &org)
+	if err != nil {
+		panic(err)
 	}
 	insertedOrg, err := os.GetByID(org.OrgId)
 	if err != nil {
@@ -91,8 +90,9 @@ func (os *OrgStore) Insert(org *Organization) (*Organization, error) {
 
 // Update updates an organization based on the ID
 func (os *OrgStore) Update(orgID int, updateOrg *Organization) (*Organization, error) {
-	if err := os.col.Update(bson.M{"_id": orgID}, bson.M{"$set": updateOrg}); err != nil {
-		return nil, err
+	_, err := os.col.UpdateOne(context.TODO(), bson.M{"_id": orgID}, bson.M{"$set": updateOrg})
+	if err != nil {
+		panic(err)
 	}
 	updatedOrg, err := os.GetByID(orgID)
 	if err != nil {
@@ -104,7 +104,7 @@ func (os *OrgStore) Update(orgID int, updateOrg *Organization) (*Organization, e
 
 // Delete deletes an organization based on the ID
 func (os *OrgStore) Delete(orgID int) error {
-	err := os.col.RemoveId(orgID)
+	_, err := os.col.DeleteOne(context.TODO(), orgID)
 	if err != nil {
 		return err
 	}
@@ -113,100 +113,92 @@ func (os *OrgStore) Delete(orgID int) error {
 
 // DeleteAll truncates an organization collection
 func (os *OrgStore) DeleteAll() error {
-	_, err := os.col.RemoveAll(nil)
+	_, err := os.col.DeleteMany(context.TODO(), bson.D{})
 	return err
 }
 
 // GetAll returns all organizations in database
 func (os *OrgStore) GetAll() ([]*Organization, error) {
 	allOrgs := []*Organization{}
-	err := os.col.Find(nil).All(&allOrgs)
+	findOptions := options.Find()
+	// Sort by `OrgId` field ascending
+	findOptions.SetSort(bson.D{{"OrgId", 1}})
+	cursor, err := os.col.Find(context.TODO(), bson.D{}, findOptions)
 	if err != nil {
 		return nil, err
 	}
+	// collect results
+	for cursor.Next(context.TODO()) {
+		var org *Organization
+		{
+		}
+		if err = cursor.Decode(&org); err != nil {
+			return nil, err
+		} else {
+			allOrgs = append(allOrgs, org)
+		}
+	}
+	// output
 	return allOrgs, nil
 }
 
 // SearchOrgs gets the organizations that matched certain searching criteria
 func (os *OrgStore) SearchOrgs(orginfo *OrgInfo) ([]*Organization, error) {
 	allOrgs := []*Organization{}
-
-	andQuery := []bson.M{}
-	andQuery = append(andQuery,
-		bson.M{"$or": buildOrQueryForSearchContent(orginfo)},
-		bson.M{"$or": buildOrQueryForCareerEmp(orginfo)},
-		bson.M{"$or": buildOrQueryForGradeLevels(orginfo)},
-		bson.M{"$and": andQueryForCheckBox(orginfo)})
-
-	err := os.col.Find(bson.M{"$and": andQuery}).All(&allOrgs)
+	query := []bson.M{}
+	query = append(query, bson.M{
+		// true false checkboxes
+		"HasCost":      orginfo.HasCost,
+		"Under18":      orginfo.Under18,
+		"HasTransport": orginfo.HasTransport,
+		"HasShadow":    orginfo.HasShadow,
+	})
+	// the search word is in org title street addr city state
+	if len(orginfo.SearchContent) > 0 {
+		query = append(query, bson.M{
+			"$or": bson.A{
+				bson.M{"OrgTitle": bson.M{"$regex": "(?i)" + orginfo.SearchContent}},
+				bson.M{"StreetAddr": bson.M{"$regex": "(?i)" + orginfo.SearchContent}},
+				bson.M{"City": bson.M{"$regex": "(?i)" + orginfo.SearchContent}},
+				bson.M{"State": bson.M{"$regex": "(?i)" + orginfo.SearchContent}},
+				bson.M{"ZipCode": bson.M{"$regex": "(?i)" + orginfo.SearchContent}},
+				bson.M{"Email": bson.M{"$regex": "(?i)" + orginfo.SearchContent}},
+				bson.M{"ActivityDesc": bson.M{"$regex": "(?i)" + orginfo.SearchContent}},
+				bson.M{"CareerEmp": bson.M{"$regex": "(?i)" + orginfo.SearchContent}},
+			},
+		})
+	}
+	// career selection
+	if len(orginfo.CareerEmp) > 0 {
+		query = append(query, bson.M{
+			"CareerEmp": bson.M{"$all": orginfo.CareerEmp},
+		})
+	}
+	// grade levels
+	if len(orginfo.GradeLevels) > 0 {
+		query = append(query, bson.M{
+			"GradeLevels": bson.M{"$all": orginfo.GradeLevels},
+		})
+	}
+	// query
+	findOptions := options.Find()
+	// Sort by `OrgId` field ascending
+	findOptions.SetSort(bson.D{{"OrgId", 1}})
+	cursor, err := os.col.Find(context.TODO(), bson.M{"$and": query}, findOptions)
 	if err != nil {
 		return nil, err
 	}
-
+	// collect results
+	for cursor.Next(context.Background()) {
+		var org *Organization
+		{
+		}
+		if err = cursor.Decode(&org); err != nil {
+			return nil, err
+		} else {
+			allOrgs = append(allOrgs, org)
+		}
+	}
+	// output
 	return allOrgs, nil
-}
-
-func buildOrQueryForSearchContent(orginfo *OrgInfo) []bson.M {
-	searchFields := make([]string, 4)
-	searchFields = append(searchFields, OrgTitle, StreetAddr, City, State)
-
-	orQuery := []bson.M{}
-	for _, field := range searchFields {
-		query := bson.M{field: bson.M{"$regex": orginfo.SearchContent, "$options": "i"}}
-		orQuery = append(orQuery, query)
-	}
-	if len(orQuery) == 0 {
-		orQuery = append(orQuery, nil)
-	}
-	return orQuery
-}
-
-func buildOrQueryForCareerEmp(orginfo *OrgInfo) []bson.M {
-	orQuery := []bson.M{}
-	for _, c := range orginfo.CareerEmp {
-		query := bson.M{CareerEmp: c}
-		orQuery = append(orQuery, query)
-	}
-	if len(orQuery) == 0 {
-		orQuery = append(orQuery, nil)
-	}
-	return orQuery
-}
-
-func buildOrQueryForGradeLevels(orginfo *OrgInfo) []bson.M {
-	orQuery := []bson.M{}
-
-	for _, c := range orginfo.GradeLevels {
-		query := bson.M{GradeLevels: c}
-		orQuery = append(orQuery, query)
-	}
-	if len(orQuery) == 0 {
-		orQuery = append(orQuery, nil)
-	}
-	return orQuery
-}
-
-func andQueryForCheckBox(orginfo *OrgInfo) []bson.M {
-	andQuery := []bson.M{}
-	if orginfo.HasShadow {
-		query := bson.M{HasShadow: orginfo.HasShadow}
-		andQuery = append(andQuery, query)
-	}
-	if orginfo.HasCost {
-		query := bson.M{HasCost: orginfo.HasCost}
-		andQuery = append(andQuery, query)
-	}
-	if orginfo.HasTransport {
-		query := bson.M{HasTransport: orginfo.HasTransport}
-		andQuery = append(andQuery, query)
-	}
-	if orginfo.Under18 {
-		query := bson.M{Under18: orginfo.Under18}
-		andQuery = append(andQuery, query)
-	}
-	if len(andQuery) == 0 {
-		andQuery = append(andQuery, nil)
-	}
-
-	return andQuery
 }

@@ -2,3 +2,6 @@ mongoDB/
 vendor/
 .DS_store
 .vscode/
+docker.env
+.env
+gateway
