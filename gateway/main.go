@@ -1,10 +1,8 @@
 package main
 
 import (
-	// "NWHCP/NWHCP-server/gateway/handlers"
-	// "NWHCP/NWHCP-server/gateway/models/users"
-	// "NWHCP/NWHCP-server/gateway/sessions"
-
+	"context"
+	"crypto/tls"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -24,10 +22,10 @@ import (
 	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
-	"gopkg.in/mgo.v2"
-	// "github.com/nwhcp-server/gateway/handlers"
-	// "github.com/nwhcp-server/gateway/models/users"
-	// "github.com/nwhcp-server/gateway/sessions"
+
+	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Director func(r *http.Request)
@@ -55,56 +53,68 @@ func CustomDirector(target []*url.URL, signingKey string, sessionStore sessions.
 }
 
 func main() {
-	addr := os.Getenv("ADDR")
-	cert := os.Getenv("TLSCERT")
-	key := os.Getenv("TLSKEY")
-	sess := os.Getenv("SESSIONKEY")
-	redisAddr := os.Getenv("REDISADDR")
-	server2addr := os.Getenv("SERVER2ADDR")
-	dsn := os.Getenv("DSN")
+	// load .env file from given path
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Println("No .env file to load")
+	}
 
+	mongoAddr := os.Getenv("MONGO_ADDR")
+	mongoDb := os.Getenv("MONGO_DB")
+	mongoCol := os.Getenv("MONGO_COL")
+
+	redisAddr := os.Getenv("REDIS_ADDR")
+	redisPass := os.Getenv("REDIS_PASS")
+	redisTls := os.Getenv("REDIS_TLS")
+	sess := os.Getenv("REDIS_SESSIONKEY")
+
+	dsn := os.Getenv("MYSQL_DSN")
+
+	server2addr := os.Getenv("SERVER2_ADDR")
 	internalPort := os.Getenv("INTERNAL_PORT")
-	if len(internalPort) == 0 {
-		internalPort = ":4003"
-	}
 
-	dbAddr := os.Getenv("DBADDR") //pipelineDB:27017
-	if len(dbAddr) == 0 {
-		dbAddr = "localhost:27017"
-	}
-	log.Printf("DBADDR: %s", dbAddr)
-
-	mongoSession, err := mgo.Dial(dbAddr)
+	// mongodb driver boilerplate
+	clientOptions := options.Client().ApplyURI(mongoAddr)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	mongoSession, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		fmt.Println("Error dialing dbaddr: ", err)
 	} else {
-		fmt.Println("Success!")
+		fmt.Println("MongoDb Connect Success!")
 	}
-	//schoolStore, err := stores.NewSchoolStore(mongoSession, "mongodb", "school")
-	orgStore, err := orgs.NewOrgStore(mongoSession, "mongodb", "organization")
+
+	orgStore, err := orgs.NewOrgStore(mongoSession, mongoDb, mongoCol)
 
 	hctx := &handlers.HandlerContext{
 		OrgStore: orgStore,
 	}
 
-	if len(addr) == 0 {
-		addr = ":443"
-	}
-
-	if len(cert) == 0 || len(key) == 0 {
-		fmt.Fprintln(os.Stderr, "Either the key or certificate was not found")
-		os.Exit(1)
-	}
-
+	// redis
 	rclient := redis.NewClient(&redis.Options{
+		TLSConfig: &tls.Config{
+			MinVersion:         tls.VersionTLS12,
+			ServerName:         redisTls,
+			InsecureSkipVerify: true,
+		},
 		Addr:     redisAddr,
-		Password: "",
+		Password: redisPass,
 		DB:       0,
 	})
 
+	err = rclient.Set("key", "value", 0).Err()
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		fmt.Println("Redis Connect Success!")
+	}
+
+	// mysql
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
+	} else {
+		fmt.Println("MySQL Connect Success!")
 	}
 
 	dur, err2 := time.ParseDuration("24h")
@@ -131,32 +141,33 @@ func main() {
 	// meetingProxy := &httputil.ReverseProxy{Director: meetingDirector}
 	// orgsProxy := &httputil.ReverseProxy{Director: orgsDirector}
 	orgsProxy := &httputil.ReverseProxy{Director: CustomDirector(oUrls, handler.SessionKey, handler.SessionStore)}
-	mux := mux.NewRouter()
+	router := mux.NewRouter()
 
-	mux.HandleFunc("/api/v1/users", handler.UsersHandler)
-	mux.HandleFunc("/api/v1/sessions", handler.SessionsHandler)
-	mux.HandleFunc("/api/v1/sessions/{id}", handler.SpecificSessionHandler)
+	router.HandleFunc("/api/v1/users", handler.UsersHandler)
+	router.HandleFunc("/api/v1/sessions", handler.SessionsHandler)
+	router.HandleFunc("/api/v1/sessions/{id}", handler.SpecificSessionHandler)
 
 	apiEndpoint := "/api/v2"
-	mux.Handle(apiEndpoint+"/orgs/{id}", orgsProxy)
-	mux.Handle(apiEndpoint+"/getuser/", orgsProxy)
+	router.Handle(apiEndpoint+"/orgs/{id}", orgsProxy)
+	router.Handle(apiEndpoint+"/getuser/", orgsProxy)
 
 	apiEndpoint3 := "/api/v3"
-	mux.HandleFunc(apiEndpoint3+"/search", hctx.SearchOrgsHandler)
-	mux.HandleFunc(apiEndpoint3+"/orgs", hctx.GetAllOrgs)
-	mux.HandleFunc(apiEndpoint3+"/orgs/{id}", hctx.SpecificOrgHandler)
+	router.HandleFunc(apiEndpoint3+"/search", hctx.SearchOrgsHandler)
+	router.HandleFunc(apiEndpoint3+"/orgs", hctx.GetAllOrgs)
+	router.HandleFunc(apiEndpoint3+"/orgs/{id}", hctx.SpecificOrgHandler)
 
 	mux2 := http.NewServeMux()
 	mux2.HandleFunc(apiEndpoint3+"/pipeline-db/truncate", hctx.DeleteAllOrgsHandler)
 	mux2.HandleFunc(apiEndpoint3+"/pipeline-db/poporgs", hctx.InsertOrgs)
 	go serve(mux2, internalPort)
 
-	newMux := handlers.NewPreflight(mux)
-	log.Printf("server is listening at http://%s", addr)
-	log.Fatal(http.ListenAndServeTLS(addr, cert, key, newMux))
+	addr := ":80"
+	log.Printf("server is listening at %s...", addr)
+	// log.Fatal(http.ListenAndServe(addr, router))
+	log.Fatal(http.ListenAndServe(addr, handlers.NewPreflight(router)))
 }
 
-func serve(mux *http.ServeMux, addr string) {
-	log.Fatal(http.ListenAndServe(addr, handlers.NewPreflight(mux)))
-	log.Printf("server is listening at %s...", addr)
+func serve(router *http.ServeMux, addr string) {
+	log.Fatal(http.ListenAndServe(addr, handlers.NewPreflight(router)))
+	// log.Printf("server is listening at %s...", addr)
 }
