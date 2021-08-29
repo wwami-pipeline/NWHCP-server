@@ -55,10 +55,16 @@ jobs:
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          file: docker_nwhcp-gateway.dockerfile
+        run: 
+            |
+            cd gateway
+            GOOS=linux go build
+            cd ..
+            docker build -f docker_nwhcp-gateway.dockerfile -t loibucket/nwhcp-gateway . # update to your username/nwhcp-gateway
+        # uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        # with:
+        #   context: .
+        #   push: ${{ github.event_name != 'pull_request' }}
+        #   tags: ${{ steps.meta.outputs.tags }}
+        #   labels: ${{ steps.meta.outputs.labels }}
+        #   file: docker_nwhcp-gateway.dockerfile
