@@ -2,7 +2,7 @@
 
 live at [https://test.nwhcp.tk](https://test.nwhcp.tk)
 
-![workflow](https://github.com/wwami-pipeline/NWHCP-server/actions/workflows/dockerimage.yml/badge.svg)
+![workflow](https://github.com/wwami-pipeline/NWHCP-server/actions/workflows/docker.yml/badge.svg)
 
 ## About
 
