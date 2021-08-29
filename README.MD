@@ -2,6 +2,8 @@
 
 live at [https://test.nwhcp.tk](https://test.nwhcp.tk)
 
+![workflow](https://github.com/wwami-pipeline/NWHCP-server/actions/workflows/mail.yml/badge.svg)
+
 ## About
 
 Database runs on MongoDB allows for getting by ID/name, inserting, updating, and deleting of schools and organizations.
