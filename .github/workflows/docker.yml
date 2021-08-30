@@ -63,12 +63,7 @@ jobs:
         run: 
             |
             cd gateway
-            uname -m
-            if uname -m | grep -q 'x86_64'; then
-              GOARCH=amd64
-            else
-              GOARCH=arm64
-            fi
+            GOARCH=arm64
             GOOS=linux
             go build
 
@@ -78,7 +73,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          platforms: linux/amd64, linux/arm64
+          platforms: linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
