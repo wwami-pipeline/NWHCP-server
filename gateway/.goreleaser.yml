@@ -1,4 +1,5 @@
 # .goreleaser.yml
+# https://carlosbecker.com/posts/multi-platform-docker-images-goreleaser-gh-actions/
 builds:
   - env:
     - CGO_ENABLED=0
