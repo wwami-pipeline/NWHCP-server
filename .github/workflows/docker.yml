@@ -58,14 +58,13 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      # arm64
       # build go binary from source
       - name: Build Go binary
         run: 
             |
             cd gateway
-            GOARCH=arm64
-            GOOS=linux
+            export GOARCH=arm64
+            export GOOS=linux
             go build
 
       # Build and push Docker image with Buildx (don't push on PR)
