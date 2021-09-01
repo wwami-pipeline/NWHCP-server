@@ -71,6 +71,7 @@ jobs:
         with:
           # either 'goreleaser' (default) or 'goreleaser-pro'
           workdir: ./gateway
+          dockerfile: ./gateway/Dockerfile
           distribution: goreleaser
           version: latest
           args: release --rm-dist

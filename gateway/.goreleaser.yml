@@ -7,12 +7,10 @@ builds:
     - arm64
 dockers:
   - image_templates: ["ghcr.io/wwami-pipeline/nwhcp-server:{{ .Version }}-amd64"]
-    dockerfile: Dockerfile
     use: docker
     build_flag_templates:
       - --platform=linux/amd64
   - image_templates: ["ghcr.io/wwami-pipeline/nwhcp-server:{{ .Version }}-arm64v8"]
-    dockerfile: Dockerfile
     use: buildx
     build_flag_templates:
       - --platform=linux/arm64
