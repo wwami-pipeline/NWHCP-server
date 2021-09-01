@@ -9,6 +9,7 @@ builds:
     - amd64
     - arm64
 dockers:
+  - skip_push: false
   - image_templates: ["ghcr.io/wwami-pipeline/nwhcp-server:{{ .Version }}-amd64"]
     use: docker
     build_flag_templates:
