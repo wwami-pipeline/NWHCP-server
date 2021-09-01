@@ -1,7 +1,6 @@
 # compile
 cd gateway
 GOOS=linux go build
-cd ..
 
 # make docker
 docker build -t loibucket/nwhcp-gateway . # update to your username/nwhcp-gateway
