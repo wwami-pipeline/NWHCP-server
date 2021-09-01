@@ -1,6 +1,8 @@
 # .goreleaser.yml
 builds:
-  - goos:
+  - env:
+    - CGO_ENABLED=0
+    goos:
     - linux
     goarch:
     - amd64
