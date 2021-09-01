@@ -70,7 +70,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v2
         with:
           # either 'goreleaser' (default) or 'goreleaser-pro'
-          workdir: ./gateway
+          context: ./gateway
           distribution: goreleaser
           version: latest
           args: release --rm-dist
