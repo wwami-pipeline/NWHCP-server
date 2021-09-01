@@ -55,6 +55,7 @@ jobs:
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
+          workdir: ./gateway
           version: latest
           args: release --rm-dist
         env:
