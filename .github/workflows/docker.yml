@@ -58,7 +58,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      # amd64
+      # arm64
       # build go binary from source
       - name: Build Go binary
         run: 
