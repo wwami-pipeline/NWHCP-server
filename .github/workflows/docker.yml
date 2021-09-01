@@ -1,9 +1,6 @@
 name: Docker
 
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
+# https://carlosbecker.com/posts/multi-platform-docker-images-goreleaser-gh-actions/
 
 on:
   schedule:
@@ -15,85 +12,35 @@ on:
   pull_request:
     branches: [ test ]
 
-env:
-  # Use docker.io for Docker Hub if empty
-  REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
-
+permissions:
+  contents: write
 
 jobs:
-  build:
-
+  goreleaser:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
+    env:
+      DOCKER_CLI_EXPERIMENTAL: "enabled"
     steps:
-      - 
-        name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v2
-      -   
-        name: Set up QEMU
+        with:
+          fetch-depth: 0
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
-      - 
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      # Login against a Docker registry except on PR
-      # https://github.com/docker/login-action
-      - 
-        name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
+      - name: Docker Login
+        uses: docker/login-action@v1
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # Extract metadata (tags, labels) for Docker
-      # https://github.com/docker/metadata-action
-      - 
-        name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      -
-        name: Set up Go
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GH_PAT }}
+      - name: Set up Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.16
-      -
-        name: Run GoReleaser
+      - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
-          # either 'goreleaser' (default) or 'goreleaser-pro'
-          workdir: ./gateway
-          distribution: goreleaser
           version: latest
           args: release --rm-dist
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # build go binary from source
-      # - name: Build Go binary
-        # run: 
-        #     |
-        #     cd gateway
-        #     export GOARCH=arm64
-        #     export GOOS=linux
-        #     go build
-
-      # Build and push Docker image with Buildx (don't push on PR)
-      # https://github.com/docker/build-push-action
-      # - name: Build and push Docker image
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     context: .
-      #     platforms: linux/arm64, linux/amd64
-      #     push: ${{ github.event_name != 'pull_request' }}
-      #     tags: ${{ steps.meta.outputs.tags }}
-      #     labels: ${{ steps.meta.outputs.labels }}
-      #     file: Dockerfile
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
