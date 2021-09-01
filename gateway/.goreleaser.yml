@@ -12,7 +12,16 @@ dockers:
     use: docker
     build_flag_templates:
       - --platform=linux/amd64
-  - image_templates: ["ghcr.io/wwami-pipeline/nwhcp-server:{{ .Version }}-arm64v8"]
+  - image_templates: ["ghcr.io/wwami-pipeline/nwhcp-server:{{ .Version }}-arm64"]
     use: buildx
     build_flag_templates:
       - --platform=linux/arm64
+docker_manifests:
+  - name_template: ghcr.io/wwami-pipeline/nwhcp-server:{{ .Version }}
+    image_templates:
+      - ghcr.io/wwami-pipeline/nwhcp-server:{{ .Version }}-amd64
+      - ghcr.io/wwami-pipeline/nwhcp-server:{{ .Version }}-arm64
+  - name_template: ghcr.io/wwami-pipeline/nwhcp-server:latest
+    image_templates:
+      - ghcr.io/wwami-pipeline/nwhcp-server:{{ .Version }}-amd64
+      - ghcr.io/wwami-pipeline/nwhcp-server:{{ .Version }}-arm64
