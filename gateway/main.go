@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -72,7 +73,7 @@ func main() {
 
 	redisAddr := getenv("REDIS_ADDR", "127.0.0.1:6379")
 	redisPass := getenv("REDIS_PASS", "")
-	// redisTls := getenv("REDIS_TLS", "")
+	redisTls := getenv("REDIS_TLS", "")
 	sess := getenv("REDIS_SESSIONKEY", "key")
 
 	dsn := getenv("MYSQL_DSN", "root@tcp(127.0.0.1)/mydatabase")
@@ -99,15 +100,23 @@ func main() {
 
 	// redis
 	rclient := redis.NewClient(&redis.Options{
-		// TLSConfig: &tls.Config{
-		// 	MinVersion:         tls.VersionTLS12,
-		// 	ServerName:         redisTls,
-		// 	InsecureSkipVerify: true,
-		// },
 		Addr:     redisAddr,
 		Password: redisPass,
 		DB:       0,
 	})
+
+	if len(redisTls) > 0 {
+		rclient = redis.NewClient(&redis.Options{
+			TLSConfig: &tls.Config{
+				MinVersion:         tls.VersionTLS12,
+				ServerName:         redisTls,
+				InsecureSkipVerify: true,
+			},
+			Addr:     redisAddr,
+			Password: redisPass,
+			DB:       0,
+		})
+	}
 
 	err = rclient.Set("key", "value", 0).Err()
 	if err != nil {
@@ -171,7 +180,7 @@ func main() {
 	mux2.HandleFunc(apiEndpoint3+"/pipeline-db/poporgs", hctx.InsertOrgs)
 	go serve(mux2, internalPort)
 
-	addr := ":80"
+	addr := ":8080"
 	log.Printf("server is listening at %s...", addr)
 	// log.Fatal(http.ListenAndServe(addr, router))
 	log.Fatal(http.ListenAndServe(addr, handlers.NewPreflight(router)))

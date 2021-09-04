@@ -11,5 +11,4 @@ docker rm -f gateway || true # mostly for testing because have to remove docker 
 docker run \
 --network host \
 --env-file ./docker.env \
--p 80:80 \
 --name gateway loibucket/nwhcp-gateway;
