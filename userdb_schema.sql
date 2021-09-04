@@ -1,5 +1,5 @@
--- CREATE DATABASE mydatabase;
--- USE mydatabase;
+CREATE DATABASE mydatabase;
+USE mydatabase;
 
 CREATE TABLE if not exists Users
 (

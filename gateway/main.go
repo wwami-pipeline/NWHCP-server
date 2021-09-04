@@ -52,6 +52,14 @@ func CustomDirector(target []*url.URL, signingKey string, sessionStore sessions.
 	}
 }
 
+func getenv(key, fallback string) string {
+	value := os.Getenv(key)
+	if len(value) == 0 {
+		return fallback
+	}
+	return value
+}
+
 func main() {
 	// load .env file from given path
 	err := godotenv.Load(".env")
@@ -59,19 +67,19 @@ func main() {
 		log.Println("No .env file to load")
 	}
 
-	mongoAddr := os.Getenv("MONGO_ADDR")
-	mongoDb := os.Getenv("MONGO_DB")
-	mongoCol := os.Getenv("MONGO_COL")
+	mongoAddr := getenv("MONGO_ADDR", "127.0.0.1")
+	mongoDb := getenv("MONGO_DB", "mongodb")
+	mongoCol := getenv("MONGO_COL", "organization")
 
-	redisAddr := os.Getenv("REDIS_ADDR")
-	redisPass := os.Getenv("REDIS_PASS")
-	redisTls := os.Getenv("REDIS_TLS")
-	sess := os.Getenv("REDIS_SESSIONKEY")
+	redisAddr := getenv("REDIS_ADDR", "127.0.0.1")
+	redisPass := getenv("REDIS_PASS", "")
+	redisTls := getenv("REDIS_TLS", "")
+	sess := getenv("REDIS_SESSIONKEY", "key")
 
-	dsn := os.Getenv("MYSQL_DSN")
+	dsn := getenv("MYSQL_DSN", "root:NWHCP-v0221.host.s.uw.edu@tcp(127.0.0.1)/mydatabase")
 
-	server2addr := os.Getenv("SERVER2_ADDR")
-	internalPort := os.Getenv("INTERNAL_PORT")
+	server2addr := getenv("SERVER2_ADDR", "http://organizations:5000")
+	internalPort := getenv("INTERNAL_PORT", ":90")
 
 	// mongodb driver boilerplate
 	clientOptions := options.Client().ApplyURI(mongoAddr)
@@ -110,6 +118,9 @@ func main() {
 	}
 
 	// mysql
+	if len(dsn) == 0 {
+		dsn = "127.0.0.1"
+	}
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
