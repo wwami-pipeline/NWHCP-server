@@ -1,1 +1,0 @@
-docker run --network host --rm --pull=always ghcr.io/wwami-pipeline/nwhcp-server:test-amd64 

@@ -146,13 +146,31 @@ func (os *OrgStore) GetAll() ([]*Organization, error) {
 func (os *OrgStore) SearchOrgs(orginfo *OrgInfo) ([]*Organization, error) {
 	allOrgs := []*Organization{}
 	query := []bson.M{}
-	query = append(query, bson.M{
-		// true false checkboxes
-		"HasCost":      orginfo.HasCost,
-		"Under18":      orginfo.Under18,
-		"HasTransport": orginfo.HasTransport,
-		"HasShadow":    orginfo.HasShadow,
-	})
+
+	if orginfo.HasCost {
+		query = append(query, bson.M{
+			// true false checkboxes
+			"HasCost":      orginfo.HasCost,
+		})	}
+
+	if orginfo.Under18 {
+		query = append(query, bson.M{
+			// true false checkboxes
+			"Under18":      orginfo.Under18,
+		})	}
+
+	if orginfo.HasTransport {
+		query = append(query, bson.M{
+			// true false checkboxes
+			"HasTransport":      orginfo.HasTransport,
+		})	}
+
+	if orginfo.HasShadow {
+		query = append(query, bson.M{
+			// true false checkboxes
+			"HasShadow":      orginfo.HasShadow,
+		})	}
+
 	// the search word is in org title street addr city state
 	if len(orginfo.SearchContent) > 0 {
 		query = append(query, bson.M{
@@ -180,11 +198,16 @@ func (os *OrgStore) SearchOrgs(orginfo *OrgInfo) ([]*Organization, error) {
 			"GradeLevels": bson.M{"$all": orginfo.GradeLevels},
 		})
 	}
+
 	// query
+	inputQuery := bson.M{}
+	if len(query) > 0 {
+		inputQuery = bson.M{"$and": query}
+	}
 	findOptions := options.Find()
 	// Sort by `OrgId` field ascending
 	findOptions.SetSort(bson.D{{"OrgId", 1}})
-	cursor, err := os.col.Find(context.TODO(), bson.M{"$and": query}, findOptions)
+	cursor, err := os.col.Find(context.TODO(), inputQuery, findOptions)
 	if err != nil {
 		return nil, err
 	}

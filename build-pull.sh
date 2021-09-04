@@ -1,8 +1,2 @@
-# get image from github
-docker pull ghcr.io/wwami-pipeline/nwhcp-server:test-amd64
-
 # Run server from docker img
-docker run \
---env-file ./docker.env \
--p 80:80 \
---name gateway ghcr.io/wwami-pipeline/nwhcp-server:test-amd64
+docker run -d --rm --env-file ./docker.env --network host --name nwhcpgateway ghcr.io/wwami-pipeline/nwhcp-server:test-amd64
