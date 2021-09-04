@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -67,16 +66,16 @@ func main() {
 		log.Println("No .env file to load")
 	}
 
-	mongoAddr := getenv("MONGO_ADDR", "mongodb+srv://127.0.0.1")
+	mongoAddr := getenv("MONGO_ADDR", "mongodb://127.0.0.1:27017/?compressors=disabled&gssapiServiceName=mongodb")
 	mongoDb := getenv("MONGO_DB", "mongodb")
 	mongoCol := getenv("MONGO_COL", "organization")
 
-	redisAddr := getenv("REDIS_ADDR", "127.0.0.1")
+	redisAddr := getenv("REDIS_ADDR", "127.0.0.1:6379")
 	redisPass := getenv("REDIS_PASS", "")
-	redisTls := getenv("REDIS_TLS", "")
+	// redisTls := getenv("REDIS_TLS", "")
 	sess := getenv("REDIS_SESSIONKEY", "key")
 
-	dsn := getenv("MYSQL_DSN", "root:NWHCP-v0221.host.s.uw.edu@tcp(127.0.0.1)/mydatabase")
+	dsn := getenv("MYSQL_DSN", "root@tcp(127.0.0.1)/mydatabase")
 
 	server2addr := getenv("SERVER2_ADDR", "http://organizations:5000")
 	internalPort := getenv("INTERNAL_PORT", ":90")
@@ -100,11 +99,11 @@ func main() {
 
 	// redis
 	rclient := redis.NewClient(&redis.Options{
-		TLSConfig: &tls.Config{
-			MinVersion:         tls.VersionTLS12,
-			ServerName:         redisTls,
-			InsecureSkipVerify: true,
-		},
+		// TLSConfig: &tls.Config{
+		// 	MinVersion:         tls.VersionTLS12,
+		// 	ServerName:         redisTls,
+		// 	InsecureSkipVerify: true,
+		// },
 		Addr:     redisAddr,
 		Password: redisPass,
 		DB:       0,
