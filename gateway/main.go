@@ -180,7 +180,7 @@ func main() {
 	mux2.HandleFunc(apiEndpoint3+"/pipeline-db/poporgs", hctx.InsertOrgs)
 	go serve(mux2, internalPort)
 
-	addr := ":80"
+	addr := ":8080"
 	log.Printf("server is listening at %s...", addr)
 	// log.Fatal(http.ListenAndServe(addr, router))
 	log.Fatal(http.ListenAndServe(addr, handlers.NewPreflight(router)))
