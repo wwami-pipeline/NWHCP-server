@@ -71,7 +71,7 @@ func main() {
 	mongoDb := getenv("MONGO_DB", "mongodb")
 	mongoCol := getenv("MONGO_COL", "organization")
 
-	redisAddr := getenv("REDIS_ADDR", "127.0.0.1")
+	redisAddr := getenv("REDIS_ADDR", "mongodb+srv://127.0.0.1")
 	redisPass := getenv("REDIS_PASS", "")
 	redisTls := getenv("REDIS_TLS", "")
 	sess := getenv("REDIS_SESSIONKEY", "key")
