@@ -66,7 +66,7 @@ func main() {
 		log.Println("No .env file to load")
 	}
 
-	mongoAddr := getenv("MONGO_ADDR", "mongodb://127.0.0.1:27017/?compressors=disabled&gssapiServiceName=mongodb")
+	mongoAddr := getenv("MONGO_ADDR", "mongodb://127.0.0.1:27017")
 	mongoDb := getenv("MONGO_DB", "mongodb")
 	mongoCol := getenv("MONGO_COL", "organization")
 
