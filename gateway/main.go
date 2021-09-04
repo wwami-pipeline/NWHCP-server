@@ -67,11 +67,11 @@ func main() {
 		log.Println("No .env file to load")
 	}
 
-	mongoAddr := getenv("MONGO_ADDR", "127.0.0.1")
+	mongoAddr := getenv("MONGO_ADDR", "mongodb+srv://127.0.0.1")
 	mongoDb := getenv("MONGO_DB", "mongodb")
 	mongoCol := getenv("MONGO_COL", "organization")
 
-	redisAddr := getenv("REDIS_ADDR", "mongodb+srv://127.0.0.1")
+	redisAddr := getenv("REDIS_ADDR", "127.0.0.1")
 	redisPass := getenv("REDIS_PASS", "")
 	redisTls := getenv("REDIS_TLS", "")
 	sess := getenv("REDIS_SESSIONKEY", "key")
