@@ -150,26 +150,30 @@ func (os *OrgStore) SearchOrgs(orginfo *OrgInfo) ([]*Organization, error) {
 	if orginfo.HasCost {
 		query = append(query, bson.M{
 			// true false checkboxes
-			"HasCost":      orginfo.HasCost,
-		})	}
+			"HasCost": orginfo.HasCost,
+		})
+	}
 
 	if orginfo.Under18 {
 		query = append(query, bson.M{
 			// true false checkboxes
-			"Under18":      orginfo.Under18,
-		})	}
+			"Under18": orginfo.Under18,
+		})
+	}
 
 	if orginfo.HasTransport {
 		query = append(query, bson.M{
 			// true false checkboxes
-			"HasTransport":      orginfo.HasTransport,
-		})	}
+			"HasTransport": orginfo.HasTransport,
+		})
+	}
 
 	if orginfo.HasShadow {
 		query = append(query, bson.M{
 			// true false checkboxes
-			"HasShadow":      orginfo.HasShadow,
-		})	}
+			"HasShadow": orginfo.HasShadow,
+		})
+	}
 
 	// the search word is in org title street addr city state
 	if len(orginfo.SearchContent) > 0 {
