@@ -1,7 +1,5 @@
 # NWCHP test server
 
-live at [https://test.nwhcp.tk](https://test.nwhcp.tk)
-
 ![workflow](https://github.com/wwami-pipeline/NWHCP-server/actions/workflows/docker.yml/badge.svg)
 
 ## About
@@ -27,8 +25,6 @@ To deploy to the server:
 - Code auto deploys on changes to master branch
 
 ## API:
-
-The test server is hosted at: [https://test.nwhcp.tk](https://test.nwhcp.tk)
 
 -------------
 
