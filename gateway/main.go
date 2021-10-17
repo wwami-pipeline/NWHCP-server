@@ -23,7 +23,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -61,17 +60,12 @@ func getenv(key, fallback string) string {
 }
 
 func main() {
-	// load .env file from given path
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Println("No .env file to load")
-	}
 
 	mongoAddr := getenv("MONGO_ADDR", "mongodb://127.0.0.1:27017")
 	mongoDb := getenv("MONGO_DB", "mongodb")
 	mongoCol := getenv("MONGO_COL", "organization")
 
-	redisAddr := getenv("REDIS_ADDR", "127.0.0.1:6379")
+	redisAddr := getenv("REDIS_ADDR", "127.0.0.1:6379") 
 	redisPass := getenv("REDIS_PASS", "")
 	redisTls := getenv("REDIS_TLS", "")
 	sess := getenv("REDIS_SESSIONKEY", "key")

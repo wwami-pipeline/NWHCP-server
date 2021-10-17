@@ -7,3 +7,4 @@ docker.env
 gateway
 .k8s
 *.idea
+*.rdb
