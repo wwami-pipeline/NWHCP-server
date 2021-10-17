@@ -205,6 +205,15 @@ func (ctx *HandlerContext) SearchOrgsHandler(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
+		// debug
+		// Save a copy of this request for debugging.
+		//requestDump, err := httputil.DumpRequest(r, true)
+		//if err != nil {
+		//	fmt.Println(err)
+		//}
+		//fmt.Println(string(requestDump))
+		// end debug
+
 		orgInfo := &orgs.OrgInfo{}
 		if err := json.NewDecoder(r.Body).Decode(orgInfo); err != nil {
 			http.Error(w, fmt.Sprintf("Error decoding JSON: %v", err),

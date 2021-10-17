@@ -1,0 +1,1 @@
+mongoimport --db mongodb --collection organization --drop --file orgs.json

@@ -2,7 +2,7 @@ package orgs
 
 // Organization represents information for a new org
 type Organization struct {
-	OrgId         int      `bson:"_id"`
+	OrgId         int      `bson:"OrgId"`
 	OrgTitle      string   `bson:"OrgTitle"`
 	OrgWebsite    string   `bson:"OrgWebsite"`
 	StreetAddress string   `bson:"StreetAddress"`
