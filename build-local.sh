@@ -5,7 +5,7 @@ cd ..
 
 # make docker
 docker build --no-cache -t localbuild/nwhcp-gateway . # update to your username/nwhcp-gateway
-docker rm -f nwhcpgateway || true # mostly for testing because have to remove docker img every time you redeploy
+# docker rm -f nwhcp-gateway || true # mostly for testing because have to remove docker img every time you redeploy
 
 # Run server from docker img
 # host.docker.internal:6379 needed for mac users
