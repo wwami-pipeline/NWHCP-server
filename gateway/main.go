@@ -22,6 +22,7 @@ import (
 	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
+	"gopkg.in/mgo.v2/bson"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -65,7 +66,7 @@ func main() {
 	mongoDb := getenv("MONGO_DB", "mongodb")
 	mongoCol := getenv("MONGO_COL", "organization")
 
-	redisAddr := getenv("REDIS_ADDR", "127.0.0.1:6379") 
+	redisAddr := getenv("REDIS_ADDR", "127.0.0.1:6379")
 	redisPass := getenv("REDIS_PASS", "")
 	redisTls := getenv("REDIS_TLS", "")
 	sess := getenv("REDIS_SESSIONKEY", "key")
@@ -174,13 +175,54 @@ func main() {
 	mux2.HandleFunc(apiEndpoint3+"/pipeline-db/poporgs", hctx.InsertOrgs)
 	go serve(mux2, internalPort)
 
+	// get all data from mongodb
+	router.HandleFunc(apiEndpoint3+"/orgs-all", AllDataHandler)
+
 	addr := ":8080"
 	log.Printf("server is listening at %s...", addr)
+
 	// log.Fatal(http.ListenAndServe(addr, router))
 	log.Fatal(http.ListenAndServe(addr, handlers.NewPreflight(router)))
+
 }
 
 func serve(router *http.ServeMux, addr string) {
 	log.Fatal(http.ListenAndServe(addr, handlers.NewPreflight(router)))
 	// log.Printf("server is listening at %s...", addr)
+}
+
+// serve all data from mongodb
+func AllDataHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(AllData())
+}
+
+// download all data from mongodb
+func AllData() []byte {
+	client, err := mongo.NewClient(options.Client().ApplyURI(getenv("MONGO_ADDR", "mongodb://127.0.0.1:27017")))
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(ctx)
+	db := client.Database("mongodb")
+	surveys := db.Collection("surveys")
+	cursor, err := surveys.Find(ctx, bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	var data []bson.M
+	if err = cursor.All(ctx, &data); err != nil {
+		log.Fatal(err)
+	}
+	jsonByte, err := json.Marshal(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return jsonByte
 }

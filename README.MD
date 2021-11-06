@@ -6,19 +6,17 @@
 
 Database runs on MongoDB allows for getting by ID/name, inserting, updating, and deleting of schools and organizations.
 
+Latest code is in ```gateway``` folder
+code in ```db``` and ```organizations``` folders are deprecated
+
 ## Setup
 
 Clone the repository.
 
 To run locally:
 
-- Install Go
-- Install Docker
-- Run ```sh build-local.sh```
-- A MongoDB database is required, with test data loaded from ```org.json``` *Free at MongoDB Atlas*
-- A MySQL database is required, with schema in ```userdb_schema.sql``` *Free at Heroku*
-- A Redis database is required *Free at Heroku*
-- A ```docker.env``` file is required, based on ```docker.env.sample``` with updated values
+- run ```go run main.go``` from the gateway folder
+- a local mongodb server is required
 
 To deploy to the server:
 

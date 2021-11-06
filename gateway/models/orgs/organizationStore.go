@@ -3,10 +3,11 @@ package orgs
 import (
 	"context"
 	"errors"
+	"log"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
 )
 
 //These are the fields that being searched by client
