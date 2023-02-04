@@ -1,5 +1,6 @@
 package main
 
+// packages used
 import (
 	"context"
 	"crypto/tls"
@@ -28,8 +29,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// executable code
+
+// type: function which unpacks an http request
 type Director func(r *http.Request)
 
+// returns a function which unpacks an http request
+// takes in a target URL, a string for a signinKey, and the sessions interface
+// gets sessionState, recognizes user, sets headings, host, scheme etc.
 func CustomDirector(target []*url.URL, signingKey string, sessionStore sessions.Store) Director {
 	var counter int32 = 0
 	return func(r *http.Request) {
@@ -52,6 +59,8 @@ func CustomDirector(target []*url.URL, signingKey string, sessionStore sessions.
 	}
 }
 
+// how to retrieve db env vars
+// if env not found, return default option
 func getenv(key, fallback string) string {
 	value := os.Getenv(key)
 	if len(value) == 0 {
@@ -61,11 +70,12 @@ func getenv(key, fallback string) string {
 }
 
 func main() {
-
+	// db
 	mongoAddr := getenv("MONGO_ADDR", "mongodb://127.0.0.1:27017")
 	mongoDb := getenv("MONGO_DB", "mongodb")
 	mongoCol := getenv("MONGO_COL", "organization")
 
+	// session info
 	redisAddr := getenv("REDIS_ADDR", "127.0.0.1:6379")
 	redisPass := getenv("REDIS_PASS", "")
 	redisTls := getenv("REDIS_TLS", "")
@@ -89,6 +99,7 @@ func main() {
 
 	orgStore, err := orgs.NewOrgStore(mongoSession, mongoDb, mongoCol)
 
+	// auth, contex, cors, session, orgs routes
 	hctx := &handlers.HandlerContext{
 		OrgStore: orgStore,
 	}
@@ -100,6 +111,7 @@ func main() {
 		DB:       0,
 	})
 
+	// active user? initalize in-session database cache-ing
 	if len(redisTls) > 0 {
 		rclient = redis.NewClient(&redis.Options{
 			TLSConfig: &tls.Config{
@@ -113,6 +125,7 @@ func main() {
 		})
 	}
 
+	// error handling
 	err = rclient.Set("key", "value", 0).Err()
 	if err != nil {
 		log.Fatal(err)
@@ -142,6 +155,7 @@ func main() {
 		UserStore:    users.GetNewStore(db),
 	}
 
+	// get orgs links
 	orgsAddress := strings.Split(server2addr, ",")
 	var oUrls []*url.URL
 	for _, cur := range orgsAddress {
@@ -155,8 +169,11 @@ func main() {
 	// meetingProxy := &httputil.ReverseProxy{Director: meetingDirector}
 	// orgsProxy := &httputil.ReverseProxy{Director: orgsDirector}
 	orgsProxy := &httputil.ReverseProxy{Director: CustomDirector(oUrls, handler.SessionKey, handler.SessionStore)}
+
+	// mux no longer being maintained
 	router := mux.NewRouter()
 
+	// routes
 	router.HandleFunc("/api/v1/users", handler.UsersHandler)
 	router.HandleFunc("/api/v1/sessions", handler.SessionsHandler)
 	router.HandleFunc("/api/v1/sessions/{id}", handler.SpecificSessionHandler)
