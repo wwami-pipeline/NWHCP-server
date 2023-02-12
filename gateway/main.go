@@ -61,11 +61,12 @@ func getenv(key, fallback string) string {
 }
 
 func main() {
-
+	// start mongo server to get organization information
 	mongoAddr := getenv("MONGO_ADDR", "mongodb://127.0.0.1:27017")
 	mongoDb := getenv("MONGO_DB", "mongodb")
 	mongoCol := getenv("MONGO_COL", "organization")
 
+	// start Redis server to get cache
 	redisAddr := getenv("REDIS_ADDR", "127.0.0.1:6379")
 	redisPass := getenv("REDIS_PASS", "")
 	redisTls := getenv("REDIS_TLS", "")
@@ -87,8 +88,9 @@ func main() {
 		fmt.Println("MongoDb Connect Success!")
 	}
 
-	orgStore, err := orgs.NewOrgStore(mongoSession, mongoDb, mongoCol)
+	orgStore, _ := orgs.NewOrgStore(mongoSession, mongoDb, mongoCol)
 
+	// org details
 	hctx := &handlers.HandlerContext{
 		OrgStore: orgStore,
 	}
@@ -119,7 +121,7 @@ func main() {
 	} else {
 		fmt.Println("Redis Connect Success!")
 	}
-
+	// are we using this with mongo?
 	// mysql
 	if len(dsn) == 0 {
 		dsn = "127.0.0.1"
@@ -136,12 +138,14 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// handler for redis cache?
 	handler := handlers.Handler{
 		SessionKey:   sess,
 		SessionStore: sessions.NewRedisStore(rclient, dur),
 		UserStore:    users.GetNewStore(db),
 	}
 
+	// get URLS for orgs?
 	orgsAddress := strings.Split(server2addr, ",")
 	var oUrls []*url.URL
 	for _, cur := range orgsAddress {
@@ -149,27 +153,34 @@ func main() {
 		if err != nil {
 			fmt.Printf("Error parsing URL addr: %v", err)
 		}
+
 		oUrls = append(oUrls, curURL)
 	}
 
 	// meetingProxy := &httputil.ReverseProxy{Director: meetingDirector}
 	// orgsProxy := &httputil.ReverseProxy{Director: orgsDirector}
 	orgsProxy := &httputil.ReverseProxy{Director: CustomDirector(oUrls, handler.SessionKey, handler.SessionStore)}
+	// mux router
 	router := mux.NewRouter()
 
+	// not in use
 	router.HandleFunc("/api/v1/users", handler.UsersHandler)
 	router.HandleFunc("/api/v1/sessions", handler.SessionsHandler)
 	router.HandleFunc("/api/v1/sessions/{id}", handler.SpecificSessionHandler)
 
+	// not in use
 	apiEndpoint := "/api/v2"
 	router.Handle(apiEndpoint+"/orgs/{id}", orgsProxy)
+	// authorization?
 	router.Handle(apiEndpoint+"/getuser/", orgsProxy)
 
+	// in use
 	apiEndpoint3 := "/api/v3"
 	router.HandleFunc(apiEndpoint3+"/search", hctx.SearchOrgsHandler)
 	router.HandleFunc(apiEndpoint3+"/orgs", hctx.GetAllOrgs)
 	router.HandleFunc(apiEndpoint3+"/orgs/{id}", hctx.SpecificOrgHandler)
 
+	// not sure
 	mux2 := http.NewServeMux()
 	mux2.HandleFunc(apiEndpoint3+"/pipeline-db/truncate", hctx.DeleteAllOrgsHandler)
 	mux2.HandleFunc(apiEndpoint3+"/pipeline-db/poporgs", hctx.InsertOrgs)
@@ -186,6 +197,7 @@ func main() {
 
 }
 
+// are we using this? or code on line 189?
 func serve(router *http.ServeMux, addr string) {
 	log.Fatal(http.ListenAndServe(addr, handlers.NewPreflight(router)))
 	// log.Printf("server is listening at %s...", addr)
@@ -198,6 +210,7 @@ func AllDataHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(AllData())
 }
 
+// used in AllDataHandler
 // download all data from mongodb
 func AllData() []byte {
 	client, err := mongo.NewClient(options.Client().ApplyURI(getenv("MONGO_ADDR", "mongodb://127.0.0.1:27017")))
