@@ -21,6 +21,8 @@ import (
 )
 
 // UsersHandler blah
+// Login?
+// create user?
 func (handler *Handler) UsersHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method must be POST", http.StatusMethodNotAllowed)
@@ -59,6 +61,8 @@ func (handler *Handler) UsersHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // SpecificUserHandler blah
+// Get user
+// update user
 func (handler *Handler) SpecificUserHandler(w http.ResponseWriter, r *http.Request) {
 	state := &SessionState{}
 	_, sessionErr := sessions.GetState(r, handler.SessionKey, handler.SessionStore, state)
@@ -124,6 +128,7 @@ func (handler *Handler) SpecificUserHandler(w http.ResponseWriter, r *http.Reque
 }
 
 // SessionsHandler blah
+// authorize user?
 func (handler *Handler) SessionsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method must be POST", http.StatusMethodNotAllowed)
@@ -163,6 +168,7 @@ func (handler *Handler) SessionsHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 // SpecificSessionHandler balh
+// sign out?
 func (handler *Handler) SpecificSessionHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "DELETE" {
 		http.Error(w, "Method must be DELETE", http.StatusMethodNotAllowed)

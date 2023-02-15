@@ -174,11 +174,19 @@ func main() {
 	// authorization?
 	router.Handle(apiEndpoint+"/getuser/", orgsProxy)
 
-	// in use
+	// not in use -routes implemented but not connected to mongoDB
 	apiEndpoint3 := "/api/v3"
+	// orgs
 	router.HandleFunc(apiEndpoint3+"/search", hctx.SearchOrgsHandler)
 	router.HandleFunc(apiEndpoint3+"/orgs", hctx.GetAllOrgs)
 	router.HandleFunc(apiEndpoint3+"/orgs/{id}", hctx.SpecificOrgHandler)
+
+	// users
+	router.HandleFunc(apiEndpoint3+"/users", hctx.getUsers).Methods("GET")
+	router.HandleFunc(apiEndpoint3+"/users/{id}", hctx.getUser).Methods("GET")
+	router.HandleFunc(apiEndpoint3+"/users", hctx.createUser).Methods("POST")
+	router.HandleFunc(apiEndpoint3+"/users/{id}", hctx.updateUser).Methods("PUT")
+	router.HandleFunc(apiEndpoint3+"/users/{id}", hctx.deleteUser).Methods("DELETE")
 
 	// not sure
 	mux2 := http.NewServeMux()
@@ -187,6 +195,7 @@ func main() {
 	go serve(mux2, internalPort)
 
 	// get all data from mongodb
+	// in use
 	router.HandleFunc(apiEndpoint3+"/orgs-all", AllDataHandler)
 
 	addr := ":8080"
