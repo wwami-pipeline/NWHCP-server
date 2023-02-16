@@ -1,5 +1,6 @@
 package handlers
 
+// controllers for orgs- not in use
 import (
 	"encoding/json"
 	"fmt"
@@ -15,7 +16,7 @@ import (
 const contentTypeHeader = "Content-Type"
 const contentTypeApplicationJSON = "application/json"
 
-//InsertOrgs inserts organization data
+// InsertOrgs inserts organization data
 func (ctx *HandlerContext) InsertOrgs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add(contentTypeHeader, contentTypeApplicationJSON) // if os.Getenv("APP_ENV") == "production" && r.Header.Get("AUTH_TOKEN_FOR_PYTHON") != os.Getenv("AUTH_TOKEN_FOR_PYTHON") {
 	// 	return
@@ -79,7 +80,7 @@ func (ctx *HandlerContext) InsertOrgs(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//GetAllOrgs is used to grab organization data
+// GetAllOrgs is used to grab organization data
 func (ctx *HandlerContext) GetAllOrgs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add(contentTypeHeader, contentTypeApplicationJSON)
 

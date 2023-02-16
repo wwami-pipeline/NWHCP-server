@@ -1,5 +1,8 @@
 package orgs
 
+// controllers for orgs - not in use
+// endpoints set up
+
 import (
 	"context"
 	"errors"
@@ -10,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-//These are the fields that being searched by client
+// These are the fields that being searched by client
 const (
 	HasShadow    = "HasShadow"
 	HasCost      = "HasCost"
@@ -24,7 +27,7 @@ const (
 	State        = "State"
 )
 
-//OrgStore represents a mongoDB data store that implements the abstract store interface
+// OrgStore represents a mongoDB data store that implements the abstract store interface
 type OrgStore struct {
 	//the mongo session
 	session *mongo.Client
@@ -71,7 +74,7 @@ func (os *OrgStore) GetByName(orgTitle string) (*Organization, error) {
 	return org, nil
 }
 
-//Insert inserts an organization checks for duplicates
+// Insert inserts an organization checks for duplicates
 func (os *OrgStore) Insert(org *Organization) (*Organization, error) {
 	checkOrg, _ := os.GetByID(org.OrgId)
 	if checkOrg != nil {

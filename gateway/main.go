@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -12,7 +11,6 @@ import (
 	"net/url"
 	"nwhcp/nwhcp-server/gateway/handlers"
 	"nwhcp/nwhcp-server/gateway/models/orgs"
-	"nwhcp/nwhcp-server/gateway/models/users"
 	"nwhcp/nwhcp-server/gateway/sessions"
 	"os"
 	"strings"
@@ -126,12 +124,12 @@ func main() {
 	if len(dsn) == 0 {
 		dsn = "127.0.0.1"
 	}
-	db, err := sql.Open("mysql", dsn)
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		fmt.Println("MySQL Connect Success!")
-	}
+	// db, err := sql.Open("mysql", dsn)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// } else {
+	// 	fmt.Println("MySQL Connect Success!")
+	// }
 
 	dur, err2 := time.ParseDuration("24h")
 	if err2 != nil {
@@ -142,7 +140,7 @@ func main() {
 	handler := handlers.Handler{
 		SessionKey:   sess,
 		SessionStore: sessions.NewRedisStore(rclient, dur),
-		UserStore:    users.GetNewStore(db),
+		// UserStore:    users.GetNewStore(db),
 	}
 
 	// get URLS for orgs?
@@ -164,9 +162,9 @@ func main() {
 	router := mux.NewRouter()
 
 	// not in use
-	router.HandleFunc("/api/v1/users", handler.UsersHandler)
-	router.HandleFunc("/api/v1/sessions", handler.SessionsHandler)
-	router.HandleFunc("/api/v1/sessions/{id}", handler.SpecificSessionHandler)
+	// router.HandleFunc("/api/v1/users", handler.UsersHandler)
+	// router.HandleFunc("/api/v1/sessions", handler.SessionsHandler)
+	// router.HandleFunc("/api/v1/sessions/{id}", handler.SpecificSessionHandler)
 
 	// not in use
 	apiEndpoint := "/api/v2"
@@ -182,11 +180,15 @@ func main() {
 	router.HandleFunc(apiEndpoint3+"/orgs/{id}", hctx.SpecificOrgHandler)
 
 	// users
-	router.HandleFunc(apiEndpoint3+"/users", hctx.getUsers).Methods("GET")
-	router.HandleFunc(apiEndpoint3+"/users/{id}", hctx.getUser).Methods("GET")
-	router.HandleFunc(apiEndpoint3+"/users", hctx.createUser).Methods("POST")
-	router.HandleFunc(apiEndpoint3+"/users/{id}", hctx.updateUser).Methods("PUT")
-	router.HandleFunc(apiEndpoint3+"/users/{id}", hctx.deleteUser).Methods("DELETE")
+	// pointer for NewUserController() methods -pass Mongo session to manipulate database
+	uc := handlers.NewUserController(mongoSession)
+	// other example
+	// router.GET("users/:id", uc.GetUser)
+	// router.HandleFunc(apiEndpoint3+"/users", uc.GetUsers)
+	router.HandleFunc(apiEndpoint3+"/users/{id}", uc.GetUser)
+	router.HandleFunc(apiEndpoint3+"/users", uc.CreateUser)
+	// router.HandleFunc(apiEndpoint3+"/users/{id}", uc.UpdateUser) to do!!!
+	router.HandleFunc(apiEndpoint3+"/users/{id}", uc.DeleteUser)
 
 	// not sure
 	mux2 := http.NewServeMux()
