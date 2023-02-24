@@ -64,8 +64,7 @@ func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 		PassHash:     bytes,
 		PasswordConf: bytes,
 		FirstName:    params["firstName"],
-		LastName:     params["lastName"],
-		Age:          params["age"],
+		UserName:     params["userName"],
 		State:        params["state"],
 	}
 	// encode/decode for sending/receiving JSON to/from a stream

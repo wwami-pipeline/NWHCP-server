@@ -38,20 +38,18 @@ type NewUser struct {
 	PassHash     []byte             `bson:"password" json:"password"` //never JSON encoded/decoded
 	PasswordConf []byte             `bson: "passwordConf" json:"passwordConf"`
 	FirstName    string             `bson: "firstName" json:"firstName"`
-	LastName     string             `bson: "lastName" json:"lastName"`
-	Age          string             `bson: "age" json:age`
+	UserName     string             `bson: "userName" json:"userName"`
 	State        string             `bson: "state" json:state`
 }
 
 // Updates represents updates allowed to be edited by user (student)
 type Updates struct {
 	FirstName              string `bson: "firstName" json:"firstName"`
-	LastName               string `bson: "lastName" json:"lastName"`
+	UserName               string `bson: "userName" json:"userName"`
 	State                  string `bson: "state" json:state`
 	FavoritedOrganizations []*Org `bson: "favoritedOrganizations" json:favoritedOrganizations`
 	CompletedPrograms      []*Org `bson: "completedPrograms" json:completedPrograms`
 	InProcessPrograms      []*Org `bson: "inProcessPrograms" json:inProcessPrograms`
-	Gender                 string `bson: "gender" json:gender`
 }
 
 // Orgs represents the users' (student) organizations
