@@ -4,7 +4,6 @@ vendor/
 .vscode/
 docker.env
 *.env
-gateway
 .k8s
 *.idea
 *.rdb

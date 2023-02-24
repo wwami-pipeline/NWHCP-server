@@ -87,9 +87,12 @@ func (uc UserController) DeleteUserByID(w http.ResponseWriter, r *http.Request) 
 	id := params["id"]
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK) // 200
+	w.WriteHeader(http.StatusOK)
 
-	oid, _ := primitive.ObjectIDFromHex(id)
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		log.Fatal("primitive.ObjectIDFromHex ERROR:", err)
+	}
 
 	res, err := uc.session.Database("mongodb").Collection("usersTest").DeleteOne(context.TODO(), bson.M{"_id": oid})
 	if err != nil {
@@ -98,7 +101,6 @@ func (uc UserController) DeleteUserByID(w http.ResponseWriter, r *http.Request) 
 	if res.DeletedCount == 0 {
 		fmt.Println("Delete One() document not found:", res)
 	}
-
 	fmt.Println("User Deleted:", res)
 	fmt.Println("DeleteOne TYPE:", reflect.TypeOf(res))
 }
@@ -128,15 +130,12 @@ func (uc UserController) GetUserByID(w http.ResponseWriter, r *http.Request) {
 
 func (uc UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK) // 200
-
-	// store results
-	// allUsers := []*users.User{}
 
 	cursor, err := uc.session.Database("mongodb").Collection("usersTest").Find(context.TODO(), bson.D{})
 	if err != nil {
 		fmt.Println("Finding all Users ERROR:", err)
 	}
+
 	// collect results
 	for cursor.Next(context.TODO()) {
 		var result bson.M
@@ -145,6 +144,7 @@ func (uc UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Cursor.Next() ERROR:", err)
 			os.Exit(1)
 		}
+		json.NewEncoder(w).Encode(result)
 		fmt.Println("\nresult type:", reflect.TypeOf(result))
 		fmt.Println("result:", result)
 	}
