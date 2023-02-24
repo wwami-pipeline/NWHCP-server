@@ -10,68 +10,68 @@ var bcryptCost = 13
 // User represents a user account in the database (student)
 // how do I store the stuff?
 type User struct {
-	ID                     int64   `bson:"_id"`
-	Email                  string  `json:"-"` //never JSON encoded/decoded
-	PassHash               []byte  `json:"-"` //never JSON encoded/decoded
-	FirstName              string  `json:"firstName"`
-	LastName               string  `json:"lastName"`
-	JoinDate               string  `json:"joinDate"`
-	Gender                 string  `json:gender`
-	Age                    string  `json:age`
-	State                  string  `json:state`
-	FavoritedOrganizations []*Org  `json:favoritedOrganizations`
-	CompletedPrograms      []*Org  `json:completedPrograms`
-	InProcessPrograms      []*Org  `json:inProcessPrograms`
-	Notes                  []*Note `json:notes`
+	ID                     primitive.ObjectID `bson:"_id, omitempty"`
+	Email                  string             `bson:"email" json:"email"`       //never JSON encoded/decoded
+	PassHash               []byte             `bson:"password" json:"password"` //never JSON encoded/decoded
+	FirstName              string             `bson: "firstName" json:"firstName"`
+	LastName               string             `bson: "lastName" json:"lastName"`
+	JoinDate               string             `bson: "joinDate" json:"joinDate"`
+	Gender                 string             `bson: "gender" json:gender`
+	Age                    string             `bson: "age" json:age`
+	State                  string             `bson: "state" json:state`
+	FavoritedOrganizations []*Org             `bson: "favoritedOrganizations" json:favoritedOrganizations`
+	CompletedPrograms      []*Org             `bson: "completedPrograms" json:completedPrograms`
+	InProcessPrograms      []*Org             `bson: "inProcessPrograms" json:inProcessPrograms`
+	Notes                  []*Note            `bson: "notes" json:notes`
 }
 
 // Credentials represents user sign-in credentials (student)
 type Credentials struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `bson: "email" json:"email"`
+	Password string `bson: "password" json:"password"`
 }
 
 // NewUser represents a new user signing up for an account (student)
 type NewUser struct {
-	ID           primitive.ObjectID `"bson:id"`
-	Email        string             `json:"email"`
-	Password     string             `json:"password"`
-	PasswordConf string             `json:"passwordConf"`
-	FirstName    string             `json:"firstName"`
-	LastName     string             `json:"lastName"`
-	Age          string             `json:age`
-	State        string             `json:state`
+	ID           primitive.ObjectID `"bson:_id"`
+	Email        string             `bson: "email" json:"email"`
+	Password     string             `bson: "password" json:"password"`
+	PasswordConf string             `bson: "passwordConf" json:"passwordConf"`
+	FirstName    string             `bson: "firstName" json:"firstName"`
+	LastName     string             `bson: "lastName" json:"lastName"`
+	Age          string             `bson: "age" json:age`
+	State        string             `bson: "state" json:state`
 }
 
 // Updates represents updates allowed to be edited by user (student)
 type Updates struct {
-	FirstName              string `json:"firstName"`
-	LastName               string `json:"lastName"`
-	State                  string `json:state`
-	FavoritedOrganizations []*Org `json:favoritedOrganizations`
-	CompletedPrograms      []*Org `json:completedPrograms`
-	InProcessPrograms      []*Org `json:inProcessPrograms`
-	Gender                 string `json:gender`
+	FirstName              string `bson: "firstName" json:"firstName"`
+	LastName               string `bson: "lastName" json:"lastName"`
+	State                  string `bson: "state" json:state`
+	FavoritedOrganizations []*Org `bson: "favoritedOrganizations" json:favoritedOrganizations`
+	CompletedPrograms      []*Org `bson: "completedPrograms" json:completedPrograms`
+	InProcessPrograms      []*Org `bson: "inProcessPrograms" json:inProcessPrograms`
+	Gender                 string `bson: "gender" json:gender`
 }
 
 // Orgs represents the users' (student) organizations
 type Org struct {
-	OrgID         int64  `json:"orgId"`
-	OrgTitle      string `json:"orgTitle"`
-	OrgLocation   string `json:orgLocation`
-	OrgType       string `json:orgType`
-	OrgCompleting bool   `json:orgCompleting`
-	OrgCompleted  bool   `json:orgCompleted`
+	OrgID         int64  `bson: "orgId" json:"orgId"`
+	OrgTitle      string `bson: "orgTitle" json:"orgTitle"`
+	OrgLocation   string `bson: "orgLocation" json:orgLocation`
+	OrgType       string `bson: "orgType" json:orgType`
+	OrgCompleting bool   `bson: "orgCompleting" json:orgCompleting`
+	OrgCompleted  bool   `bson: "orgCompleted" json:orgCompleted`
 }
 
 // Notes represents users' (student) notes about programs
 type Note struct {
-	NoteID      int64  `json:noteId`
-	NoteContent string `json:noteContent`
-	OrgID       int64  `json:orgId`
-	CreatedAt   string `json:createdAt`
-	UpdatedAt   string `json:updatedAt`
-	Reviewed    bool   `json:reviewed`
+	NoteID      primitive.ObjectID `bson: "_id"`
+	NoteContent string             `bson: "noteContent" json:noteContent`
+	OrgID       int64              `bson: "orgId" json:orgId`
+	CreatedAt   string             `bson: "createdAt" json:createdAt`
+	UpdatedAt   string             `bson: "updatedAt" json:updatedAt`
+	Reviewed    bool               `bson: "reviewed" json:reviewed`
 }
 
 // UserOrgs represents a program administrator's organizations
