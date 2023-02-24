@@ -65,7 +65,6 @@ func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 		PasswordConf: bytes,
 		FirstName:    params["firstName"],
 		UserName:     params["userName"],
-		State:        params["state"],
 	}
 	// encode/decode for sending/receiving JSON to/from a stream
 	json.NewDecoder(r.Body).Decode(&u)
@@ -149,3 +148,6 @@ func (uc UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+
+func (us UserController) UpdateUserInfo
