@@ -185,10 +185,10 @@ func main() {
 	// other example
 	// router.GET("users/:id", uc.GetUser)
 	// router.HandleFunc(apiEndpoint3+"/users", uc.GetUsers)
-	router.HandleFunc(apiEndpoint3+"/users/{id}", uc.GetUser)
+	router.HandleFunc(apiEndpoint3+"/users/{id}", uc.GetUserByID)
 	router.HandleFunc(apiEndpoint3+"/users", uc.CreateUser)
 	// router.HandleFunc(apiEndpoint3+"/users/{id}", uc.UpdateUser) to do!!!
-	router.HandleFunc(apiEndpoint3+"/users/{id}", uc.DeleteUser)
+	router.HandleFunc(apiEndpoint3+"/users/{id}", uc.DeleteUserByID)
 
 	// not sure
 	mux2 := http.NewServeMux()

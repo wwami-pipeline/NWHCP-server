@@ -35,8 +35,8 @@ type Credentials struct {
 type NewUser struct {
 	ID           primitive.ObjectID `"bson:_id"`
 	Email        string             `bson: "email" json:"email"`
-	Password     string             `bson: "password" json:"password"`
-	PasswordConf string             `bson: "passwordConf" json:"passwordConf"`
+	PassHash     []byte             `bson:"password" json:"password"` //never JSON encoded/decoded
+	PasswordConf []byte             `bson: "passwordConf" json:"passwordConf"`
 	FirstName    string             `bson: "firstName" json:"firstName"`
 	LastName     string             `bson: "lastName" json:"lastName"`
 	Age          string             `bson: "age" json:age`
