@@ -1,8 +1,6 @@
-package orgs
+package models
 
 import (
-	"nwhcp/nwhcp-server/gateway/models/users"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -28,11 +26,11 @@ type Organization struct {
 	GradeLevels       []int              `bson:"gradeLevels" json: "gradeLevels"`
 	IsPathwayProgram  bool               `bson: "isPathwayProgram" json: "isPathwayProgram"`
 	IsAcademicProgram bool               `bson: "isAcademicProgram" json: "isAcademicProgram"`
-	UsersFavorited    []*users.User      `bson: "usersFavorited" json: "usersFavorited"`
-	UsersCompleted    []*users.User      `bson: "usersCompleted" json: "usersCompleted"`
-	UsersCompleting   []*users.User      `bson: "usersCompleting" json: "usersCompleting"`
+	UsersFavorited    []*models.User     `bson: "usersFavorited" json: "usersFavorited"`
+	UsersCompleted    []*models.User     `bson: "usersCompleted" json: "usersCompleted"`
+	UsersCompleting   []*models.User     `bson: "usersCompleting" json: "usersCompleting"`
 	OrgDescription    string             `bson: "orgDescription" json: "orgDescription"`
-	StudentsContacted []*users.User      `bson: "studentsContacted" json: "studentsContacted"`
+	StudentsContacted []*models.User     `bson: "studentsContacted" json: "studentsContacted"`
 	Tags              []string           `bson: "tags" json: "tags"`
 }
 

@@ -1,4 +1,4 @@
-package users
+package models
 
 import (
 	"nwhcp/nwhcp-server/gateway/models/orgs"
@@ -27,9 +27,9 @@ type User struct {
 	InProcessPrograms      []*orgs.Organization `bson: "inProcessPrograms" json:"inProcessPrograms"`
 	PathwayPrograms        []*orgs.Organization `bson: "pathwayPrograms" json: "pathwayPrograms"`
 	AcademicPrograms       []*orgs.Organization `bson: "academicPrograms" json: "academicPrograms"`
-	Notes                  []*Note              `bson: "notes" json:"notes"`
-	Links                  []*Link              `bson: "links" json: "links"`
-	Planners               []*Planner           `bson: "planners" json: "planners"`
+	Notes                  []*models.Note       `bson: "notes" json:"notes"`
+	Links                  []*models.Link       `bson: "links" json: "links"`
+	Planners               []*models.Planner    `bson: "planners" json: "planners"`
 	OrgsContacted          []*orgs.Org          `bson: "orgsContacted" json: "orgsContacted"`
 }
 
@@ -59,9 +59,9 @@ type Updates struct {
 	InProcessPrograms      []*orgs.Organization `bson: "inProcessPrograms" json:"inProcessPrograms"`
 	UserPathwayPrograms    []*orgs.Organization `bson: "userPathwayPrograms" json: "userPathwayPrograms" `
 	UserAcademicPrograms   []*orgs.Organization `bson: "userAcademicPrograms" json: "userAcademicPrograms"`
-	UserNotes              []*Note              `bson: "userNotes" json:"userNotes"`
-	UserLinks              []*Link              `bson: "userLinks" json: "userLinks"`
-	UserPlanners           []*Planner           `bson: "userPlanners" json: "userPlanners"`
+	UserNotes              []*models.Note       `bson: "userNotes" json:"userNotes"`
+	UserLinks              []*models.Link       `bson: "userLinks" json: "userLinks"`
+	UserPlanners           []*modelsPlanner     `bson: "userPlanners" json: "userPlanners"`
 }
 
 // Orgs represents the users' (student) organizations
@@ -79,52 +79,52 @@ type Updates struct {
 // }
 
 // Notes represents users' (student) notes about programs
-type Note struct {
-	UserID          primitive.ObjectID `bson:"_id, omitempty"`
-	NoteID          primitive.ObjectID `bson: "_id"`
-	NoteContent     string             `bson: "noteContent" json:noteContent`
-	OrgID           primitive.ObjectID `bson: "_id"`
-	CreatedAt       string             `bson: "createdAt" json:createdAt`
-	UpdatedAt       string             `bson: "updatedAt" json:updatedAt`
-	Reviewed        bool               `bson: "reviewed" json:reviewed`
-	NoteDescription string             `bson: "noteDescription" json: "noteDescription"`
-}
+// type Note struct {
+// 	UserID          primitive.ObjectID `bson:"_id, omitempty"`
+// 	NoteID          primitive.ObjectID `bson: "_id"`
+// 	NoteContent     string             `bson: "noteContent" json:noteContent`
+// 	OrgID           primitive.ObjectID `bson: "_id"`
+// 	CreatedAt       string             `bson: "createdAt" json:createdAt`
+// 	UpdatedAt       string             `bson: "updatedAt" json:updatedAt`
+// 	Reviewed        bool               `bson: "reviewed" json:reviewed`
+// 	NoteDescription string             `bson: "noteDescription" json: "noteDescription"`
+// }
 
-type Link struct {
-	LinkID          primitive.ObjectID `bson: "_id"`
-	LinkDescription string             `bson: "linkDescription" json: "linkDescription" `
-	Favorited       bool               `bson: "favorited" json: "favorited"`
-	UserID          primitive.ObjectID `bson:"_id, omitempty"`
-	PlannerID       primitive.ObjectID `bson: "_id"`
-	OrgID           primitive.ObjectID `bson: "_id, omitempty"`
-}
+// type Link struct {
+// 	LinkID          primitive.ObjectID `bson: "_id"`
+// 	LinkDescription string             `bson: "linkDescription" json: "linkDescription" `
+// 	Favorited       bool               `bson: "favorited" json: "favorited"`
+// 	UserID          primitive.ObjectID `bson:"_id, omitempty"`
+// 	PlannerID       primitive.ObjectID `bson: "_id"`
+// 	OrgID           primitive.ObjectID `bson: "_id, omitempty"`
+// }
 
-type Planner struct {
-	PlannerID          primitive.ObjectID   `bson: "_id"`
-	IsMonthlyPlanner   bool                 `bson: "isMonthlyPlanner" json: "isMonthlyPlanner"`
-	IsYearlyPlanner    bool                 `bson: "isYearlyPlanner" json: "isYearlyPlanner"`
-	IsAcademicPlanner  bool                 `bson: "isAcademicPlanner" "isAcademicPlanner"`
-	NotesIDS           []*Note              `bson: "notesIDS" json: "notesIDS"`
-	OrgIDS             []*orgs.Organization `bson: "orgIDS" json: "orgIDS"`
-	UserID             primitive.ObjectID   `bson: "_id"`
-	IsFallPlanner      bool                 `bson: "isFallPlanner" json: "isFallPlanner"`
-	IsWinterPlanner    bool                 `bson: "isWinterPlanner" json: "isWinterPlanner"`
-	IsSpringPlanner    bool                 `bson: "isSpringPlanner" json: "isSpringPlanner"`
-	IsSummerPlanner    bool                 `bson: "isSummerPlanner" json: "isSummerPlanner"`
-	LinkIDS            []*Link              `bson: "linkIDS" json: "linkIDS"`
-	DateCreated        string               `bson: "dateCreated" json: "dateCreated"`
-	PlannerDescription string               `bson: "plannerDescription" json: "plannerDescription"`
-}
+// type Planner struct {
+// 	PlannerID          primitive.ObjectID   `bson: "_id"`
+// 	IsMonthlyPlanner   bool                 `bson: "isMonthlyPlanner" json: "isMonthlyPlanner"`
+// 	IsYearlyPlanner    bool                 `bson: "isYearlyPlanner" json: "isYearlyPlanner"`
+// 	IsAcademicPlanner  bool                 `bson: "isAcademicPlanner" "isAcademicPlanner"`
+// 	NotesIDS           []*Note              `bson: "notesIDS" json: "notesIDS"`
+// 	OrgIDS             []*orgs.Organization `bson: "orgIDS" json: "orgIDS"`
+// 	UserID             primitive.ObjectID   `bson: "_id"`
+// 	IsFallPlanner      bool                 `bson: "isFallPlanner" json: "isFallPlanner"`
+// 	IsWinterPlanner    bool                 `bson: "isWinterPlanner" json: "isWinterPlanner"`
+// 	IsSpringPlanner    bool                 `bson: "isSpringPlanner" json: "isSpringPlanner"`
+// 	IsSummerPlanner    bool                 `bson: "isSummerPlanner" json: "isSummerPlanner"`
+// 	LinkIDS            []*Link              `bson: "linkIDS" json: "linkIDS"`
+// 	DateCreated        string               `bson: "dateCreated" json: "dateCreated"`
+// 	PlannerDescription string               `bson: "plannerDescription" json: "plannerDescription"`
+// }
 
 // UserOrgs represents a program administrator's organizations
 // needed??
-type UserOrgs struct {
-	ID        int64                `json:"id"`
-	Email     string               `json:"-"` //never JSON encoded/decoded
-	FirstName string               `json:"firstName"`
-	LastName  string               `json:"lastName"`
-	Orgs      []*orgs.Organization `json:"orgs"`
-}
+// type UserOrgs struct {
+// 	ID        int64                `json:"id"`
+// 	Email     string               `json:"-"` //never JSON encoded/decoded
+// 	FirstName string               `json:"firstName"`
+// 	LastName  string               `json:"lastName"`
+// 	Orgs      []*orgs.Organization `json:"orgs"`
+// }
 
 // Validate validates the new user and returns an error if
 // any of the validation rules fail, or nil if its valid
