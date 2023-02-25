@@ -10,7 +10,6 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"nwhcp/nwhcp-server/gateway/handlers"
-	"nwhcp/nwhcp-server/gateway/models/orgs"
 	"nwhcp/nwhcp-server/gateway/sessions"
 	"os"
 	"strings"
@@ -61,8 +60,8 @@ func getenv(key, fallback string) string {
 func main() {
 	// start mongo server to get organization information
 	mongoAddr := getenv("MONGO_ADDR", "mongodb://127.0.0.1:27017")
-	mongoDb := getenv("MONGO_DB", "mongodb")
-	mongoCol := getenv("MONGO_COL", "organization")
+	// mongoDb := getenv("MONGO_DB", "mongodb")
+	// mongoCol := getenv("MONGO_COL", "organization")
 
 	// start Redis server to get cache
 	redisAddr := getenv("REDIS_ADDR", "127.0.0.1:6379")
@@ -86,12 +85,12 @@ func main() {
 		fmt.Println("MongoDb Connect Success!")
 	}
 
-	orgStore, _ := orgs.NewOrgStore(mongoSession, mongoDb, mongoCol)
+	// orgStore, _ := orgs.NewOrgStore(mongoSession, mongoDb, mongoCol)
 
 	// org details
-	hctx := &handlers.HandlerContext{
-		OrgStore: orgStore,
-	}
+	// hctx := &handlers.HandlerContext{
+	// 	OrgStore: orgStore,
+	// }
 
 	// redis
 	rclient := redis.NewClient(&redis.Options{
@@ -174,26 +173,26 @@ func main() {
 
 	// not in use -routes implemented but not connected to mongoDB
 	apiEndpoint3 := "/api/v3"
-	// orgs
-	router.HandleFunc(apiEndpoint3+"/search", hctx.SearchOrgsHandler)
-	router.HandleFunc(apiEndpoint3+"/orgs", hctx.GetAllOrgs)
-	router.HandleFunc(apiEndpoint3+"/orgs/{id}", hctx.SpecificOrgHandler)
+	oc := handlers.NewOrganizationController(mongoSession)
+	// router.HandleFunc(apiEndpoint3+"/search", hctx.GetOrgByID)
+	// router.HandleFunc(apiEndpoint3+"/orgs", hctx.GetAllOrgs)
+	router.HandleFunc("/orgs", oc.CreateOrganization)
+	router.HandleFunc("/orgs/{id}", oc.GetOrgByID)
 
 	// users
 	// pointer for NewUserController() methods -pass Mongo session to manipulate database
 	uc := handlers.NewUserController(mongoSession)
-	// other example
-	// router.GET("users/:id", uc.GetUser)
 	router.HandleFunc("/users", uc.GetUsers)
 	router.HandleFunc("/users/{id}", uc.GetUserByID)
 	router.HandleFunc("/users", uc.CreateUser)
-	// router.HandleFunc(apiEndpoint3+"/users/{id}", uc.UpdateUser) to do!!!
-	router.HandleFunc("/users/{id}", uc.DeleteUserByID)
+	// 2/24 now testing...
+	router.HandleFunc("/users/{id}/favoritedOrgs", uc.ToggleOrgFavorite)
+	router.HandleFunc("/users/{id}", uc.DeleteUserByID) // debug this; doesn't delete from db...
 
 	// not sure
 	mux2 := http.NewServeMux()
-	mux2.HandleFunc(apiEndpoint3+"/pipeline-db/truncate", hctx.DeleteAllOrgsHandler)
-	mux2.HandleFunc(apiEndpoint3+"/pipeline-db/poporgs", hctx.InsertOrgs)
+	// mux2.HandleFunc(apiEndpoint3+"/pipeline-db/truncate", hctx.DeleteAllOrgsHandler)
+	// mux2.HandleFunc(apiEndpoint3+"/pipeline-db/poporgs", hctx.InsertOrgs)
 	go serve(mux2, internalPort)
 
 	// get all data from mongodb

@@ -1,6 +1,10 @@
 package users
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"nwhcp/nwhcp-server/gateway/models/orgs"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 // models
 
@@ -10,22 +14,23 @@ var bcryptCost = 13
 // User represents a user account in the database (student)
 // how do I store the stuff?
 type User struct {
-	ID                     primitive.ObjectID `bson:"_id, omitempty"`
-	Email                  string             `bson:"email" json:"email"`       //never JSON encoded/decoded
-	PassHash               []byte             `bson:"password" json:"password"` //never JSON encoded/decoded
-	FirstName              string             `bson: "firstName" json:"firstName"`
-	JoinDate               string             `bson: "joinDate" json:"joinDate"`
-	Gender                 string             `bson: "gender" json:"gender"`
-	Age                    string             `bson: "age" json:"age"`
-	State                  string             `bson: "state" json:"state"`
-	FavoritedOrganizations []*Org             `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
-	CompletedPrograms      []*Org             `bson: "completedPrograms" json:"completedPrograms"`
-	InProcessPrograms      []*Org             `bson: "inProcessPrograms" json:"inProcessPrograms"`
-	PathwayPrograms        []*Org             `bson: "pathwayPrograms" json: "pathwayPrograms"`
-	AcademicPrograms       []*Org             `bson: "academicPrograms" json: "academicPrograms"`
-	Notes                  []*Note            `bson: "notes" json:"notes"`
-	Links                  []*Link            `bson: "links" json: "links"`
-	Planners               []*Planner         `bson: "planners" json: "planners"`
+	ID                     primitive.ObjectID   `bson:"_id, omitempty"`
+	Email                  string               `bson:"email" json:"email"`       //never JSON encoded/decoded
+	PassHash               []byte               `bson:"password" json:"password"` //never JSON encoded/decoded
+	FirstName              string               `bson: "firstName" json:"firstName"`
+	JoinDate               string               `bson: "joinDate" json:"joinDate"`
+	Gender                 string               `bson: "gender" json:"gender"`
+	Age                    string               `bson: "age" json:"age"`
+	State                  string               `bson: "state" json:"state"`
+	FavoritedOrganizations []*orgs.Organization `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
+	CompletedPrograms      []*orgs.Organization `bson: "completedPrograms" json:"completedPrograms"`
+	InProcessPrograms      []*orgs.Organization `bson: "inProcessPrograms" json:"inProcessPrograms"`
+	PathwayPrograms        []*orgs.Organization `bson: "pathwayPrograms" json: "pathwayPrograms"`
+	AcademicPrograms       []*orgs.Organization `bson: "academicPrograms" json: "academicPrograms"`
+	Notes                  []*Note              `bson: "notes" json:"notes"`
+	Links                  []*Link              `bson: "links" json: "links"`
+	Planners               []*Planner           `bson: "planners" json: "planners"`
+	OrgsContacted          []*orgs.Org          `bson: "orgsContacted" json: "orgsContacted"`
 }
 
 // Credentials represents user sign-in credentials (student)
@@ -46,32 +51,32 @@ type NewUser struct {
 
 // Updates represents updates allowed to be edited by user (student)
 type Updates struct {
-	FirstName              string     `bson: "firstName" json:"firstName"`
-	UserName               string     `bson: "userName" json:"userName"`
-	State                  string     `bson: "state" json:"state"`
-	FavoritedOrganizations []*Org     `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
-	CompletedPrograms      []*Org     `bson: "completedPrograms" json:"completedPrograms"`
-	InProcessPrograms      []*Org     `bson: "inProcessPrograms" json:"inProcessPrograms"`
-	UserPathwayPrograms    []*Org     `bson: "userPathwayPrograms" json: "userPathwayPrograms" `
-	UserAcademicPrograms   []*Org     `bson: "userAcademicPrograms" json: "userAcademicPrograms"`
-	UserNotes              []*Note    `bson: "userNotes" json:"userNotes"`
-	UserLinks              []*Link    `bson: "userLinks" json: "userLinks"`
-	UserPlanners           []*Planner `bson: "userPlanners" json: "userPlanners"`
+	FirstName              string               `bson: "firstName" json:"firstName"`
+	UserName               string               `bson: "userName" json:"userName"`
+	State                  string               `bson: "state" json:"state"`
+	FavoritedOrganizations []*orgs.Organization `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
+	CompletedPrograms      []*orgs.Organization `bson: "completedPrograms" json:"completedPrograms"`
+	InProcessPrograms      []*orgs.Organization `bson: "inProcessPrograms" json:"inProcessPrograms"`
+	UserPathwayPrograms    []*orgs.Organization `bson: "userPathwayPrograms" json: "userPathwayPrograms" `
+	UserAcademicPrograms   []*orgs.Organization `bson: "userAcademicPrograms" json: "userAcademicPrograms"`
+	UserNotes              []*Note              `bson: "userNotes" json:"userNotes"`
+	UserLinks              []*Link              `bson: "userLinks" json: "userLinks"`
+	UserPlanners           []*Planner           `bson: "userPlanners" json: "userPlanners"`
 }
 
 // Orgs represents the users' (student) organizations
-type Org struct {
-	OrgID             primitive.ObjectID `bson: "_id" `
-	OrgTitle          string             `bson: "orgTitle" json:"orgTitle"`
-	OrgLocation       string             `bson: "orgLocation" json:"orgLocation"`
-	OrgType           string             `bson: "orgType" json:"orgType"`
-	OrgCompleting     bool               `bson: "orgCompleting" json:"orgCompleting"`
-	OrgCompleted      bool               `bson: "orgCompleted" json:"orgCompleted"`
-	IsPathwayProgram  bool               `bson: "isPathwayProgram" json: "isPathwayProgram"`
-	IsAcademicProgram bool               `bson: "isAcademicProgram" json: "isAcademicProgram" `
-	Contacted         bool               `bson: "contacted" json: "contacted"`
-	OrgDescription    string             `bson: "orgDescription" json: "orgDescription"`
-}
+// type Org struct {
+// 	OrgID             primitive.ObjectID `bson: "_id" `
+// 	OrgTitle          string             `bson: "orgTitle" json:"orgTitle"`
+// 	OrgLocation       string             `bson: "orgLocation" json:"orgLocation"`
+// 	OrgType           string             `bson: "orgType" json:"orgType"`
+// 	OrgCompleting     bool               `bson: "orgCompleting" json:"orgCompleting"`
+// 	OrgCompleted      bool               `bson: "orgCompleted" json:"orgCompleted"`
+// 	IsPathwayProgram  bool               `bson: "isPathwayProgram" json: "isPathwayProgram"`
+// 	IsAcademicProgram bool               `bson: "isAcademicProgram" json: "isAcademicProgram" `
+// 	Contacted         bool               `bson: "contacted" json: "contacted"`
+// 	OrgDescription    string             `bson: "orgDescription" json: "orgDescription"`
+// }
 
 // Notes represents users' (student) notes about programs
 type Note struct {
@@ -95,30 +100,30 @@ type Link struct {
 }
 
 type Planner struct {
-	PlannerID          primitive.ObjectID `bson: "_id"`
-	IsMonthlyPlanner   bool               `bson: "isMonthlyPlanner" json: "isMonthlyPlanner"`
-	IsYearlyPlanner    bool               `bson: "isYearlyPlanner" json: "isYearlyPlanner"`
-	IsAcademicPlanner  bool               `bson: "isAcademicPlanner" "isAcademicPlanner"`
-	NotesIDS           []*Note            `bson: "notesIDS" json: "notesIDS"`
-	OrgIDS             []*Org             `bson: "orgIDS" json: "orgIDS"`
-	UserID             primitive.ObjectID `bson: "_id"`
-	IsFallPlanner      bool               `bson: "isFallPlanner" json: "isFallPlanner"`
-	IsWinterPlanner    bool               `bson: "isWinterPlanner" json: "isWinterPlanner"`
-	IsSpringPlanner    bool               `bson: "isSpringPlanner" json: "isSpringPlanner"`
-	IsSummerPlanner    bool               `bson: "isSummerPlanner" json: "isSummerPlanner"`
-	LinkIDS            []*Link            `bson: "linkIDS" json: "linkIDS"`
-	DateCreated        string             `bson: "dateCreated" json: "dateCreated"`
-	PlannerDescription string             `bson: "plannerDescription" json: "plannerDescription"`
+	PlannerID          primitive.ObjectID   `bson: "_id"`
+	IsMonthlyPlanner   bool                 `bson: "isMonthlyPlanner" json: "isMonthlyPlanner"`
+	IsYearlyPlanner    bool                 `bson: "isYearlyPlanner" json: "isYearlyPlanner"`
+	IsAcademicPlanner  bool                 `bson: "isAcademicPlanner" "isAcademicPlanner"`
+	NotesIDS           []*Note              `bson: "notesIDS" json: "notesIDS"`
+	OrgIDS             []*orgs.Organization `bson: "orgIDS" json: "orgIDS"`
+	UserID             primitive.ObjectID   `bson: "_id"`
+	IsFallPlanner      bool                 `bson: "isFallPlanner" json: "isFallPlanner"`
+	IsWinterPlanner    bool                 `bson: "isWinterPlanner" json: "isWinterPlanner"`
+	IsSpringPlanner    bool                 `bson: "isSpringPlanner" json: "isSpringPlanner"`
+	IsSummerPlanner    bool                 `bson: "isSummerPlanner" json: "isSummerPlanner"`
+	LinkIDS            []*Link              `bson: "linkIDS" json: "linkIDS"`
+	DateCreated        string               `bson: "dateCreated" json: "dateCreated"`
+	PlannerDescription string               `bson: "plannerDescription" json: "plannerDescription"`
 }
 
 // UserOrgs represents a program administrator's organizations
 // needed??
 type UserOrgs struct {
-	ID        int64  `json:"id"`
-	Email     string `json:"-"` //never JSON encoded/decoded
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Orgs      []*Org `json:"orgs"`
+	ID        int64                `json:"id"`
+	Email     string               `json:"-"` //never JSON encoded/decoded
+	FirstName string               `json:"firstName"`
+	LastName  string               `json:"lastName"`
+	Orgs      []*orgs.Organization `json:"orgs"`
 }
 
 // Validate validates the new user and returns an error if

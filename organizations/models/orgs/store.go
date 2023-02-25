@@ -1,10 +1,10 @@
 package orgs
 
-//Store represents a session data store.
-//This is an abstract interface that can be implemented
-//against several different types of data stores. For example,
-//session data could be stored in memory in a concurrent map,
-//or more typically in a shared key/value server store like redis.
+// Store represents a session data store.
+// This is an abstract interface that can be implemented
+// against several different types of data stores. For example,
+// session data could be stored in memory in a concurrent map,
+// or more typically in a shared key/value server store like redis.
 type Store interface {
 	//GetByID returns the Org with the given ID
 	GetByID(id int) (*Organization, error)

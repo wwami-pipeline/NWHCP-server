@@ -149,5 +149,45 @@ func (uc UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 }
 
+/* =================================================UPDATE USER ORGS====================================================*/
+// favorite and unfavorite an organization
+// get userID and orgID
+// check if orgId in favorites, if not add to favorites
+// if orgID in favorites, remove from favorites
+func (us UserController) ToggleOrgFavorite(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "applications/json")
 
-func (us UserController) UpdateUserInfo
+	params := mux.Vars(r)
+
+	id := params["id"]
+
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	orgId := params["orgID"]
+
+	ooid, err := primitive.ObjectIDFromHex(orgId)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	// find the student document to update with org document
+	filterStudent := bson.M{"_id": bson.M{"$eq": oid}}
+	filterOrg := bson.M{"_id": bson.M{"$eq": ooid}}
+
+	fmt.Println(("the student is:"))
+	fmt.Println(filterStudent)
+	fmt.Println("the org is:")
+	fmt.Println(filterOrg)
+
+	// if _ , ok filterStudent.params["favoritedOrgs"]; ok {
+	// 	// remove from favorited orgs
+	// 	delete()
+	// } else {
+	// 	// add to favorited orgs
+	// 	favoritedOrgs = append(filterOrg)
+	// }
+
+}

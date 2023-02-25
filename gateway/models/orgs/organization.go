@@ -1,34 +1,60 @@
 package orgs
 
+import (
+	"nwhcp/nwhcp-server/gateway/models/users"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
 // Organization represents information for a new org
 type Organization struct {
-	OrgId         int      `bson:"OrgId"`
-	OrgTitle      string   `bson:"OrgTitle"`
-	OrgWebsite    string   `bson:"OrgWebsite"`
-	StreetAddress string   `bson:"StreetAddress"`
-	City          string   `bson:"City"`
-	State         string   `bson:"State"`
-	ZipCode       string   `bson:"ZipCode"`
-	Phone         string   `bson:"Phone"`
-	Email         string   `bson:"Email"`
-	ActivityDesc  string   `bson:"ActivityDesc"`
-	Lat           float64  `bson:"Lat"`
-	Long          float64  `bson:"Long"`
-	HasShadow     bool     `bson:"HasShadow"`
-	HasCost       bool     `bson:"HasCost"`
-	HasTransport  bool     `bson:"HasTransport"`
-	Under18       bool     `bson:"Under18"`
-	CareerEmp     []string `bson:"CareerEmp"`
-	GradeLevels   []int    `bson:"GradeLevels"`
+	OrgId             primitive.ObjectID `bson:"_id"`
+	OrgTitle          string             `bson:"orgTitle" json: "orgTitle"`
+	OrgWebsite        string             `bson:"orgWebsite" json: "orgWebsite"`
+	StreetAddress     string             `bson:"streetAddress" json: "streetAddress"`
+	City              string             `bson:"city" json: "city"`
+	State             string             `bson:"state" json: "state"`
+	ZipCode           string             `bson:"zipCode" json: "zipCode"`
+	Phone             string             `bson:"phone" json: "phone"`
+	Email             string             `bson:"email" json: "email"`
+	ActivityDesc      string             `bson:"activityDesc" json: "activityDesc"`
+	Lat               float64            `bson:"lat" json: "lat"`
+	Long              float64            `bson:"long" json: "long"`
+	HasShadow         bool               `bson:"hasShadow" json: "hasShadow"`
+	HasCost           bool               `bson:"hasCost" json: "hasCost"`
+	HasTransport      bool               `bson:"hasTransport" json: "hasTransport"`
+	Under18           bool               `bson:"under18" json: "under18"`
+	CareerEmp         []string           `bson:"careerEmp" json: "careerEmp"`
+	GradeLevels       []int              `bson:"gradeLevels" json: "gradeLevels"`
+	IsPathwayProgram  bool               `bson: "isPathwayProgram" json: "isPathwayProgram"`
+	IsAcademicProgram bool               `bson: "isAcademicProgram" json: "isAcademicProgram"`
+	UsersFavorited    []*users.User      `bson: "usersFavorited" json: "usersFavorited"`
+	UsersCompleted    []*users.User      `bson: "usersCompleted" json: "usersCompleted"`
+	UsersCompleting   []*users.User      `bson: "usersCompleting" json: "usersCompleting"`
+	OrgDescription    string             `bson: "orgDescription" json: "orgDescription"`
+	StudentsContacted []*users.User      `bson: "studentsContacted" json: "studentsContacted"`
+	Tags              []string           `bson: "tags" json: "tags"`
 }
 
 // OrgInfo represents organization information for buiding searching criteria
 type OrgInfo struct {
-	SearchContent string   `json: "SearchContent"`
-	HasShadow     bool     `json: "HasShadow"`
-	HasCost       bool     `json: "HasCost"`
-	HasTransport  bool     `json: "HasTransport"`
-	Under18       bool     `json: "Under18"`
-	CareerEmp     []string `json: "CareerEmp"`
-	GradeLevels   []int    `json: "GradeLevels"`
+	SearchContent string   `bson: "searchContent" json: "searchContent"`
+	HasShadow     bool     `bson: "hasShadow" json: "hasShadow"`
+	HasCost       bool     `bson: "hasCost" json: "hasCost"`
+	HasTransport  bool     `bson: "hasTransport" json: "hasTransport"`
+	Under18       bool     `bson: "under18" json: "under18"`
+	CareerEmp     []string `bson: "careerEmp" json: "careerEmp"`
+	GradeLevels   []int    `bson: "gradeLevels" json: "gradeLevels"`
+}
+
+type NewOrganization struct {
+	OrgId         primitive.ObjectID `bson:"_id"`
+	OrgTitle      string             `bson:"orgTitle" json: "orgTitle"`
+	OrgWebsite    string             `bson:"orgWebsite" json: "orgWebsite"`
+	StreetAddress string             `bson:"streetAddress" json: "streetAddress"`
+	City          string             `bson:"city" json: "city"`
+	State         string             `bson:"state" json: "state"`
+	ZipCode       string             `bson:"zipCode" json: "zipCode"`
+	Phone         string             `bson:"phone" json: "phone"`
+	Email         string             `bson:"email" json: "email"`
 }
