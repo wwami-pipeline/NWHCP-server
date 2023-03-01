@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"nwhcp/nwhcp-server/gateway/models"
 	"os"
 	"reflect"
 

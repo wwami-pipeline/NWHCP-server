@@ -1,7 +1,5 @@
 package models
 
-import "nwhcp/nwhcp-server/gateway/models"
-
 // Store represents a session data store.
 // This is an abstract interface that can be implemented
 // against several different types of data stores. For example,

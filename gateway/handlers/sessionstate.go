@@ -4,7 +4,6 @@ import (
 	// "info441-finalproj/servers/gateway/models/users"
 	// "NWHCP-server/gateway/models/users"
 	// "NWHCP/NWHCP-server/gateway/models/users"
-	"nwhcp/nwhcp-server/gateway/models"
 	"time"
 	// "github.com/nwhcp-server/gateway/models/users"
 )

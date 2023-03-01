@@ -11,8 +11,6 @@ import (
 
 	// "pipeline-db/models"
 
-	"nwhcp/nwhcp-server/gateway/models"
-
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

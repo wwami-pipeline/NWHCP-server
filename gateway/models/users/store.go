@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"nwhcp/nwhcp-server/gateway/models"
 	"time"
 )
 

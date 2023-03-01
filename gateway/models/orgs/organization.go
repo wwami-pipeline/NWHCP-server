@@ -1,8 +1,6 @@
 package models
 
 import (
-	"nwhcp/nwhcp-server/gateway/models"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
