@@ -171,22 +171,22 @@ func main() {
 	// authorization?
 	router.Handle(apiEndpoint+"/getuser/", orgsProxy)
 
-	// trying something..
+	// interface refactor code - to do
 
 	// pass db session
 	// how does code know which struct I'm manipulating??
 	// pass database and collection down??
-	cnuc := handlers.NewUserController(mongoSession)
-	coc := handlers.NewOrganizationController(mongoSession)
-	cpc := handlers.NewPlannerController(mongoSession)
-	clc := handlers.NewLinkController(mongoSession)
+	// cnuc := handlers.NewUserController(mongoSession)
+	// coc := handlers.NewOrganizationController(mongoSession)
+	// cpc := handlers.NewPlannerController(mongoSession)
+	// clc := handlers.NewLinkController(mongoSession)
 
 	// POST
-	router.HandleFunc("/users", cnuc.CreateNew())
+	// router.HandleFunc("/users", cnuc.CreateNew())
 
-	router.HandleFunc("/orgs", coc.CreateNew())
-	router.HandleFunc("/users/{id}/planners", cpc.CreateNew())
-	router.HandleFunc("/links", clc.CreateNew())
+	// router.HandleFunc("/orgs", coc.CreateNew())
+	// router.HandleFunc("/users/{id}/planners", cpc.CreateNew())
+	// router.HandleFunc("/links", clc.CreateNew())
 
 	// not in use -routes implemented but not connected to mongoDB
 	apiEndpoint3 := "/api/v3"

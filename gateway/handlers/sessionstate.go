@@ -4,13 +4,13 @@ import (
 	// "info441-finalproj/servers/gateway/models/users"
 	// "NWHCP-server/gateway/models/users"
 	// "NWHCP/NWHCP-server/gateway/models/users"
-	"nwhcp/nwhcp-server/gateway/models/users"
+	"nwhcp/nwhcp-server/gateway/models"
 	"time"
 	// "github.com/nwhcp-server/gateway/models/users"
 )
 
 // SessionState blah
 type SessionState struct {
-	Time time.Time  `json:"time"`
-	User users.User `json:"user"`
+	Time time.Time   `json:"time"`
+	User models.User `json:"user"`
 }

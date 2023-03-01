@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"nwhcp/nwhcp-server/gateway/models/users"
+	"nwhcp/nwhcp-server/gateway/models"
 	"os"
 	"reflect"
 
@@ -59,7 +59,7 @@ func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
-	u := &users.NewUser{
+	u := &models.NewUser{
 		Email:        params["email"],
 		PassHash:     bytes,
 		PasswordConf: bytes,
@@ -114,7 +114,7 @@ func (uc UserController) GetUserByID(w http.ResponseWriter, r *http.Request) {
 
 	oid, _ := primitive.ObjectIDFromHex(id)
 
-	result := &users.User{}
+	result := &models.User{}
 
 	err := uc.session.Database("mongodb").Collection("usersTest").FindOne(context.TODO(), bson.M{"_id": oid}).Decode(&result)
 	if err != nil {

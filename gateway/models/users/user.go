@@ -1,7 +1,7 @@
 package models
 
 import (
-	"nwhcp/nwhcp-server/gateway/models/orgs"
+	"nwhcp/nwhcp-server/gateway/models"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -14,23 +14,23 @@ var bcryptCost = 13
 // User represents a user account in the database (student)
 // how do I store the stuff?
 type User struct {
-	ID                     primitive.ObjectID   `bson:"_id, omitempty"`
-	Email                  string               `bson:"email" json:"email"`       //never JSON encoded/decoded
-	PassHash               []byte               `bson:"password" json:"password"` //never JSON encoded/decoded
-	FirstName              string               `bson: "firstName" json:"firstName"`
-	JoinDate               string               `bson: "joinDate" json:"joinDate"`
-	Gender                 string               `bson: "gender" json:"gender"`
-	Age                    string               `bson: "age" json:"age"`
-	State                  string               `bson: "state" json:"state"`
-	FavoritedOrganizations []*orgs.Organization `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
-	CompletedPrograms      []*orgs.Organization `bson: "completedPrograms" json:"completedPrograms"`
-	InProcessPrograms      []*orgs.Organization `bson: "inProcessPrograms" json:"inProcessPrograms"`
-	PathwayPrograms        []*orgs.Organization `bson: "pathwayPrograms" json: "pathwayPrograms"`
-	AcademicPrograms       []*orgs.Organization `bson: "academicPrograms" json: "academicPrograms"`
-	Notes                  []*models.Note       `bson: "notes" json:"notes"`
-	Links                  []*models.Link       `bson: "links" json: "links"`
-	Planners               []*models.Planner    `bson: "planners" json: "planners"`
-	OrgsContacted          []*orgs.Org          `bson: "orgsContacted" json: "orgsContacted"`
+	ID                     primitive.ObjectID     `bson:"_id, omitempty"`
+	Email                  string                 `bson:"email" json:"email"`       //never JSON encoded/decoded
+	PassHash               []byte                 `bson:"password" json:"password"` //never JSON encoded/decoded
+	FirstName              string                 `bson: "firstName" json:"firstName"`
+	JoinDate               string                 `bson: "joinDate" json:"joinDate"`
+	Gender                 string                 `bson: "gender" json:"gender"`
+	Age                    string                 `bson: "age" json:"age"`
+	State                  string                 `bson: "state" json:"state"`
+	FavoritedOrganizations []*models.Organization `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
+	CompletedPrograms      []*models.Organization `bson: "completedPrograms" json:"completedPrograms"`
+	InProcessPrograms      []*models.Organization `bson: "inProcessPrograms" json:"inProcessPrograms"`
+	PathwayPrograms        []*models.Organization `bson: "pathwayPrograms" json: "pathwayPrograms"`
+	AcademicPrograms       []*models.Organization `bson: "academicPrograms" json: "academicPrograms"`
+	Notes                  []*models.Organization `bson: "notes" json:"notes"`
+	Links                  []*models.Organization `bson: "links" json: "links"`
+	Planners               []*models.Organization `bson: "planners" json: "planners"`
+	OrgsContacted          []*models.Organization `bson: "orgsContacted" json: "orgsContacted"`
 }
 
 // Credentials represents user sign-in credentials (student)
@@ -51,17 +51,17 @@ type NewUser struct {
 
 // Updates represents updates allowed to be edited by user (student)
 type Updates struct {
-	FirstName              string               `bson: "firstName" json:"firstName"`
-	UserName               string               `bson: "userName" json:"userName"`
-	State                  string               `bson: "state" json:"state"`
-	FavoritedOrganizations []*orgs.Organization `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
-	CompletedPrograms      []*orgs.Organization `bson: "completedPrograms" json:"completedPrograms"`
-	InProcessPrograms      []*orgs.Organization `bson: "inProcessPrograms" json:"inProcessPrograms"`
-	UserPathwayPrograms    []*orgs.Organization `bson: "userPathwayPrograms" json: "userPathwayPrograms" `
-	UserAcademicPrograms   []*orgs.Organization `bson: "userAcademicPrograms" json: "userAcademicPrograms"`
-	UserNotes              []*models.Note       `bson: "userNotes" json:"userNotes"`
-	UserLinks              []*models.Link       `bson: "userLinks" json: "userLinks"`
-	UserPlanners           []*modelsPlanner     `bson: "userPlanners" json: "userPlanners"`
+	FirstName              string                 `bson: "firstName" json:"firstName"`
+	UserName               string                 `bson: "userName" json:"userName"`
+	State                  string                 `bson: "state" json:"state"`
+	FavoritedOrganizations []*models.Organization `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
+	CompletedPrograms      []*models.Organization `bson: "completedPrograms" json:"completedPrograms"`
+	InProcessPrograms      []*models.Organization `bson: "inProcessPrograms" json:"inProcessPrograms"`
+	UserPathwayPrograms    []*models.Organization `bson: "userPathwayPrograms" json: "userPathwayPrograms" `
+	UserAcademicPrograms   []*models.Organization `bson: "userAcademicPrograms" json: "userAcademicPrograms"`
+	UserNotes              []*models.Note         `bson: "userNotes" json:"userNotes"`
+	UserLinks              []*models.Link         `bson: "userLinks" json: "userLinks"`
+	UserPlanners           []*models.Planner      `bson: "userPlanners" json: "userPlanners"`
 }
 
 // Orgs represents the users' (student) organizations

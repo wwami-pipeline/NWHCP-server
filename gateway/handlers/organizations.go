@@ -7,10 +7,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"nwhcp/nwhcp-server/gateway/models/orgs"
 	"os"
 
 	// "pipeline-db/models"
+
+	"nwhcp/nwhcp-server/gateway/models"
 
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
@@ -40,7 +41,7 @@ func (oc OrganizationController) CreateOrganization(w http.ResponseWriter, r *ht
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated) // 201
 
-	o := &orgs.NewOrganization{
+	o := &models.NewOrganization{
 		OrgTitle:      params["orgTitle"],
 		OrgWebsite:    params["orgWebsite"],
 		StreetAddress: params["streetAddress"],
@@ -185,7 +186,7 @@ func (oc OrganizationController) GetOrgByID(w http.ResponseWriter, r *http.Reque
 	// }
 
 	// empty struct to store org
-	result := &orgs.Organization{}
+	result := &models.Organization{}
 
 	// Fetch org
 	err := oc.session.Database("mongodb").Collection("surveys").FindOne(context.TODO(), bson.M{"_id": oid}).Decode(&result)
