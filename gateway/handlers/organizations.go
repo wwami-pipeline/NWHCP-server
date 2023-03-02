@@ -114,11 +114,13 @@ func (oc OrganizationController) CreateOrganization(w http.ResponseWriter, r *ht
 }
 
 func (oc OrganizationController) GetOrgByID(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-type", "applications/json")
 
 	params := mux.Vars(r)
 
 	id := params["id"]
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 
 	oid, _ := primitive.ObjectIDFromHex(id)
 	// if err != nil {
@@ -129,7 +131,7 @@ func (oc OrganizationController) GetOrgByID(w http.ResponseWriter, r *http.Reque
 	result := &Organization{}
 
 	// Fetch org
-	err := oc.session.Database("mongodb").Collection("surveys").FindOne(context.TODO(), bson.M{"_id": oid}).Decode(&result)
+	err := oc.session.Database("mongodb").Collection("organizations").FindOne(context.TODO(), bson.M{"_id": oid}).Decode(&result)
 	if err != nil {
 		fmt.Println("Organization not found")
 		os.Exit(1)

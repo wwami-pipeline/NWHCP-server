@@ -180,12 +180,17 @@ func main() {
 	// users
 	// pointer for NewUserController() methods -pass Mongo session to manipulate database
 	uc := handlers.NewUserController(mongoSession)
+	oc := handlers.NewOrganizationController(mongoSession)
 	router.HandleFunc("/allUsers", uc.GetUsers)
 	router.HandleFunc("/users/{id}", uc.GetUserByID)
 	router.HandleFunc("/users", uc.CreateUser)
-	// 2/24 now testing...
-	router.HandleFunc("/users/{id}/favoritedOrgs", uc.ToggleOrgFavorite)
-	router.HandleFunc("/deleteUsers/{id}", uc.DeleteUserByID) // debug this; doesn't delete from db...
+	// 03/02...need org routes created first...
+	// router.HandleFunc("/users/{id}/favoritedOrgs", uc.ToggleOrgFavorite)
+	router.HandleFunc("/deleteUsers/{id}", uc.DeleteUserByID)
+
+	// organizations
+	router.HandleFunc("/organizations", oc.CreateOrganization)
+	router.HandleFunc("/organizations/{id}", oc.GetOrgByID)
 
 	// not sure
 	mux2 := http.NewServeMux()
