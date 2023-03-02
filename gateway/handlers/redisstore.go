@@ -1,4 +1,4 @@
-package sessions
+package handlers
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
-//RedisStore represents a session.Store backed by redis.
+// RedisStore represents a session.Store backed by redis.
 type RedisStore struct {
 	//Redis client used to talk to redis server.
 	Client *redis.Client
@@ -15,7 +15,7 @@ type RedisStore struct {
 	SessionDuration time.Duration
 }
 
-//NewRedisStore constructs a new RedisStore
+// NewRedisStore constructs a new RedisStore
 func NewRedisStore(client *redis.Client, sessionDuration time.Duration) *RedisStore {
 	//initialize and return a new RedisStore struct
 	rs := &RedisStore{}
@@ -26,9 +26,9 @@ func NewRedisStore(client *redis.Client, sessionDuration time.Duration) *RedisSt
 
 //Store implementation
 
-//Save saves the provided `sessionState` and associated SessionID to the store.
-//The `sessionState` parameter is typically a pointer to a struct containing
-//all the data you want to associated with the given SessionID.
+// Save saves the provided `sessionState` and associated SessionID to the store.
+// The `sessionState` parameter is typically a pointer to a struct containing
+// all the data you want to associated with the given SessionID.
 func (rs *RedisStore) Save(sid SessionID, sessionState interface{}) error {
 	j, err := json.Marshal(sessionState)
 	if err != nil {
@@ -38,8 +38,8 @@ func (rs *RedisStore) Save(sid SessionID, sessionState interface{}) error {
 	return nil
 }
 
-//Get populates `sessionState` with the data previously saved
-//for the given SessionID
+// Get populates `sessionState` with the data previously saved
+// for the given SessionID
 func (rs *RedisStore) Get(sid SessionID, sessionState interface{}) error {
 	//for extra-credit using the Pipeline feature of the redis
 	//package to do both the get and the reset of the expiry time
@@ -54,13 +54,13 @@ func (rs *RedisStore) Get(sid SessionID, sessionState interface{}) error {
 	return temp
 }
 
-//Delete deletes all state data associated with the SessionID from the store.
+// Delete deletes all state data associated with the SessionID from the store.
 func (rs *RedisStore) Delete(sid SessionID) error {
 	rs.Client.Del(sid.getRedisKey())
 	return nil
 }
 
-//getRedisKey() returns the redis key to use for the SessionID
+// getRedisKey() returns the redis key to use for the SessionID
 func (sid SessionID) getRedisKey() string {
 	//convert the SessionID to a string and add the prefix "sid:" to keep
 	//SessionID keys separate from other keys that might end up in this

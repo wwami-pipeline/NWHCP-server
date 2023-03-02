@@ -1,4 +1,4 @@
-package sessions
+package handlers
 
 import (
 	"errors"
@@ -18,7 +18,7 @@ var ErrInvalidScheme = errors.New("authorization scheme not supported")
 
 // BeginSession creates a new SessionID, saves the `sessionState` to the store, adds an
 // Authorization header to the response with the SessionID, and returns the new SessionID
-func BeginSession(signingKey string, store Store, sessionState interface{}, w http.ResponseWriter) (SessionID, error) {
+func BeginSession(signingKey string, store SessionStore, sessionState interface{}, w http.ResponseWriter) (SessionID, error) {
 	if len(signingKey) == 0 {
 		return InvalidSessionID, ErrNoSessionID
 	}
@@ -47,7 +47,7 @@ func GetSessionID(r *http.Request, signingKey string) (SessionID, error) {
 // GetState extracts the SessionID from the request,
 // gets the associated state from the provided store into
 // the `sessionState` parameter, and returns the SessionID
-func GetState(r *http.Request, signingKey string, store Store, sessionState interface{}) (SessionID, error) {
+func GetState(r *http.Request, signingKey string, store SessionStore, sessionState interface{}) (SessionID, error) {
 	newID, err := GetSessionID(r, signingKey)
 	if err != nil {
 		return InvalidSessionID, err
@@ -62,7 +62,7 @@ func GetState(r *http.Request, signingKey string, store Store, sessionState inte
 // EndSession extracts the SessionID from the request,
 // and deletes the associated data in the provided store, returning
 // the extracted SessionID.
-func EndSession(r *http.Request, signingKey string, store Store) (SessionID, error) {
+func EndSession(r *http.Request, signingKey string, store SessionStore) (SessionID, error) {
 	newID, err := GetSessionID(r, signingKey)
 	if err != nil {
 		return InvalidSessionID, err

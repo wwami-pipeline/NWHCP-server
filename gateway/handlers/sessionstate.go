@@ -10,6 +10,6 @@ import (
 
 // SessionState blah
 type SessionState struct {
-	Time time.Time   `json:"time"`
-	User models.User `json:"user"`
+	Time time.Time `json:"time"`
+	User User      `json:"user"`
 }

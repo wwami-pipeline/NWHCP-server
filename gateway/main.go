@@ -7,10 +7,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"nwhcp/nwhcp-server/gateway/handlers"
-	"nwhcp/nwhcp-server/gateway/sessions"
 	"os"
 	"strings"
 	"sync/atomic"
@@ -27,14 +25,14 @@ import (
 
 type Director func(r *http.Request)
 
-func CustomDirector(target []*url.URL, signingKey string, sessionStore sessions.Store) Director {
+func CustomDirector(target []*url.URL, signingKey string, sessionStore handlers.SessionStore) Director {
 	var counter int32 = 0
 	return func(r *http.Request) {
 		log.Println("hello")
 		targ := target[counter%int32(len(target))]
 		atomic.AddInt32(&counter, 1)
 		state := &handlers.SessionState{}
-		_, err := sessions.GetState(r, signingKey, sessionStore, state)
+		_, err := handlers.GetState(r, signingKey, sessionStore, state)
 		if err != nil {
 			r.Header.Del("X-User")
 			log.Printf("Error getting state: %v", err)
@@ -67,7 +65,7 @@ func main() {
 	redisAddr := getenv("REDIS_ADDR", "127.0.0.1:6379")
 	redisPass := getenv("REDIS_PASS", "")
 	redisTls := getenv("REDIS_TLS", "")
-	sess := getenv("REDIS_SESSIONKEY", "key")
+	// sess := getenv("REDIS_SESSIONKEY", "key")
 
 	dsn := getenv("MYSQL_DSN", "root@tcp(127.0.0.1)/mydatabase")
 
@@ -130,17 +128,17 @@ func main() {
 	// 	fmt.Println("MySQL Connect Success!")
 	// }
 
-	dur, err2 := time.ParseDuration("24h")
-	if err2 != nil {
-		log.Fatal(err)
-	}
+	// dur, err2 := time.ParseDuration("24h")
+	// if err2 != nil {
+	// 	log.Fatal(err)
+	// }
 
 	// handler for redis cache?
-	handler := handlers.Handler{
-		SessionKey:   sess,
-		SessionStore: sessions.NewRedisStore(rclient, dur),
-		// UserStore:    users.GetNewStore(db),
-	}
+	// handler := handlers.Handler{
+	// 	SessionKey: sess,
+	// 	// ThisSessionStore: handlers.NewRedisStore(rclient, dur),
+	// 	// UserStore:    users.GetNewStore(db),
+	// }
 
 	// get URLS for orgs?
 	orgsAddress := strings.Split(server2addr, ",")
@@ -156,7 +154,7 @@ func main() {
 
 	// meetingProxy := &httputil.ReverseProxy{Director: meetingDirector}
 	// orgsProxy := &httputil.ReverseProxy{Director: orgsDirector}
-	orgsProxy := &httputil.ReverseProxy{Director: CustomDirector(oUrls, handler.SessionKey, handler.SessionStore)}
+	// orgsProxy := &httputil.ReverseProxy{Director: CustomDirector(oUrls, handler.SessionKey, handler.SessionStore)}
 	// mux router
 	router := mux.NewRouter()
 
@@ -166,45 +164,28 @@ func main() {
 	// router.HandleFunc("/api/v1/sessions/{id}", handler.SpecificSessionHandler)
 
 	// not in use
-	apiEndpoint := "/api/v2"
-	router.Handle(apiEndpoint+"/orgs/{id}", orgsProxy)
+	// apiEndpoint := "/api/v2"
+	// router.Handle(apiEndpoint+"/orgs/{id}", orgsProxy)
 	// authorization?
-	router.Handle(apiEndpoint+"/getuser/", orgsProxy)
-
-	// interface refactor code - to do
-
-	// pass db session
-	// how does code know which struct I'm manipulating??
-	// pass database and collection down??
-	// cnuc := handlers.NewUserController(mongoSession)
-	// coc := handlers.NewOrganizationController(mongoSession)
-	// cpc := handlers.NewPlannerController(mongoSession)
-	// clc := handlers.NewLinkController(mongoSession)
-
-	// POST
-	// router.HandleFunc("/users", cnuc.CreateNew())
-
-	// router.HandleFunc("/orgs", coc.CreateNew())
-	// router.HandleFunc("/users/{id}/planners", cpc.CreateNew())
-	// router.HandleFunc("/links", clc.CreateNew())
+	// router.Handle(apiEndpoint+"/getuser/", orgsProxy)
 
 	// not in use -routes implemented but not connected to mongoDB
 	apiEndpoint3 := "/api/v3"
-	oc := handlers.NewOrganizationController(mongoSession)
+	// oc := handlers.NewOrganizationController(mongoSession)
 	// router.HandleFunc(apiEndpoint3+"/search", hctx.GetOrgByID)
 	// router.HandleFunc(apiEndpoint3+"/orgs", hctx.GetAllOrgs)
-	router.HandleFunc("/orgs", oc.CreateOrganization)
-	router.HandleFunc("/orgs/{id}", oc.GetOrgByID)
+	// router.HandleFunc("/orgs", oc.CreateOrganization)
+	// router.HandleFunc("/orgs/{id}", oc.GetOrgByID)
 
 	// users
 	// pointer for NewUserController() methods -pass Mongo session to manipulate database
 	uc := handlers.NewUserController(mongoSession)
-	router.HandleFunc("/users", uc.GetUsers)
+	router.HandleFunc("/allUsers", uc.GetUsers)
 	router.HandleFunc("/users/{id}", uc.GetUserByID)
 	router.HandleFunc("/users", uc.CreateUser)
 	// 2/24 now testing...
 	router.HandleFunc("/users/{id}/favoritedOrgs", uc.ToggleOrgFavorite)
-	router.HandleFunc("/users/{id}", uc.DeleteUserByID) // debug this; doesn't delete from db...
+	router.HandleFunc("/deleteUsers/{id}", uc.DeleteUserByID) // debug this; doesn't delete from db...
 
 	// not sure
 	mux2 := http.NewServeMux()
