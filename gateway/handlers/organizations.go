@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"reflect"
 
@@ -163,5 +164,33 @@ func (oc OrganizationController) GetOrganizations(w http.ResponseWriter, r *http
 		fmt.Println("\nresult type:", reflect.TypeOf(result))
 		fmt.Println("result:", result)
 	}
+
+}
+
+func (oc OrganizationController) DeleteOrganizationByID(w http.ResponseWriter, r *http.Request) {
+
+	params := mux.Vars(r)
+
+	id := params["id"]
+
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		log.Fatal("primitive.ObjectIDFromHex ERROR:", err)
+	}
+
+	res, err := oc.session.Database("mongodb").Collection("organizations").DeleteOne(context.TODO(), bson.M{"_id": oid})
+	if err != nil {
+		log.Fatal("DeleteOne() ERROR:", err)
+	}
+	if res.DeletedCount == 0 {
+		fmt.Println("Delete One() document not found:", res)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	// Print results of DeleteOne method
+	fmt.Println("DeleteOne Result:", res)
+	json.NewEncoder(w).Encode(res)
 
 }

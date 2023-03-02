@@ -192,6 +192,7 @@ func main() {
 	router.HandleFunc("/organizations", oc.CreateOrganization)
 	router.HandleFunc("/organizations/{id}", oc.GetOrgByID)
 	router.HandleFunc("/allOrganizations", oc.GetOrganizations)
+	router.HandleFunc("/deleteOrg/{id}", oc.DeleteOrganizationByID)
 
 	// not sure
 	mux2 := http.NewServeMux()
