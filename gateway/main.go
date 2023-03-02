@@ -191,6 +191,7 @@ func main() {
 	// organizations
 	router.HandleFunc("/organizations", oc.CreateOrganization)
 	router.HandleFunc("/organizations/{id}", oc.GetOrgByID)
+	router.HandleFunc("/allOrganizations", oc.GetOrganizations)
 
 	// not sure
 	mux2 := http.NewServeMux()

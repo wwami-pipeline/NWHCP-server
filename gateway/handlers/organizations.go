@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"reflect"
 
 	"os"
 
@@ -139,5 +140,28 @@ func (oc OrganizationController) GetOrgByID(w http.ResponseWriter, r *http.Reque
 	}
 
 	json.NewEncoder(w).Encode(*result)
+
+}
+
+func (oc OrganizationController) GetOrganizations(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	cursor, err := oc.session.Database("mongodb").Collection("organizations").Find(context.TODO(), bson.D{})
+	if err != nil {
+		fmt.Println("Finding all Organizations ERROR:", err)
+	}
+
+	// collect results
+	for cursor.Next(context.TODO()) {
+		var result bson.M
+		err := cursor.Decode(&result)
+		if err != nil {
+			fmt.Println("Cursor.Next() ERROR:", err)
+			os.Exit(1)
+		}
+		json.NewEncoder(w).Encode(result)
+		fmt.Println("\nresult type:", reflect.TypeOf(result))
+		fmt.Println("result:", result)
+	}
 
 }
