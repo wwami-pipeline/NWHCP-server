@@ -183,10 +183,19 @@ func main() {
 	router.HandleFunc("/allUsers", uc.GetUsers)
 	router.HandleFunc("/users/{id}", uc.GetUserByID)
 	router.HandleFunc("/users", uc.CreateUser)
-	// 03/02 creating and testing now...
 	router.HandleFunc("/users/{id}/orgs/{orgsid}/favoritedOrgs", uc.AddOrgToFavorite)
 	router.HandleFunc("/users/{id}/deleteOrg/{orgsid}/favoritedOrgs", uc.DeleteOrgFavorite)
 	router.HandleFunc("/deleteUsers/{id}", uc.DeleteUserByID)
+
+	// starting 03/02 testing routes - to do
+	router.HandleFunc("/users/{id}/orgs/{id}/pathwayOrganizations", uc.AddToPathwayOrganizations)
+	router.HandleFunc("/users/{id}/deleteOrg/{id}/pathwayOrganizations", uc.DeleteFromPathwayOrganizations)
+	router.HandleFunc("/users/{id}/orgs/{id}/academicOrganizations", uc.AddToAcademicOrganizations)
+	router.HandleFunc("/users/{id}/deleteOrg/{id}/academicOrganizations", uc.DeleteFromAcademicOrganizations)
+	router.HandleFunc("/users/{id}/orgs/{id}/completedOrganizations", uc.AddToCompletedOrganizations)
+	router.HandleFunc("/users/{id}/deleteOrg/{id}/completedOrganizations", uc.DeleteFromCompletedOrganizations)
+	router.HandleFunc("/users/{id}/orgs/{id}/inProgressOrganizations", uc.AddToinProgressOrganizations)
+	router.HandleFunc("/users/{id}/deleteOrg/{id}/inProgressOrganizations", uc.DeleteFrominProgressOrganizations)
 
 	// organizations
 	router.HandleFunc("/organizations", oc.CreateOrganization)

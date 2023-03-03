@@ -33,24 +33,24 @@ type User struct {
 	FirstName string             `bson: "firstName" json: "firstName"`
 	JoinDate  string             `bson: "joinDate" json:"joinDate"`
 	State     string             `bson: "state" json:"state"`
-	AllOrgs   *UserOrgs          `bson: "allOrgs" json: "allOrgs"`
-	// FavoritedOrganizations []*Organization    `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
-	// CompletedPrograms      []*Organization    `bson: "completedPrograms" json:"completedPrograms"`
-	// InProcessPrograms      []*Organization    `bson: "inProcessPrograms" json:"inProcessPrograms"`
-	// PathwayPrograms        []*Organization    `bson: "pathwayPrograms" json: "pathwayPrograms"`
-	// AcademicPrograms       []*Organization    `bson: "academicPrograms" json: "academicPrograms"`
-	Notes            []*NoteID    `bson: "notes" json:"notes"`
-	Links            []*LinkID    `bson: "links" json: "links"`
-	Planners         []*PlannerID `bson: "planners" json: "planners"`
-	QuantityPlanners int          `bson: "quantityPlanners" json: "quantityPlanners"`
-	OrgsContacted    []*OrgID     `bson: "orgsContacted" json: "orgsContacted"`
+	// AllOrgs   *UserOrgs          `bson: "allOrgs" json: "allOrgs"`
+	FavoritedOrganizations []*Organization `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
+	CompletedPrograms      []*Organization `bson: "completedPrograms" json:"completedPrograms"`
+	InProcessPrograms      []*Organization `bson: "inProcessPrograms" json:"inProcessPrograms"`
+	PathwayPrograms        []*Organization `bson: "pathwayPrograms" json: "pathwayPrograms"`
+	AcademicPrograms       []*Organization `bson: "academicPrograms" json: "academicPrograms"`
+	Notes                  []*NoteID       `bson: "notes" json:"notes"`
+	Links                  []*LinkID       `bson: "links" json: "links"`
+	Planners               []*PlannerID    `bson: "planners" json: "planners"`
+	QuantityPlanners       int             `bson: "quantityPlanners" json: "quantityPlanners"`
+	OrgsContacted          []*OrgID        `bson: "orgsContacted" json: "orgsContacted"`
 }
 
 type UserOrgs struct {
 	FavoritedOrganizations        []*OrgID `bson: "favoritedOrganizations" json: "favoritedOrganizations"`
 	CompletedOrganizations        []*OrgID `bson: "completedOrganizations" json:"completedOrganizations"`
-	InProcessOrganizations        []*OrgID `bson: "inProcessOrganizations" json:"inProcessOrganizations"`
-	PathwayPrograms               []*OrgID `bson: "pathwayOrganizations" json: "pathwayOrganizations"`
+	InProgressOrganizations       []*OrgID `bson: "inProgressOrganizations" json:"inProgressOrganizations"`
+	PathwayOrganizations          []*OrgID `bson: "pathwayOrganizations" json: "pathwayOrganizations"`
 	QuantityPathwayOrganizations  int      `bson: "quantityPathwayOrganizations" json: "quantityPathwayOrganizations"`
 	AcademicOrganizations         []*OrgID `bson: "academicOrganizations" json: "academicOrganizations"`
 	QuantityAcademicOrganizations int      `bson: "quantityAcademicOrganizations" json: "quantityAcademicOrganizations"`
@@ -376,10 +376,348 @@ func (uc UserController) DeleteOrgFavorite(w http.ResponseWriter, r *http.Reques
 		},
 	}
 
-	// delete orgId from user's AllOrgs.FavoritedOrg
 	uc.session.Database("mongodb").Collection("usersTest").UpdateOne(context.TODO(), selector, change)
 
-	// delete userId from AllUsers.Favorited
 	uc.session.Database("mongodb").Collection("organizations").UpdateOne(context.TODO(), o_selector, o_change)
+}
 
+func (uc UserController) AddToPathwayOrganizations(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "applications/json")
+
+	params := mux.Vars(r)
+
+	id := params["id"]
+	orgsId := params["orgsid"]
+
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	ooid, err := primitive.ObjectIDFromHex(orgsId)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	// grab user
+	selector := bson.M{
+		"_id": bson.M{
+			"$eq": oid,
+		},
+	}
+
+	// add orgId to favorites
+	change := bson.M{
+		"$addToSet": bson.M{
+			"pathwayOrganizations": ooid,
+		},
+	}
+
+	// update user doc
+	uc.session.Database("mongodb").Collection("usersTest").UpdateOne(context.TODO(), selector, change)
+
+}
+func (uc UserController) AddToAcademicOrganizations(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "applications/json")
+
+	params := mux.Vars(r)
+
+	id := params["id"]
+	orgsId := params["orgsid"]
+
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	ooid, err := primitive.ObjectIDFromHex(orgsId)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	// grab user
+	selector := bson.M{
+		"_id": bson.M{
+			"$eq": oid,
+		},
+	}
+
+	// add orgId to favorites
+	change := bson.M{
+		"$addToSet": bson.M{
+			"academicOrganizations": ooid,
+		},
+	}
+
+	// update user doc
+	uc.session.Database("mongodb").Collection("usersTest").UpdateOne(context.TODO(), selector, change)
+}
+func (uc UserController) AddToCompletedOrganizations(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "applications/json")
+
+	params := mux.Vars(r)
+
+	id := params["id"]
+	orgsId := params["orgsid"]
+
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	ooid, err := primitive.ObjectIDFromHex(orgsId)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	// grab user
+	u_selector := bson.M{
+		"_id": bson.M{
+			"$eq": oid,
+		},
+	}
+
+	// add orgId to favorites
+	u_change := bson.M{
+		"$addToSet": bson.M{
+			"completedOrganizations": ooid,
+		},
+	}
+
+	// update user doc
+	uc.session.Database("mongodb").Collection("usersTest").UpdateOne(context.TODO(), u_selector, u_change)
+
+	// grab org
+	o_selector := bson.M{
+		"_id": bson.M{
+			"$eq": ooid,
+		},
+	}
+
+	o_change := bson.M{
+		"$addToSet": bson.M{
+			"completed": oid,
+		},
+	}
+	// update org doc
+	uc.session.Database("mongodb").Collection("organizations").UpdateOne(context.TODO(), o_selector, o_change)
+}
+func (uc UserController) AddToinProgressOrganizations(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "applications/json")
+
+	params := mux.Vars(r)
+
+	id := params["id"]
+	orgsId := params["orgsid"]
+
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	ooid, err := primitive.ObjectIDFromHex(orgsId)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	// grab user
+	u_selector := bson.M{
+		"_id": bson.M{
+			"$eq": oid,
+		},
+	}
+
+	// add orgId to favorites
+	u_change := bson.M{
+		"$addToSet": bson.M{
+			"inProgressOrganizations": ooid,
+		},
+	}
+
+	// update user doc
+	uc.session.Database("mongodb").Collection("usersTest").UpdateOne(context.TODO(), u_selector, u_change)
+
+	// grab org
+	o_selector := bson.M{
+		"_id": bson.M{
+			"$eq": ooid,
+		},
+	}
+
+	o_change := bson.M{
+		"$addToSet": bson.M{
+			"inProgress": oid,
+		},
+	}
+	// update org doc
+	uc.session.Database("mongodb").Collection("organizations").UpdateOne(context.TODO(), o_selector, o_change)
+}
+
+func (uc UserController) DeleteFromPathwayOrganizations(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "applications/json")
+
+	params := mux.Vars(r)
+
+	id := params["id"]
+	orgsId := params["orgsid"]
+
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	ooid, err := primitive.ObjectIDFromHex(orgsId)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	// grab user
+	selector := bson.M{
+		"_id": bson.M{
+			"$eq": oid,
+		},
+	}
+
+	// add orgId to favorites
+	change := bson.M{
+		"$pull": bson.M{
+			"pathwayOrganizations": ooid,
+		},
+	}
+
+	uc.session.Database("mongodb").Collection("usersTest").UpdateOne(context.TODO(), selector, change)
+
+}
+func (uc UserController) DeleteFromAcademicOrganizations(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "applications/json")
+
+	params := mux.Vars(r)
+
+	id := params["id"]
+	orgsId := params["orgsid"]
+
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	ooid, err := primitive.ObjectIDFromHex(orgsId)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	// grab user
+	selector := bson.M{
+		"_id": bson.M{
+			"$eq": oid,
+		},
+	}
+
+	// add orgId to favorites
+	change := bson.M{
+		"$pull": bson.M{
+			"academicOrganizations": ooid,
+		},
+	}
+
+	uc.session.Database("mongodb").Collection("usersTest").UpdateOne(context.TODO(), selector, change)
+
+}
+func (uc UserController) DeleteFromCompletedOrganizations(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "applications/json")
+
+	params := mux.Vars(r)
+
+	id := params["id"]
+	orgsId := params["orgsid"]
+
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	ooid, err := primitive.ObjectIDFromHex(orgsId)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	// grab user
+	selector := bson.M{
+		"_id": bson.M{
+			"$eq": oid,
+		},
+	}
+
+	// add orgId to favorites
+	change := bson.M{
+		"$pull": bson.M{
+			"completedOrganizations": ooid,
+		},
+	}
+
+	// grab org
+	o_selector := bson.M{
+		"_id": bson.M{
+			"$eq": ooid,
+		},
+	}
+
+	o_change := bson.M{
+		"$pull": bson.M{
+			"completed": oid,
+		},
+	}
+
+	uc.session.Database("mongodb").Collection("usersTest").UpdateOne(context.TODO(), selector, change)
+
+	uc.session.Database("mongodb").Collection("organizations").UpdateOne(context.TODO(), o_selector, o_change)
+}
+func (uc UserController) DeleteFrominProgressOrganizations(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "applications/json")
+
+	params := mux.Vars(r)
+
+	id := params["id"]
+	orgsId := params["orgsid"]
+
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	ooid, err := primitive.ObjectIDFromHex(orgsId)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	// grab user
+	selector := bson.M{
+		"_id": bson.M{
+			"$eq": oid,
+		},
+	}
+
+	// add orgId to favorites
+	change := bson.M{
+		"$pull": bson.M{
+			"inProgressOrganizations": ooid,
+		},
+	}
+
+	// grab org
+	o_selector := bson.M{
+		"_id": bson.M{
+			"$eq": ooid,
+		},
+	}
+
+	o_change := bson.M{
+		"$pull": bson.M{
+			"inProgress": oid,
+		},
+	}
+
+	uc.session.Database("mongodb").Collection("usersTest").UpdateOne(context.TODO(), selector, change)
+
+	uc.session.Database("mongodb").Collection("organizations").UpdateOne(context.TODO(), o_selector, o_change)
 }
