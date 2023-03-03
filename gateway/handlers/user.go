@@ -278,8 +278,8 @@ func (uc UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 /* =================================================UPDATE USER ORGS====================================================*/
 
-// fix this func so favoriting an org already favorited does nothing - to do
-func (uc UserController) UpdateOrgFavorite(w http.ResponseWriter, r *http.Request) {
+// add orgs to favorite by reference
+func (uc UserController) AddOrgToFavorite(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "applications/json")
 
 	params := mux.Vars(r)
@@ -297,50 +297,22 @@ func (uc UserController) UpdateOrgFavorite(w http.ResponseWriter, r *http.Reques
 		fmt.Println("ObjectIDFromHex ERROR:", err)
 	}
 
-	// find the student document w matching oid to update with org document
-	filterStudent := bson.M{"_id": bson.M{"$eq": oid}}
-
-	u := &User{}
-	// fetch user
-	u_err := uc.session.Database("mongodb").Collection("usersTest").FindOne(context.TODO(), bson.M{"_id": oid}).Decode(&u)
-	if u_err != nil {
-		fmt.Println("User not found")
-		os.Exit(1)
-		return
-	}
-
-	// get props of org tied to ooid
-	o := &Organization{}
-	// fetch org
-	o_err := uc.session.Database("mongodb").Collection("organizations").FindOne(context.TODO(), bson.M{"_id": ooid}).Decode(&o)
-	if o_err != nil {
-		fmt.Println("Organization not found")
-		os.Exit(1)
-		return
-	}
-
-	// update favoritedOrganizations list with composite literal
-	updateStudentFavorites := bson.M{
-		"$addToSet": bson.M{
-			"favoritedOrganizations": o.OrgId,
-		},
-	}
-	// update users favoritedOrganizations list
-	uc.session.Database("mongodb").Collection("usersTest").UpdateOne(context.TODO(), filterStudent, updateStudentFavorites)
-
-	filterOrg := bson.M{"_id": bson.M{"$eq": ooid}}
-
-	updateOrgStudentsFavd := bson.M{
-		"$addToSet": bson.M{
-			"usersFavorited": u,
+	// grab user
+	selector := bson.M{
+		"_id": bson.M{
+			"$eq": oid,
 		},
 	}
 
-	// update organization's usersFavoritedlist
-	uc.session.Database("mongodb").Collection("organizations").UpdateOne(context.TODO(), filterOrg, updateOrgStudentsFavd)
+	// add orgId to favorites
+	change := bson.M{
+		"$push": bson.M{
+			"favoritedOrganizations": ooid,
+		},
+	}
 
-	fmt.Println(("the student is:"))
-	fmt.Println(filterStudent)
+	// update db
+	uc.session.Database("mongodb").Collection("usersTest").UpdateOne(context.TODO(), selector, change)
 
 }
 
@@ -362,85 +334,22 @@ func (uc UserController) DeleteOrgFavorite(w http.ResponseWriter, r *http.Reques
 		fmt.Println("ObjectIDFromHex ERROR:", err)
 	}
 
-	// get props of org tied to ooid
-	o := &Organization{}
-	// fetch org
-	o_err := uc.session.Database("mongodb").Collection("organizations").FindOne(context.TODO(), bson.M{"_id": ooid}).Decode(&o)
-	if o_err != nil {
-		fmt.Println("Organization not found")
-		os.Exit(1)
-		return
-	}
-
-	u := &User{}
-	// fetch user
-	u_err := uc.session.Database("mongodb").Collection("usersTest").FindOne(context.TODO(), bson.M{"_id": oid}).Decode(&u)
-	if u_err != nil {
-		fmt.Println("User not found")
-		os.Exit(1)
-		return
-	}
-	// for DeleteOne instead of UpdateOne
-	// select user id
+	// grab user
 	selector := bson.M{
 		"_id": bson.M{
 			"$eq": oid,
 		},
 	}
 
-	update := bson.M{
+	// add orgId to favorites
+	change := bson.M{
 		"$pull": bson.M{
-			"favoritedOrganizations": {
-				"o.OrgId",
-			},
+			"favoritedOrganizations": ooid,
 		},
 	}
 
-	// update UserByID
-	// filterStudent := bson.M{"_id": bson.M{"$eq": oid}}
-
-	// // remove element from favoritedOrganizations array
-	// u_change := bson.M{
-	// 	"$pull": bson.M{
-	// 		"$elemMatch": bson.M{
-	// 			"favoritedOrganizations": o.OrgId,
-	// 		},
-	// 	},
-	// }
-
-	// delete org from user's favoritedOrganizations array
-	// uc.session.Database("mongodb").Collection("usersTest").DeleteMany(context.TODO(), bson.M{"orgId": ooid, "ID": oid})
-
-	uc.session.Database("mongodb").Collection("usersTest").UpdateMany(context.TODO(), selector, update)
-
-	// update OrgByID
-	// filterOrg := bson.M{"_id": bson.M{"$eq": ooid}}
-
-	// // remove element from usersFavorited array
-	// updateOrg := bson.M{
-	// 	"$pull": bson.M{
-	// 		"$elemMatch": bson.M{
-	// 			"usersFavorited": u.ID,
-	// 		},
-	// 	},
-	// }
-
-	o_selector := bson.M{
-		"orgId": bson.M{
-			"$eq": ooid,
-		},
-	}
-
-	o_update := bson.M{
-		"$pull": bson.M{
-			"$elemMatch": bson.M{
-				"usersFavorited": u.ID,
-			},
-		},
-	}
-
-	// update organization's usersFavoritedlist
-	uc.session.Database("mongodb").Collection("organizations").UpdateMany(context.TODO(), o_selector, o_update)
+	// delete orgId from user's AllOrgs.FavoritedOrg
+	uc.session.Database("mongodb").Collection("usersTest").UpdateOne(context.TODO(), selector, change)
 
 }
 

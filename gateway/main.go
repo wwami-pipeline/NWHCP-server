@@ -184,7 +184,7 @@ func main() {
 	router.HandleFunc("/users/{id}", uc.GetUserByID)
 	router.HandleFunc("/users", uc.CreateUser)
 	// 03/02 creating and testing now...
-	router.HandleFunc("/users/{id}/orgs/{orgsid}/favoritedOrgs", uc.UpdateOrgFavorite)
+	router.HandleFunc("/users/{id}/orgs/{orgsid}/favoritedOrgs", uc.AddOrgToFavorite)
 	router.HandleFunc("/users/{id}/deleteOrg/{orgsid}/favoritedOrgs", uc.DeleteOrgFavorite)
 	router.HandleFunc("/deleteUsers/{id}", uc.DeleteUserByID)
 
