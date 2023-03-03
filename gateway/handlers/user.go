@@ -306,7 +306,7 @@ func (uc UserController) AddOrgToFavorite(w http.ResponseWriter, r *http.Request
 
 	// add orgId to favorites
 	change := bson.M{
-		"$push": bson.M{
+		"$addToSet": bson.M{
 			"favoritedOrganizations": ooid,
 		},
 	}
