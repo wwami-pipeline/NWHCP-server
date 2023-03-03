@@ -39,12 +39,26 @@ type Organization struct {
 	GradeLevels       []int              `bson:"gradeLevels" json: "gradeLevels"`
 	IsPathwayProgram  bool               `bson: "isPathwayProgram" json: "isPathwayProgram"`
 	IsAcademicProgram bool               `bson: "isAcademicProgram" json: "isAcademicProgram"`
-	UsersFavorited    []*User            `bson: "usersFavorited" json: "usersFavorited"`
-	UsersCompleted    []*User            `bson: "usersCompleted" json: "usersCompleted"`
-	UsersCompleting   []*User            `bson: "usersCompleting" json: "usersCompleting"`
-	OrgDescription    string             `bson: "orgDescription" json: "orgDescription"`
-	StudentsContacted []*User            `bson: "studentsContacted" json: "studentsContacted"`
-	Tags              []string           `bson: "tags" json: "tags"`
+	// UsersFavorited    []*User            `bson: "usersFavorited" json: "usersFavorited"`
+	// UsersCompleted    []*User            `bson: "usersCompleted" json: "usersCompleted"`
+	// UsersCompleting   []*User            `bson: "usersCompleting" json: "usersCompleting"`
+	AllUsers          *OrgUsers    `bson: "allUsers" json: "allUsers"`
+	OrgDescription    string       `bson: "orgDescription" json: "orgDescription"`
+	StudentsContacted []*UserID    `bson: "studentsContacted" json: "studentsContacted"`
+	Tags              []string     `bson: "tags" json: "tags"`
+	OrgPlanners       []*PlannerID `bson: "orgPlanners" json: "orgPlanners"`
+	OrgLinks          []*LinkID    `bson: "orgLinks" json: "orgLinks"`
+	OrgNotes          []*NoteID    `bson: "orgNotes" json: "orgNotes"`
+}
+
+type OrgID struct {
+	OrgId primitive.ObjectID `bson:"_id"`
+}
+
+type OrgUsers struct {
+	Favorited  []*UserID `bson: "favorited" json: "favorited"`
+	InProgress []*UserID `bson: "inProgress" json: "inProgress"`
+	Completed  []*UserID `bson: "completed" json: "completed"`
 }
 
 // OrgInfo represents organization information for buiding searching criteria

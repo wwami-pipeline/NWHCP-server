@@ -26,23 +26,39 @@ var bcryptCost = 13
 // User represents a user account in the database (student)
 // how do I store the stuff?
 type User struct {
-	ID                     primitive.ObjectID `bson:"_id, omitempty"`
-	Email                  string             `bson:"email" json:"email"`       //never JSON encoded/decoded
-	PassHash               []byte             `bson:"password" json:"password"` //never JSON encoded/decoded
-	FirstName              string             `bson: "firstName" json:"firstName"`
-	JoinDate               string             `bson: "joinDate" json:"joinDate"`
-	Gender                 string             `bson: "gender" json:"gender"`
-	Age                    string             `bson: "age" json:"age"`
-	State                  string             `bson: "state" json:"state"`
-	FavoritedOrganizations []*Organization    `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
-	CompletedPrograms      []*Organization    `bson: "completedPrograms" json:"completedPrograms"`
-	InProcessPrograms      []*Organization    `bson: "inProcessPrograms" json:"inProcessPrograms"`
-	PathwayPrograms        []*Organization    `bson: "pathwayPrograms" json: "pathwayPrograms"`
-	AcademicPrograms       []*Organization    `bson: "academicPrograms" json: "academicPrograms"`
-	Notes                  []*Organization    `bson: "notes" json:"notes"`
-	Links                  []*Organization    `bson: "links" json: "links"`
-	Planners               []*Organization    `bson: "planners" json: "planners"`
-	OrgsContacted          []*Organization    `bson: "orgsContacted" json: "orgsContacted"`
+	ID        primitive.ObjectID `bson:"_id, omitempty"`
+	Email     string             `bson:"email" json:"email"`       //never JSON encoded/decoded
+	PassHash  []byte             `bson:"password" json:"password"` //never JSON encoded/decoded
+	UserName  string             `bson: "userName" json:"userName"`
+	FirstName string             `bson: "firstName" json: "firstName"`
+	JoinDate  string             `bson: "joinDate" json:"joinDate"`
+	State     string             `bson: "state" json:"state"`
+	AllOrgs   *UserOrgs          `bson: "allOrgs" json: "allOrgs"`
+	// FavoritedOrganizations []*Organization    `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
+	// CompletedPrograms      []*Organization    `bson: "completedPrograms" json:"completedPrograms"`
+	// InProcessPrograms      []*Organization    `bson: "inProcessPrograms" json:"inProcessPrograms"`
+	// PathwayPrograms        []*Organization    `bson: "pathwayPrograms" json: "pathwayPrograms"`
+	// AcademicPrograms       []*Organization    `bson: "academicPrograms" json: "academicPrograms"`
+	Notes            []*NoteID    `bson: "notes" json:"notes"`
+	Links            []*LinkID    `bson: "links" json: "links"`
+	Planners         []*PlannerID `bson: "planners" json: "planners"`
+	QuantityPlanners int          `bson: "quantityPlanners" json: "quantityPlanners"`
+	OrgsContacted    []*OrgID     `bson: "orgsContacted" json: "orgsContacted"`
+}
+
+type UserOrgs struct {
+	FavoritedOrganizations        []*OrgID `bson: "favoritedOrganizations" json: "favoritedOrganizations"`
+	CompletedOrganizations        []*OrgID `bson: "completedOrganizations" json:"completedOrganizations"`
+	InProcessOrganizations        []*OrgID `bson: "inProcessOrganizations" json:"inProcessOrganizations"`
+	PathwayPrograms               []*OrgID `bson: "pathwayOrganizations" json: "pathwayOrganizations"`
+	QuantityPathwayOrganizations  int      `bson: "quantityPathwayOrganizations" json: "quantityPathwayOrganizations"`
+	AcademicOrganizations         []*OrgID `bson: "academicOrganizations" json: "academicOrganizations"`
+	QuantityAcademicOrganizations int      `bson: "quantityAcademicOrganizations" json: "quantityAcademicOrganizations"`
+}
+
+// used in in many-to-many relationship modeling
+type UserID struct {
+	ID primitive.ObjectID `bson:"_id, omitempty"`
 }
 
 // Credentials represents user sign-in credentials (student)
@@ -63,17 +79,17 @@ type NewUser struct {
 
 // Updates represents updates allowed to be edited by user (student)
 type Updates struct {
-	FirstName              string          `bson: "firstName" json:"firstName"`
-	UserName               string          `bson: "userName" json:"userName"`
-	State                  string          `bson: "state" json:"state"`
-	FavoritedOrganizations []*Organization `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
-	CompletedPrograms      []*Organization `bson: "completedPrograms" json:"completedPrograms"`
-	InProcessPrograms      []*Organization `bson: "inProcessPrograms" json:"inProcessPrograms"`
-	UserPathwayPrograms    []*Organization `bson: "userPathwayPrograms" json: "userPathwayPrograms" `
-	UserAcademicPrograms   []*Organization `bson: "userAcademicPrograms" json: "userAcademicPrograms"`
-	UserNotes              []*Note         `bson: "userNotes" json:"userNotes"`
-	UserLinks              []*Link         `bson: "userLinks" json: "userLinks"`
-	UserPlanners           []*Planner      `bson: "userPlanners" json: "userPlanners"`
+	FirstName      string      `bson: "firstName" json:"firstName"`
+	UserName       string      `bson: "userName" json:"userName"`
+	UpdateUserOrgs []*UserOrgs `bson: "updateUserOrgs" json: "updateUserOrgs"`
+	// FavoritedOrganizations []*Organization `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
+	// CompletedPrograms      []*Organization `bson: "completedPrograms" json:"completedPrograms"`
+	// InProcessPrograms      []*Organization `bson: "inProcessPrograms" json:"inProcessPrograms"`
+	// UserPathwayPrograms    []*Organization `bson: "userPathwayPrograms" json: "userPathwayPrograms" `
+	// UserAcademicPrograms   []*Organization `bson: "userAcademicPrograms" json: "userAcademicPrograms"`
+	UserNotes    []*NoteID    `bson: "userNotes" json:"userNotes"`
+	UserLinks    []*LinkID    `bson: "userLinks" json: "userLinks"`
+	UserPlanners []*PlannerID `bson: "userPlanners" json: "userPlanners"`
 }
 
 // Notes represents users' (student) notes about programs
@@ -88,13 +104,22 @@ type Note struct {
 	NoteDescription string             `bson: "noteDescription" json: "noteDescription"`
 }
 
+type NoteID struct {
+	NoteID primitive.ObjectID `bson: "noteID" json: "noteID"`
+}
+
 type Link struct {
 	LinkID          primitive.ObjectID `bson: "_id"`
 	LinkDescription string             `bson: "linkDescription" json: "linkDescription" `
-	Favorited       bool               `bson: "favorited" json: "favorited"`
-	UserID          primitive.ObjectID `bson:"_id, omitempty"`
-	PlannerID       primitive.ObjectID `bson: "_id"`
+	Favorited       []*UserID          `bson: "favorited" json: "favorited"`
+	UserIDs         []*UserID          `bson:"userIDS" json: "userIDS"`
+	PlannerIDs      []*PlannerID       `bson: "plannerIDS json: "plannerIDS"`
 	OrgID           primitive.ObjectID `bson: "_id, omitempty"`
+	NoteIDs         []*NoteID          `bson: "noteIDS" json: "noteIDS"`
+}
+
+type LinkID struct {
+	LinkID primitive.ObjectID `bson: "linkID" json: "linkID"`
 }
 
 type Planner struct {
@@ -102,16 +127,20 @@ type Planner struct {
 	IsMonthlyPlanner   bool               `bson: "isMonthlyPlanner" json: "isMonthlyPlanner"`
 	IsYearlyPlanner    bool               `bson: "isYearlyPlanner" json: "isYearlyPlanner"`
 	IsAcademicPlanner  bool               `bson: "isAcademicPlanner" "isAcademicPlanner"`
-	NotesIDS           []*Note            `bson: "notesIDS" json: "notesIDS"`
-	OrgIDS             []*Organization    `bson: "orgIDS" json: "orgIDS"`
+	NotesIDS           []*NoteID          `bson: "notesIDS" json: "notesIDS"`
+	OrgIDS             []*OrgID           `bson: "orgIDS" json: "orgIDS"`
 	UserID             primitive.ObjectID `bson: "_id"`
 	IsFallPlanner      bool               `bson: "isFallPlanner" json: "isFallPlanner"`
 	IsWinterPlanner    bool               `bson: "isWinterPlanner" json: "isWinterPlanner"`
 	IsSpringPlanner    bool               `bson: "isSpringPlanner" json: "isSpringPlanner"`
 	IsSummerPlanner    bool               `bson: "isSummerPlanner" json: "isSummerPlanner"`
-	LinkIDS            []*Link            `bson: "linkIDS" json: "linkIDS"`
+	LinkIDS            []*LinkID          `bson: "linkIDS" json: "linkIDS"`
 	DateCreated        string             `bson: "dateCreated" json: "dateCreated"`
 	PlannerDescription string             `bson: "plannerDescription" json: "plannerDescription"`
+}
+
+type PlannerID struct {
+	PlannerID primitive.ObjectID `bson: "plannerID" json: "plannerID"`
 }
 
 // ==================================================USER CONTROLLERS=================================================================
@@ -248,45 +277,170 @@ func (uc UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 /* =================================================UPDATE USER ORGS====================================================*/
-// favorite and unfavorite an organization
-// get userID and orgID
-// check if orgId in favorites, if not add to favorites
-// if orgID in favorites, remove from favorites
-func (us UserController) ToggleOrgFavorite(w http.ResponseWriter, r *http.Request) {
+
+// fix this func so favoriting an org already favorited does nothing - to do
+func (uc UserController) UpdateOrgFavorite(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "applications/json")
 
 	params := mux.Vars(r)
 
 	id := params["id"]
+	orgsId := params["orgsid"]
 
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		fmt.Println("ObjectIDFromHex ERROR:", err)
 	}
 
-	orgId := params["orgID"]
-
-	ooid, err := primitive.ObjectIDFromHex(orgId)
+	ooid, err := primitive.ObjectIDFromHex(orgsId)
 	if err != nil {
 		fmt.Println("ObjectIDFromHex ERROR:", err)
 	}
 
-	// find the student document to update with org document
+	// find the student document w matching oid to update with org document
 	filterStudent := bson.M{"_id": bson.M{"$eq": oid}}
+
+	u := &User{}
+	// fetch user
+	u_err := uc.session.Database("mongodb").Collection("usersTest").FindOne(context.TODO(), bson.M{"_id": oid}).Decode(&u)
+	if u_err != nil {
+		fmt.Println("User not found")
+		os.Exit(1)
+		return
+	}
+
+	// get props of org tied to ooid
+	o := &Organization{}
+	// fetch org
+	o_err := uc.session.Database("mongodb").Collection("organizations").FindOne(context.TODO(), bson.M{"_id": ooid}).Decode(&o)
+	if o_err != nil {
+		fmt.Println("Organization not found")
+		os.Exit(1)
+		return
+	}
+
+	// update favoritedOrganizations list with composite literal
+	updateStudentFavorites := bson.M{
+		"$addToSet": bson.M{
+			"favoritedOrganizations": o.OrgId,
+		},
+	}
+	// update users favoritedOrganizations list
+	uc.session.Database("mongodb").Collection("usersTest").UpdateOne(context.TODO(), filterStudent, updateStudentFavorites)
+
 	filterOrg := bson.M{"_id": bson.M{"$eq": ooid}}
+
+	updateOrgStudentsFavd := bson.M{
+		"$addToSet": bson.M{
+			"usersFavorited": u,
+		},
+	}
+
+	// update organization's usersFavoritedlist
+	uc.session.Database("mongodb").Collection("organizations").UpdateOne(context.TODO(), filterOrg, updateOrgStudentsFavd)
 
 	fmt.Println(("the student is:"))
 	fmt.Println(filterStudent)
-	fmt.Println("the org is:")
-	fmt.Println(filterOrg)
 
-	// if _ , ok filterStudent.params["favoritedOrgs"]; ok {
-	// 	// remove from favorited orgs
-	// 	delete()
-	// } else {
-	// 	// add to favorited orgs
-	// 	favoritedOrgs = append(filterOrg)
+}
+
+func (uc UserController) DeleteOrgFavorite(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "applications/json")
+
+	params := mux.Vars(r)
+
+	id := params["id"]
+	orgsId := params["orgsid"]
+
+	oid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	ooid, err := primitive.ObjectIDFromHex(orgsId)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	// get props of org tied to ooid
+	o := &Organization{}
+	// fetch org
+	o_err := uc.session.Database("mongodb").Collection("organizations").FindOne(context.TODO(), bson.M{"_id": ooid}).Decode(&o)
+	if o_err != nil {
+		fmt.Println("Organization not found")
+		os.Exit(1)
+		return
+	}
+
+	u := &User{}
+	// fetch user
+	u_err := uc.session.Database("mongodb").Collection("usersTest").FindOne(context.TODO(), bson.M{"_id": oid}).Decode(&u)
+	if u_err != nil {
+		fmt.Println("User not found")
+		os.Exit(1)
+		return
+	}
+	// for DeleteOne instead of UpdateOne
+	// select user id
+	selector := bson.M{
+		"_id": bson.M{
+			"$eq": oid,
+		},
+	}
+
+	update := bson.M{
+		"$pull": bson.M{
+			"favoritedOrganizations": {
+				"o.OrgId",
+			},
+		},
+	}
+
+	// update UserByID
+	// filterStudent := bson.M{"_id": bson.M{"$eq": oid}}
+
+	// // remove element from favoritedOrganizations array
+	// u_change := bson.M{
+	// 	"$pull": bson.M{
+	// 		"$elemMatch": bson.M{
+	// 			"favoritedOrganizations": o.OrgId,
+	// 		},
+	// 	},
 	// }
+
+	// delete org from user's favoritedOrganizations array
+	// uc.session.Database("mongodb").Collection("usersTest").DeleteMany(context.TODO(), bson.M{"orgId": ooid, "ID": oid})
+
+	uc.session.Database("mongodb").Collection("usersTest").UpdateMany(context.TODO(), selector, update)
+
+	// update OrgByID
+	// filterOrg := bson.M{"_id": bson.M{"$eq": ooid}}
+
+	// // remove element from usersFavorited array
+	// updateOrg := bson.M{
+	// 	"$pull": bson.M{
+	// 		"$elemMatch": bson.M{
+	// 			"usersFavorited": u.ID,
+	// 		},
+	// 	},
+	// }
+
+	o_selector := bson.M{
+		"orgId": bson.M{
+			"$eq": ooid,
+		},
+	}
+
+	o_update := bson.M{
+		"$pull": bson.M{
+			"$elemMatch": bson.M{
+				"usersFavorited": u.ID,
+			},
+		},
+	}
+
+	// update organization's usersFavoritedlist
+	uc.session.Database("mongodb").Collection("organizations").UpdateMany(context.TODO(), o_selector, o_update)
 
 }
 

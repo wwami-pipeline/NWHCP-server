@@ -178,14 +178,14 @@ func main() {
 	// router.HandleFunc("/orgs/{id}", oc.GetOrgByID)
 
 	// users
-	// pointer for NewUserController() methods -pass Mongo session to manipulate database
 	uc := handlers.NewUserController(mongoSession)
 	oc := handlers.NewOrganizationController(mongoSession)
 	router.HandleFunc("/allUsers", uc.GetUsers)
 	router.HandleFunc("/users/{id}", uc.GetUserByID)
 	router.HandleFunc("/users", uc.CreateUser)
-	// 03/02...need org routes created first...
-	// router.HandleFunc("/users/{id}/favoritedOrgs", uc.ToggleOrgFavorite)
+	// 03/02 creating and testing now...
+	router.HandleFunc("/users/{id}/orgs/{orgsid}/favoritedOrgs", uc.UpdateOrgFavorite)
+	router.HandleFunc("/users/{id}/deleteOrg/{orgsid}/favoritedOrgs", uc.DeleteOrgFavorite)
 	router.HandleFunc("/deleteUsers/{id}", uc.DeleteUserByID)
 
 	// organizations
