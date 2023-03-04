@@ -180,22 +180,22 @@ func main() {
 	// users
 	uc := handlers.NewUserController(mongoSession)
 	oc := handlers.NewOrganizationController(mongoSession)
-	router.HandleFunc("/allUsers", uc.GetUsers)
-	router.HandleFunc("/users/{id}", uc.GetUserByID)
-	router.HandleFunc("/users", uc.CreateUser)
-	router.HandleFunc("/users/{id}/orgs/{orgsid}/favoritedOrgs", uc.AddOrgToFavorite)
-	router.HandleFunc("/users/{id}/deleteOrg/{orgsid}/favoritedOrgs", uc.DeleteOrgFavorite)
-	router.HandleFunc("/deleteUsers/{id}", uc.DeleteUserByID)
+	router.HandleFunc("/allUsers", uc.GetUsers).Methods("GET")
+	router.HandleFunc("/users/{id}", uc.GetUserByID).Methods("GET")
+	router.HandleFunc("/users", uc.CreateUser).Methods("POST")
+	router.HandleFunc("/users/{id}/orgs/{orgsid}/favoritedOrgs", uc.AddOrgToFavorite).Methods("PUT")
+	router.HandleFunc("/users/{id}/deleteOrg/{orgsid}/favoritedOrgs", uc.DeleteOrgFavorite).Methods("DELETE")
+	router.HandleFunc("/deleteUsers/{id}", uc.DeleteUserByID).Methods("DELETE")
 
 	router.HandleFunc("/users/{id}/orgs/{orgId}/pathwayPrograms", uc.AddToPathwayOrganizations).Methods("PUT")
 	// 03/03 testing routes - to do
-	router.HandleFunc("/users/{id}/deleteOrg/{orgId}/pathwayOrganizations", uc.DeleteFromPathwayOrganizations).Methods("PUT")
+	router.HandleFunc("/users/{id}/deleteOrg/{orgId}/pathwayOrganizations", uc.DeleteFromPathwayOrganizations).Methods("DELETE")
 	router.HandleFunc("/users/{id}/orgs/{orgId}/academicOrganizations", uc.AddToAcademicOrganizations).Methods("PUT")
-	router.HandleFunc("/users/{id}/deleteOrg/{orgId}/academicOrganizations", uc.DeleteFromAcademicOrganizations).Methods("PUT")
+	router.HandleFunc("/users/{id}/deleteOrg/{orgId}/academicOrganizations", uc.DeleteFromAcademicOrganizations).Methods("DELETE")
 	router.HandleFunc("/users/{id}/orgs/{orgId}/completedOrganizations", uc.AddToCompletedOrganizations).Methods("PUT")
-	router.HandleFunc("/users/{id}/deleteOrg/{orgId}/completedOrganizations", uc.DeleteFromCompletedOrganizations).Methods("PUT")
+	router.HandleFunc("/users/{id}/deleteOrg/{orgId}/completedOrganizations", uc.DeleteFromCompletedOrganizations).Methods("DELETE")
 	router.HandleFunc("/users/{id}/orgs/{orgId}/inProgressOrganizations", uc.AddToinProgressOrganizations).Methods("PUT")
-	router.HandleFunc("/users/{id}/deleteOrg/{orgId}/inProgressOrganizations", uc.DeleteFrominProgressOrganizations).Methods("PUT")
+	router.HandleFunc("/users/{id}/deleteOrg/{orgId}/inProgressOrganizations", uc.DeleteFrominProgressOrganizations).Methods("DELETE")
 
 	// organizations
 	router.HandleFunc("/organizations", oc.CreateOrganization)

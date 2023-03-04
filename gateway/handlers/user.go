@@ -388,11 +388,6 @@ func (uc UserController) AddToPathwayOrganizations(w http.ResponseWriter, r *htt
 
 	params := mux.Vars(r)
 
-	// var o Organization
-
-	// putBody, _ := ioutil.ReadAll(r.Body)
-	// json.Unmarshal(putBody, &o)
-
 	id := params["id"]
 	orgId := params["orgId"]
 
@@ -413,7 +408,7 @@ func (uc UserController) AddToPathwayOrganizations(w http.ResponseWriter, r *htt
 		},
 	}
 
-	// add ooid var to pathwayPrograms
+	// add org reference id to pathwayPrograms
 	change := bson.M{
 		"$addToSet": bson.M{
 			"pathwayPrograms": ooid,
@@ -426,11 +421,13 @@ func (uc UserController) AddToPathwayOrganizations(w http.ResponseWriter, r *htt
 }
 func (uc UserController) AddToAcademicOrganizations(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "applications/json")
+	// no body - JSON can't accept ObjectIDs
+	w.Header().Set("Content-length", "0")
 
 	params := mux.Vars(r)
 
 	id := params["id"]
-	orgsId := params["orgsid"]
+	orgsId := params["orgId"]
 
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -452,7 +449,7 @@ func (uc UserController) AddToAcademicOrganizations(w http.ResponseWriter, r *ht
 	// add orgId to favorites
 	change := bson.M{
 		"$addToSet": bson.M{
-			"academicOrganizations": ooid,
+			"academicPrograms": ooid,
 		},
 	}
 
@@ -461,11 +458,13 @@ func (uc UserController) AddToAcademicOrganizations(w http.ResponseWriter, r *ht
 }
 func (uc UserController) AddToCompletedOrganizations(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "applications/json")
+	// no body - JSON can't accept ObjectIDs
+	w.Header().Set("Content-length", "0")
 
 	params := mux.Vars(r)
 
 	id := params["id"]
-	orgsId := params["orgsid"]
+	orgsId := params["orgId"]
 
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -487,7 +486,7 @@ func (uc UserController) AddToCompletedOrganizations(w http.ResponseWriter, r *h
 	// add orgId to favorites
 	u_change := bson.M{
 		"$addToSet": bson.M{
-			"completedOrganizations": ooid,
+			"completedPrograms": ooid,
 		},
 	}
 
@@ -511,11 +510,13 @@ func (uc UserController) AddToCompletedOrganizations(w http.ResponseWriter, r *h
 }
 func (uc UserController) AddToinProgressOrganizations(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "applications/json")
+	// no body - JSON can't accept ObjectIDs
+	w.Header().Set("Content-length", "0")
 
 	params := mux.Vars(r)
 
 	id := params["id"]
-	orgsId := params["orgsid"]
+	orgsId := params["orgId"]
 
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -537,7 +538,7 @@ func (uc UserController) AddToinProgressOrganizations(w http.ResponseWriter, r *
 	// add orgId to favorites
 	u_change := bson.M{
 		"$addToSet": bson.M{
-			"inProgressOrganizations": ooid,
+			"inProgressPrograms": ooid,
 		},
 	}
 
@@ -566,7 +567,7 @@ func (uc UserController) DeleteFromPathwayOrganizations(w http.ResponseWriter, r
 	params := mux.Vars(r)
 
 	id := params["id"]
-	orgsId := params["orgsid"]
+	orgsId := params["orgId"]
 
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -588,7 +589,7 @@ func (uc UserController) DeleteFromPathwayOrganizations(w http.ResponseWriter, r
 	// add orgId to favorites
 	change := bson.M{
 		"$pull": bson.M{
-			"pathwayOrganizations": ooid,
+			"pathwayPrograms": ooid,
 		},
 	}
 
@@ -601,7 +602,7 @@ func (uc UserController) DeleteFromAcademicOrganizations(w http.ResponseWriter, 
 	params := mux.Vars(r)
 
 	id := params["id"]
-	orgsId := params["orgsid"]
+	orgsId := params["orgId"]
 
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -623,7 +624,7 @@ func (uc UserController) DeleteFromAcademicOrganizations(w http.ResponseWriter, 
 	// add orgId to favorites
 	change := bson.M{
 		"$pull": bson.M{
-			"academicOrganizations": ooid,
+			"academicPrograms": ooid,
 		},
 	}
 
@@ -636,7 +637,7 @@ func (uc UserController) DeleteFromCompletedOrganizations(w http.ResponseWriter,
 	params := mux.Vars(r)
 
 	id := params["id"]
-	orgsId := params["orgsid"]
+	orgsId := params["orgId"]
 
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -658,7 +659,7 @@ func (uc UserController) DeleteFromCompletedOrganizations(w http.ResponseWriter,
 	// add orgId to favorites
 	change := bson.M{
 		"$pull": bson.M{
-			"completedOrganizations": ooid,
+			"completedPrograms": ooid,
 		},
 	}
 
@@ -685,7 +686,7 @@ func (uc UserController) DeleteFrominProgressOrganizations(w http.ResponseWriter
 	params := mux.Vars(r)
 
 	id := params["id"]
-	orgsId := params["orgsid"]
+	orgsId := params["orgId"]
 
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -707,7 +708,7 @@ func (uc UserController) DeleteFrominProgressOrganizations(w http.ResponseWriter
 	// add orgId to favorites
 	change := bson.M{
 		"$pull": bson.M{
-			"inProgressOrganizations": ooid,
+			"inProgressPrograms": ooid,
 		},
 	}
 
