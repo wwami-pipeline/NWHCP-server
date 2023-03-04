@@ -34,16 +34,16 @@ type User struct {
 	JoinDate  string             `bson: "joinDate" json:"joinDate"`
 	State     string             `bson: "state" json:"state"`
 	// AllOrgs   *UserOrgs          `bson: "allOrgs" json: "allOrgs"`
-	FavoritedOrganizations []*Organization `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
-	CompletedPrograms      []*Organization `bson: "completedPrograms" json:"completedPrograms"`
-	InProcessPrograms      []*Organization `bson: "inProcessPrograms" json:"inProcessPrograms"`
-	PathwayPrograms        []*Organization `bson: "pathwayPrograms" json: "pathwayPrograms"`
-	AcademicPrograms       []*Organization `bson: "academicPrograms" json: "academicPrograms"`
-	Notes                  []*NoteID       `bson: "notes" json:"notes"`
-	Links                  []*LinkID       `bson: "links" json: "links"`
-	Planners               []*PlannerID    `bson: "planners" json: "planners"`
-	QuantityPlanners       int             `bson: "quantityPlanners" json: "quantityPlanners"`
-	OrgsContacted          []*OrgID        `bson: "orgsContacted" json: "orgsContacted"`
+	FavoritedOrganizations []*OrgID     `bson: "favoritedOrganizations" json:"favoritedOrganizations"`
+	CompletedPrograms      []*OrgID     `bson: "completedPrograms" json:"completedPrograms"`
+	InProcessPrograms      []*OrgID     `bson: "inProcessPrograms" json:"inProcessPrograms"`
+	PathwayPrograms        []*OrgID     `bson: "pathwayPrograms" json: "pathwayPrograms"`
+	AcademicPrograms       []*OrgID     `bson: "academicPrograms" json: "academicPrograms"`
+	Notes                  []*NoteID    `bson: "notes" json:"notes"`
+	Links                  []*LinkID    `bson: "links" json: "links"`
+	Planners               []*PlannerID `bson: "planners" json: "planners"`
+	QuantityPlanners       int          `bson: "quantityPlanners" json: "quantityPlanners"`
+	OrgsContacted          []*OrgID     `bson: "orgsContacted" json: "orgsContacted"`
 }
 
 type UserOrgs struct {
@@ -383,18 +383,25 @@ func (uc UserController) DeleteOrgFavorite(w http.ResponseWriter, r *http.Reques
 
 func (uc UserController) AddToPathwayOrganizations(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "applications/json")
+	// no body - JSON can't accept ObjectIDs
+	w.Header().Set("Content-length", "0")
 
 	params := mux.Vars(r)
 
+	// var o Organization
+
+	// putBody, _ := ioutil.ReadAll(r.Body)
+	// json.Unmarshal(putBody, &o)
+
 	id := params["id"]
-	orgsId := params["orgsid"]
+	orgId := params["orgId"]
 
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		fmt.Println("ObjectIDFromHex ERROR:", err)
 	}
 
-	ooid, err := primitive.ObjectIDFromHex(orgsId)
+	ooid, err := primitive.ObjectIDFromHex(orgId)
 	if err != nil {
 		fmt.Println("ObjectIDFromHex ERROR:", err)
 	}
@@ -406,10 +413,10 @@ func (uc UserController) AddToPathwayOrganizations(w http.ResponseWriter, r *htt
 		},
 	}
 
-	// add orgId to favorites
+	// add ooid var to pathwayPrograms
 	change := bson.M{
 		"$addToSet": bson.M{
-			"pathwayOrganizations": ooid,
+			"pathwayPrograms": ooid,
 		},
 	}
 

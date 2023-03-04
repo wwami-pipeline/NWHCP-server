@@ -187,15 +187,15 @@ func main() {
 	router.HandleFunc("/users/{id}/deleteOrg/{orgsid}/favoritedOrgs", uc.DeleteOrgFavorite)
 	router.HandleFunc("/deleteUsers/{id}", uc.DeleteUserByID)
 
-	// starting 03/02 testing routes - to do
-	router.HandleFunc("/users/{id}/orgs/{id}/pathwayOrganizations", uc.AddToPathwayOrganizations)
-	router.HandleFunc("/users/{id}/deleteOrg/{id}/pathwayOrganizations", uc.DeleteFromPathwayOrganizations)
-	router.HandleFunc("/users/{id}/orgs/{id}/academicOrganizations", uc.AddToAcademicOrganizations)
-	router.HandleFunc("/users/{id}/deleteOrg/{id}/academicOrganizations", uc.DeleteFromAcademicOrganizations)
-	router.HandleFunc("/users/{id}/orgs/{id}/completedOrganizations", uc.AddToCompletedOrganizations)
-	router.HandleFunc("/users/{id}/deleteOrg/{id}/completedOrganizations", uc.DeleteFromCompletedOrganizations)
-	router.HandleFunc("/users/{id}/orgs/{id}/inProgressOrganizations", uc.AddToinProgressOrganizations)
-	router.HandleFunc("/users/{id}/deleteOrg/{id}/inProgressOrganizations", uc.DeleteFrominProgressOrganizations)
+	router.HandleFunc("/users/{id}/orgs/{orgId}/pathwayPrograms", uc.AddToPathwayOrganizations).Methods("PUT")
+	// 03/03 testing routes - to do
+	router.HandleFunc("/users/{id}/deleteOrg/{orgId}/pathwayOrganizations", uc.DeleteFromPathwayOrganizations).Methods("PUT")
+	router.HandleFunc("/users/{id}/orgs/{orgId}/academicOrganizations", uc.AddToAcademicOrganizations).Methods("PUT")
+	router.HandleFunc("/users/{id}/deleteOrg/{orgId}/academicOrganizations", uc.DeleteFromAcademicOrganizations).Methods("PUT")
+	router.HandleFunc("/users/{id}/orgs/{orgId}/completedOrganizations", uc.AddToCompletedOrganizations).Methods("PUT")
+	router.HandleFunc("/users/{id}/deleteOrg/{orgId}/completedOrganizations", uc.DeleteFromCompletedOrganizations).Methods("PUT")
+	router.HandleFunc("/users/{id}/orgs/{orgId}/inProgressOrganizations", uc.AddToinProgressOrganizations).Methods("PUT")
+	router.HandleFunc("/users/{id}/deleteOrg/{orgId}/inProgressOrganizations", uc.DeleteFrominProgressOrganizations).Methods("PUT")
 
 	// organizations
 	router.HandleFunc("/organizations", oc.CreateOrganization)
