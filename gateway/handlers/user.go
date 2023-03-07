@@ -3,7 +3,9 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -157,6 +159,7 @@ func NewUserController(s *mongo.Client) *UserController {
 	return &UserController{s}
 }
 
+// refactor this to read user input from the body... - to do
 func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
@@ -728,4 +731,121 @@ func (uc UserController) DeleteFrominProgressOrganizations(w http.ResponseWriter
 	uc.session.Database("mongodb").Collection("usersTest").UpdateOne(context.TODO(), selector, change)
 
 	uc.session.Database("mongodb").Collection("organizations").UpdateOne(context.TODO(), o_selector, o_change)
+}
+
+//====================================================UPDATE USER NOTES===========================================================
+
+// proper POST request
+// this function to be refactored; new name "GetNoteBody"
+func (uc UserController) CreateNote(r *http.Request, n *Note) error {
+
+	if r.Body == nil {
+		return errors.New("request body is empty")
+	}
+
+	if n == nil {
+		return errors.New("a note is required")
+	}
+
+	postBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return err
+	}
+	// unmarshall data from request body - this to be returned and function to end here after refactor
+	json.Unmarshal(postBody, &n)
+
+	// this goes in separate post function; new name "NoteToPostNote"
+
+	// Create BSON ID
+	n.NoteID = primitive.NewObjectID()
+
+	// create new note - this should be in separate function
+	uc.session.Database("mongodb").Collection("notes").InsertOne(context.TODO(), &n)
+
+	// encode/decode for sending/receiving JSON to/from a stream
+	return json.NewDecoder(r.Body).Decode(&n)
+
+}
+
+func (uc UserController) AddNoteID(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "applications/json")
+
+	// Resource in URI
+	// userId
+	// orgId
+	// noteId
+
+	params := mux.Vars(r)
+
+	u := params["userId"]
+	o := params["orgId"]
+	n := params["noteId"]
+
+	uid, err := primitive.ObjectIDFromHex(u)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	oid, err := primitive.ObjectIDFromHex(o)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	nid, err := primitive.ObjectIDFromHex(n)
+	if err != nil {
+		fmt.Println("ObjectIDFromHex ERROR:", err)
+	}
+
+	// grab user
+	u_selector := bson.M{
+		"_id": bson.M{
+			"$eq": uid,
+		},
+	}
+
+	// add note reference to user notes
+	u_change := bson.M{
+		"$addToSet": bson.M{
+			"notes": nid,
+		},
+	}
+
+	// grab org
+	o_selector := bson.M{
+		"_id": bson.M{
+			"$eq": oid,
+		},
+	}
+
+	// add note reference to org notes
+	o_change := bson.M{
+		"$addToSet": bson.M{
+			"orgNotes": nid,
+		},
+	}
+
+	// grab note
+	n_selector := bson.M{
+		"_id": bson.M{
+			"$eq": nid,
+		},
+	}
+
+	// update note with orgID && userID
+	n_change := bson.M{
+		"$addToSet": bson.M{
+			"userID": uid,
+			"orgID":  oid,
+		},
+	}
+
+	// associate note with user
+	uc.session.Database("mongodb").Collection("usersTest").UpdateOne(context.TODO(), u_selector, u_change)
+
+	// associate note with organization
+	uc.session.Database("mongodb").Collection("organizations").UpdateOne(context.TODO(), o_selector, o_change)
+
+	// update note
+	uc.session.Database("mongodb").Collection("notes").UpdateOne(context.TODO(), n_selector, n_change)
+
 }

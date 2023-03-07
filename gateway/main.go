@@ -1,6 +1,7 @@
 package main
 
 import (
+	"NWHCP-server/gateway/handlers"
 	"context"
 	"crypto/tls"
 	"encoding/json"
@@ -19,6 +20,7 @@ import (
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2/bson"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -183,11 +185,11 @@ func main() {
 	router.HandleFunc("/allUsers", uc.GetUsers).Methods("GET")
 	router.HandleFunc("/users/{id}", uc.GetUserByID).Methods("GET")
 	router.HandleFunc("/users", uc.CreateUser).Methods("POST")
+	router.HandleFunc("/deleteUsers/{id}", uc.DeleteUserByID).Methods("DELETE")
 
-	// Routes for User Orgs
+	// Routes for User Orgs --Need to refactor; UserRouter and UserHandler funcs
 	router.HandleFunc("/users/{id}/orgs/{orgsid}/favoritedOrgs", uc.AddOrgToFavorite).Methods("PUT")
 	router.HandleFunc("/users/{id}/deleteOrg/{orgsid}/favoritedOrgs", uc.DeleteOrgFavorite).Methods("DELETE")
-	router.HandleFunc("/deleteUsers/{id}", uc.DeleteUserByID).Methods("DELETE")
 	router.HandleFunc("/users/{id}/orgs/{orgId}/pathwayPrograms", uc.AddToPathwayOrganizations).Methods("PUT")
 	router.HandleFunc("/users/{id}/deleteOrg/{orgId}/pathwayOrganizations", uc.DeleteFromPathwayOrganizations).Methods("DELETE")
 	router.HandleFunc("/users/{id}/orgs/{orgId}/academicOrganizations", uc.AddToAcademicOrganizations).Methods("PUT")
@@ -196,6 +198,21 @@ func main() {
 	router.HandleFunc("/users/{id}/deleteOrg/{orgId}/completedOrganizations", uc.DeleteFromCompletedOrganizations).Methods("DELETE")
 	router.HandleFunc("/users/{id}/orgs/{orgId}/inProgressOrganizations", uc.AddToinProgressOrganizations).Methods("PUT")
 	router.HandleFunc("/users/{id}/deleteOrg/{orgId}/inProgressOrganizations", uc.DeleteFrominProgressOrganizations).Methods("DELETE")
+
+	// beginning routes refactor and Notes resource handlers 03/06
+
+	// reduce notes function
+	// remove trailing slash endpoint after development of user accounts
+	http.HandleFunc("/notes/", notesRouter)
+	http.HandleFunc("/notes", notesRouter)
+
+	// Routes for User Notes
+
+	// router.HandleFunc("/notes", uc.CreateNote).Methods("POST")
+	router.HandleFunc("users/{userId}/notes/{noteId}/orgs/{orgId}/notes/{noteId}", uc.AddNoteID).Methods("PUT")
+	// router.HandleFunc("/allNotes", uc.GetNotes).Methods("GET")
+	// router.HandleFunc("/notes/{id}", uc.GetNoteByID).Methods("GET")
+	// router.HandleFunc("/deleteNote/{id}", uc.DeleteNoteByID).Methods("DELETE")
 
 	// organizations
 	router.HandleFunc("/organizations", oc.CreateOrganization)
@@ -218,6 +235,111 @@ func main() {
 
 	// log.Fatal(http.ListenAndServe(addr, router))
 	log.Fatal(http.ListenAndServe(addr, handlers.NewPreflight(router)))
+
+}
+
+// move to handlers
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("asset not found\n"))
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Running NWHCP API v4\n"))
+}
+
+// -Notes Router
+func notesRouter(w http.ResponseWriter, r *http.Request) {
+
+	// start mongo server to get organization information
+	mongoAddr := getenv("MONGO_ADDR", "mongodb://127.0.0.1:27017")
+
+	// start Redis server to get cache
+	redisAddr := getenv("REDIS_ADDR", "127.0.0.1:6379")
+	redisPass := getenv("REDIS_PASS", "")
+	redisTls := getenv("REDIS_TLS", "")
+
+	// mongodb driver boilerplate
+	clientOptions := options.Client().ApplyURI(mongoAddr)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	mongoSession, err := mongo.Connect(ctx, clientOptions)
+	if err != nil {
+		fmt.Println("Error dialing dbaddr: ", err)
+	} else {
+		fmt.Println("MongoDb Connect Success!")
+	}
+
+	// orgStore, _ := orgs.NewOrgStore(mongoSession, mongoDb, mongoCol)
+
+	// org details
+	// hctx := &handlers.HandlerContext{
+	// 	OrgStore: orgStore,
+	// }
+
+	// redis
+	rclient := redis.NewClient(&redis.Options{
+		Addr:     redisAddr,
+		Password: redisPass,
+		DB:       0,
+	})
+
+	if len(redisTls) > 0 {
+		rclient = redis.NewClient(&redis.Options{
+			TLSConfig: &tls.Config{
+				MinVersion:         tls.VersionTLS12,
+				ServerName:         redisTls,
+				InsecureSkipVerify: true,
+			},
+			Addr:     redisAddr,
+			Password: redisPass,
+			DB:       0,
+		})
+	}
+
+	err = rclient.Set("key", "value", 0).Err()
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		fmt.Println("Redis Connect Success!")
+	}
+
+	uc := handlers.NewUserController(mongoSession)
+	// default request path; trim '/' at the end
+	path := strings.TrimSuffix(r.URL.Path, "/")
+
+	// compare path to '/notes/'
+	if path == "/notes" {
+		switch r.Method {
+		case http.MethodPost:
+			uc.CreateNote(r, n)
+			return
+		default:
+			handlers.PostError(w, http.StatusMethodNotAllowed)
+		}
+	}
+
+	// grab resource ID from params
+	path = strings.TrimPrefix(path, "/users/")
+
+	if !primitive.IsValidObjectID(path) {
+		handlers.PostError(w, http.StatusNotFound)
+		return
+	}
+
+	// parse ID into separate variable
+	id := primitive.ObjectIDFromHex(path)
+
+	if path == "/notes/" {
+		switch r.Method {
+		case http.MethodPost:
+			CreateNote(w, r, id)
+			return
+		default:
+			handlers.PostError(w, http.StatusMethodNotAllowed)
+		}
+	}
 
 }
 
