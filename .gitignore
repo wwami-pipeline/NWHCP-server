@@ -9,3 +9,4 @@ gateway
 *.idea
 *.rdb
 pipeline-db
+*DS_store
