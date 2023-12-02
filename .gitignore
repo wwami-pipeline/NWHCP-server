@@ -8,3 +8,4 @@ docker.env
 *.idea
 *.rdb
 pipeline-db
+._.DS_Store
